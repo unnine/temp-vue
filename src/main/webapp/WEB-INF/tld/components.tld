@@ -5,8 +5,15 @@
         version="2.1">
 
     <tlib-version>1.0</tlib-version>
-    <short-name>layout</short-name>
+    <short-name>components</short-name>
+    <uri>http://components</uri>
 
-
+    <tag-file>
+        <name>Input</name>
+        <path>/WEB-INF/tags/components/entry/Input.tag</path>
+<!--        <example>-->
+<!--            <::Input></::Input>-->
+<!--        </example>-->
+    </tag-file>
 
 </taglib>
