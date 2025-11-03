@@ -1,3 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 <%@ taglib prefix="_" uri="http://components" %>
+
+<html>
+    <head>
+        <title>imports</title>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "event": "${pageContext.request.contextPath}/js/event/index.js"
+               }
+            }
+        </script>
+    </head>
+    <body>
+    ${pageContext.request.contextPath}
+    </body>
+</html>
