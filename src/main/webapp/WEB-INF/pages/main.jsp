@@ -1,15 +1,25 @@
+<c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}" />
+
 <html>
 <head>
     <title>Title</title>
 </head>
 <body>
-<_:Input name="qwdqwd345435" />
+    <div c-id="${componentId}">
+        <_:Input name="qwdqwd345435" onClick="clicker" />
+    </div>
 </body>
 <script type="module">
-    import { EventBus } from 'store';
+    import { dom } from 'dom';
+    import { eventBus } from 'event';
 
-    EventBus.on('qwdqwd345435', e => {
-       console.log(e);
+    dom.newComponent({
+        id: '${componentId}',
+        methods: {
+          clicker(e) {
+              console.log(e);
+          }
+        },
     });
 </script>
 </html>

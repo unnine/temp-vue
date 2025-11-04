@@ -1,5 +1,5 @@
-import EventBus from "./EventBus.js";
+import { eventBus } from "./eventBus.js";
 
 export {
-    EventBus
+    eventBus
 };

@@ -41,7 +41,7 @@
     <jsp-config>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>
-            <include-prelude>/WEB-INF/tags/components/imports.jspf</include-prelude>
+            <include-prelude>/WEB-INF/tags/components/page-imports.jspf</include-prelude>
         </jsp-property-group>
     </jsp-config>
 
