@@ -5,28 +5,23 @@
 
 <c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}" />
 
-<div c-id="${componentId}">
+<div component-id="${componentId}">
     Input:
     <label>
-        ${componentId}
-        ${name}
-        ${onClick}
         <input type="text" />
-        <button c-id="ok"></button>
+        <button e-id="ok">Input</button>
     </label>
 </div>
 
 <script type="module">
     import {dom} from 'dom';
-    import {eventBus} from 'event';
 
     const component = dom.newComponent({
         id: `${componentId}`,
     });
 
-    const okButton = component
-        .button('ok')
-        .on('click', e => eventBus.emit('${onClick}', e));
+    const okButton = component.find('ok').on('click', e => {
+        component.invokeParent('${onClick}', e);
+    });
 
-    okButton.click();
 </script>

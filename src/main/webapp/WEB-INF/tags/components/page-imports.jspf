@@ -11,8 +11,7 @@
         <script type="importmap">
             {
                 "imports": {
-                    "dom": "${pageContext.request.contextPath}/js/dom/index.js",
-                    "event": "${pageContext.request.contextPath}/js/event/index.js"
+                    "dom": "${pageContext.request.contextPath}/js/dom/index.js"
                }
             }
         </script>
