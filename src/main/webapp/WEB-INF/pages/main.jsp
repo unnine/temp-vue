@@ -8,8 +8,8 @@
 
 <body>
     <div component-id="${componentId}">
-        <_:Input name="name1" onClick="onClickHandler1"/>
-        <_:Input name="name2" onClick="onClickHandler2"/>
+        <_:Input _props="input1" onClick="onClickHandler1" />
+        <_:Input name="name2" onClick="onClickHandler2" />
 
         <button c-id="ok">Main</button>
 
@@ -29,6 +29,19 @@
 
     const component = dom.newComponent({
         id: '${componentId}',
+        mounted() {
+            console.log(this);
+            console.log(this.$data.input1.name);
+            this.$data.input1.name = 'bbb';
+            console.log(this.$data.input1.name);
+        },
+        data() {
+            return {
+                input1: {
+                    name: 'name1',
+                },
+            }
+        },
         methods: {
             onClickHandler1(e) {
                 console.log(`handler1: ${e}`, this);
@@ -45,17 +58,16 @@
         },
     });
 
-    console.log(component);
-
-    const form = component.form('form');
-    console.log(form.toJson());
-
-    form.setValue('c', 111);
-    form.setValue('e', 555);
-    console.log(form.toJson());
-
-    form.clear();
-    console.log(form.toJson());
+    // console.log('parent', component);
+    // const form = component.form('form');
+    // console.log(form.toJson());
+    //
+    // form.setValue('c', 111);
+    // form.setValue('e', 555);
+    // console.log(form.toJson());
+    //
+    // form.clear();
+    // console.log(form.toJson());
 
 </script>
 </html>
