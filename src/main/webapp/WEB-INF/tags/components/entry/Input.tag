@@ -1,8 +1,7 @@
 <%@ include file="../tag-imports.tag"%>
-
 <%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
-
 <c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}" />
+
 
 <div component-id="${componentId}">
     Input:
@@ -18,7 +17,7 @@
     const component = dom.newComponent({
         id: `${componentId}`,
         mounted() {
-            console.log('mounted:', this);
+            // console.log('mounted:', this);
         },
         bindParentData: {
             name: `${_dataName}`,
@@ -26,11 +25,11 @@
                 name: {
                     type: 'String',
                     required: true,
-                    init() {
-
+                    init(value) {
+                        // console.log(value);
                     },
                     watch(newValue, oldValue) {
-                        console.log(newValue, oldValue);
+                        // console.log(newValue, oldValue);
                     },
                 },
                 readOnly: {
@@ -42,7 +41,7 @@
 
                     },
                 },
-                onClick: {
+                click: {
                     type: 'Function',
                 }
             },
@@ -50,7 +49,7 @@
     });
 
     const okButton = component.find('ok').on('click', e => {
-        component.$props.onClick(e);
+        component.$props.click(e);
     });
 
 </script>

@@ -67,7 +67,7 @@ class Component {
     #props = {};
     #propsData = {};
     #data = {};
-    #_dataProxy = {};
+    #dataProxy = {};
     #children = [];
     #methods = {};
     #bindingInstance = {};
@@ -78,7 +78,6 @@ class Component {
 
     constructor(options) {
         this.#initProps(options);
-        this.#initAsyncProps(options);
         this.#initBindingInstance();
         componentsConnector.add(this.#$el, this);
         return this.#bindingInstance;
@@ -89,6 +88,7 @@ class Component {
         const {
             id,
             bindParentData,
+            data,
             methods,
             mounted,
         } = options;
@@ -114,19 +114,25 @@ class Component {
                     defaultValue = null,
                     type = 'String',
                     required = false,
-                    watch = () => {
-                    }
+                    init = () => {},
+                    watch = () => {},
                 } = o ?? {};
 
                 this.#bindParentData.props[name] = {
                     type,
                     required,
                     defaultValue,
+                    init: init.bind(this.#bindingInstance),
                     watch: watch.bind(this.#bindingInstance),
                 };
 
                 this.#propsData[name] = null;
             });
+        }
+
+        if (data && typeof data === 'function') {
+            this.#data = data.call(this.#bindingInstance);
+            this.#dataProxy = objectUtil.copy(this.#data);
         }
 
         if (methods) {
@@ -140,27 +146,17 @@ class Component {
         }
     }
 
-    async #initAsyncProps(options) {
-        const {
-            data,
-        } = options;
-
-        if (data && typeof data === 'function') {
-            this.#data = await data.call(this.#bindingInstance);
-        }
-    }
-
     _bindingDataToChildrenProps() {
         const data = this.#data;
-        const proxy = this.#_dataProxy;
+        const proxy = this.#dataProxy;
         const children = this.#children;
 
         this.#setValueToChildProps();
 
         children.forEach(child => {
            const { name, props: childProps } = child._bindParentData();
-           const childPropsData = child._propsData();
            const { data: target, path: parentDataPath } = objectUtil.findFirst(proxy, name);
+           const childPropsData = child._propsData();
 
            if (!target) {
                return;
@@ -178,7 +174,8 @@ class Component {
 
                        const { type, required, watch } = childProps[key];
 
-                       if ((typeof newValue).toLowerCase() !== type.toLowerCase()) {
+                       if ((type.toLowerCase() === 'array' && Array.isArray(newValue)) ||
+                           ((typeof newValue).toLowerCase() !== type.toLowerCase())) {
                            console.warn(`invalid type. '${key}' must be '${type}'. but '${newValue}' is '${typeof newValue}'`);
                        }
                        if (required && !newValue) {
@@ -199,38 +196,25 @@ class Component {
 
     #setValueToChildProps() {
         const data = this.#data;
-        const proxy = this.#_dataProxy;
         const children = this.#children;
 
-        Object.entries(data).forEach(([key, value]) => {
-            proxy[key] = objectUtil.copy(value);
+        children.forEach(child => {
+           const { name, props } = child._bindParentData();
+           const { data: target } = objectUtil.findFirst(data, name);
+            const childPropsData = child._propsData();
 
-            children.forEach(childInstance => {
-                const bindParentData = childInstance._bindParentData();
-                if (!bindParentData) {
-                    return;
-                }
+           if (!target) {
+               return;
+           }
 
-                const { name, props } = bindParentData;
-                const { data: propData } = objectUtil.findFirst(data, name);
-
-                if (!propData) {
-                    return;
-                }
-
-                const childPropsData = childInstance._propsData();
-
-                Object.entries(propData).forEach(([key, value]) => {
-                    if (!Object.hasOwn(props, key)) {
-                        return;
-                    }
-                    if (!value) {
-                        childPropsData[key] = props[key]?.defaultValue;
-                        return;
-                    }
-                    childPropsData[key] = value;
-                });
-            });
+           Object.entries(target).forEach(([key, value]) => {
+              if (!Object.hasOwn(props, key)) {
+                  return;
+              }
+               const { defaultValue, init } = props[key];
+               childPropsData[key] = value ? value : defaultValue;
+               init(value);
+           });
         });
     }
 
@@ -241,7 +225,7 @@ class Component {
     #initBindingInstance() {
         this.#bindingInstance.$id = this.#id;
         this.#bindingInstance.$el = this.#$el;
-        this.#bindingInstance.$data = this.#_dataProxy;
+        this.#bindingInstance.$data = this.#dataProxy;
         this.#bindingInstance.$props = this.#propsData;
         this.#bindingInstance.find = this.find;
         this.#bindingInstance.form = this.form;

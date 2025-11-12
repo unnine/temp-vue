@@ -8,19 +8,20 @@
 
 <body>
     <div component-id="${componentId}">
-        <_:Input _dataName="input1" />
-        <_:Input _dataName="input1" />
+        <_:Form _dataName="forms" />
+<%--        <_:Input _dataName="input1" />--%>
+<%--        <_:Input _dataName="input1" />--%>
 
-        <button c-id="ok">Main</button>
+<%--        <button c-id="ok">Main</button>--%>
 
-        <form e-id="form">
-            <input type="text" name="a" value="1" />
-            <input type="password" name="b" value="2" />
-            <input type="hidden" name="c" value="3" />
-            <input type="checkbox" name="d" value="apple" checked />
-            <input type="checkbox" name="d" value="watermelon" checked />
-            <textarea name="e" >5</textarea>
-        </form>
+<%--        <form e-id="form">--%>
+<%--            <input type="text" name="a" value="1" />--%>
+<%--            <input type="password" name="b" value="2" />--%>
+<%--            <input type="hidden" name="c" value="3" />--%>
+<%--            <input type="checkbox" name="d" value="apple" checked />--%>
+<%--            <input type="checkbox" name="d" value="watermelon" checked />--%>
+<%--            <textarea name="e" >5</textarea>--%>
+<%--        </form>--%>
     </div>
 </body>
 
@@ -30,17 +31,33 @@
     const component = dom.newComponent({
         id: '${componentId}',
         mounted() {
-            console.log(this);
-            console.log(this.$data.input1.name);
+            console.log(this.$data);
             this.$data.input1.name = 'bbb';
-            console.log(this.$data.input1.name);
         },
         data() {
-            console.log(this);
             return {
                 input1: {
                     name: 'name1',
-                    onClick: (e) => this.onClickHandler1(e),
+                    click: (e) => this.onClickHandler1(e),
+                },
+                forms: {
+                  values: [
+                      {
+                          name: 'a',
+                          age: 10,
+                          phone: '010-1111-1111',
+                      },
+                      {
+                          name: 'b',
+                          age: 12,
+                          phone: '010-2222-2222',
+                      },
+                      {
+                          name: 'c',
+                          age: 14,
+                          phone: '010-3333-3333',
+                      },
+                  ],
                 },
             }
         },
