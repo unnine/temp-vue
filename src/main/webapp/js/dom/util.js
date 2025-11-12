@@ -40,14 +40,6 @@ export const objectUtil = {
       return results[0];
     },
 
-    writeValue(o, t) {
-      Object.entries(o).forEach(([key, value]) => {
-         if (Object.hasOwn(t, key)) {
-             t[key] = value;
-         }
-      });
-    },
-
     getValue(obj, path) {
         const keys = Array.isArray(path) ? path : path.split('.');
         return keys.reduce((acc, key) => {

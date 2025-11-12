@@ -8,8 +8,8 @@
 
 <body>
     <div component-id="${componentId}">
-        <_:Input _props="input1" onClick="onClickHandler1" />
-        <_:Input name="name2" onClick="onClickHandler2" />
+        <_:Input _dataName="input1" />
+        <_:Input _dataName="input1" />
 
         <button c-id="ok">Main</button>
 
@@ -36,9 +36,11 @@
             console.log(this.$data.input1.name);
         },
         data() {
+            console.log(this);
             return {
                 input1: {
                     name: 'name1',
+                    onClick: (e) => this.onClickHandler1(e),
                 },
             }
         },

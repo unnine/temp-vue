@@ -1,4 +1,3 @@
-import {eventBus} from "./eventBus.js";
 import Element from "./element.js";
 import Form from "./form.js";
 import { objectUtil } from './util.js';
@@ -73,8 +72,7 @@ class Component {
     #methods = {};
     #bindingInstance = {};
     #lifeCycle = {
-        mounted() {
-        },
+        mounted() {},
     };
 
 
@@ -82,7 +80,6 @@ class Component {
         this.#initProps(options);
         this.#initAsyncProps(options);
         this.#initBindingInstance();
-        this.#registerEventHandlers();
         componentsConnector.add(this.#$el, this);
         return this.#bindingInstance;
     }
@@ -114,6 +111,7 @@ class Component {
 
             Object.entries(props).forEach(([name, o]) => {
                 const {
+                    defaultValue = null,
                     type = 'String',
                     required = false,
                     watch = () => {
@@ -123,6 +121,7 @@ class Component {
                 this.#bindParentData.props[name] = {
                     type,
                     required,
+                    defaultValue,
                     watch: watch.bind(this.#bindingInstance),
                 };
 
@@ -147,7 +146,7 @@ class Component {
         } = options;
 
         if (data && typeof data === 'function') {
-            this.#data = await data();
+            this.#data = await data.call(this.#bindingInstance);
         }
     }
 
@@ -212,13 +211,25 @@ class Component {
                     return;
                 }
 
-                const { data: propData } = objectUtil.findFirst(data, bindParentData.name);
+                const { name, props } = bindParentData;
+                const { data: propData } = objectUtil.findFirst(data, name);
+
                 if (!propData) {
                     return;
                 }
 
                 const childPropsData = childInstance._propsData();
-                objectUtil.writeValue(propData, childPropsData);
+
+                Object.entries(propData).forEach(([key, value]) => {
+                    if (!Object.hasOwn(props, key)) {
+                        return;
+                    }
+                    if (!value) {
+                        childPropsData[key] = props[key]?.defaultValue;
+                        return;
+                    }
+                    childPropsData[key] = value;
+                });
             });
         });
     }
@@ -233,7 +244,6 @@ class Component {
         this.#bindingInstance.$data = this.#_dataProxy;
         this.#bindingInstance.$props = this.#propsData;
         this.#bindingInstance.find = this.find;
-        this.#bindingInstance.invokeParent = this.invokeParent;
         this.#bindingInstance.form = this.form;
 
         Object.entries(this.#methods).forEach(([methodName, method]) => {
@@ -241,12 +251,6 @@ class Component {
         });
 
         Object.freeze(this.#bindingInstance);
-    }
-
-    #registerEventHandlers() {
-        Object.entries(this.#methods).forEach(([handlerName, handler]) => {
-            eventBus.addEventHandler(this.#$el, handlerName, handler);
-        });
     }
 
     _addChildInstance(childComponentInstance) {
@@ -267,11 +271,6 @@ class Component {
 
     form = function (elementId) {
         return new Form(this.#id, elementId);
-    }.bind(this);
-
-    invokeParent = function (handlerName, args) {
-        const parentComponent = this.#$el.parentElement.closest('[component-id]');
-        eventBus.emit(parentComponent, handlerName, args);
     }.bind(this);
 
 }
