@@ -1,6 +1,7 @@
 import Element from "./element.js";
 import Form from "./form.js";
 import { objectUtil } from './util.js';
+import { request } from '../http/http.js';
 
 const componentsConnector = new class ComponentsConnector {
 
@@ -60,7 +61,7 @@ class Component {
 
     #id;
     #$el;
-    #bindParentData = {
+    #bindData = {
         name: null,
         props: {},
     };
@@ -87,7 +88,7 @@ class Component {
     #initProps(options) {
         const {
             id,
-            bindParentData,
+            bindData,
             data,
             methods,
             mounted,
@@ -104,21 +105,21 @@ class Component {
             throw new Error(`component with id '${id}' not found in DOM. make sure the component is rendered before initializing.`);
         }
 
-        if (bindParentData) {
-            const { name, props } = bindParentData;
+        if (bindData) {
+            const { name, props } = bindData;
 
-            this.#bindParentData.name = name;
+            this.#bindData.name = name;
 
             Object.entries(props).forEach(([name, o]) => {
                 const {
-                    defaultValue = null,
+                    defaultValue = '',
                     type = 'String',
                     required = false,
                     init = () => {},
                     watch = () => {},
                 } = o ?? {};
 
-                this.#bindParentData.props[name] = {
+                this.#bindData.props[name] = {
                     type,
                     required,
                     defaultValue,
@@ -131,7 +132,7 @@ class Component {
         }
 
         if (data && typeof data === 'function') {
-            this.#data = data.call(this.#bindingInstance);
+            this.#data = objectUtil.copy(data());
             this.#dataProxy = objectUtil.copy(this.#data);
         }
 
@@ -154,7 +155,7 @@ class Component {
         this.#setValueToChildProps();
 
         children.forEach(child => {
-           const { name, props: childProps } = child._bindParentData();
+           const { name, props: childProps } = child._bindData();
            const { data: target, path: parentDataPath } = objectUtil.findFirst(proxy, name);
            const childPropsData = child._propsData();
 
@@ -199,7 +200,7 @@ class Component {
         const children = this.#children;
 
         children.forEach(child => {
-           const { name, props } = child._bindParentData();
+           const { name, props } = child._bindData();
            const { data: target } = objectUtil.findFirst(data, name);
             const childPropsData = child._propsData();
 
@@ -207,13 +208,17 @@ class Component {
                return;
            }
 
-           Object.entries(target).forEach(([key, value]) => {
-              if (!Object.hasOwn(props, key)) {
-                  return;
-              }
-               const { defaultValue, init } = props[key];
-               childPropsData[key] = value ? value : defaultValue;
-               init(value);
+           Object.entries(props).forEach(([key, options]) => {
+               const { defaultValue, init } = options;
+
+               if (Object.hasOwn(target, key)) {
+                   childPropsData[key] = target[key] ? target[key] : defaultValue;
+                   init(childPropsData[key]);
+                   return;
+               }
+
+               childPropsData[key] = defaultValue;
+               init(childPropsData[key]);
            });
         });
     }
@@ -227,8 +232,9 @@ class Component {
         this.#bindingInstance.$el = this.#$el;
         this.#bindingInstance.$data = this.#dataProxy;
         this.#bindingInstance.$props = this.#propsData;
-        this.#bindingInstance.find = this.find;
-        this.#bindingInstance.form = this.form;
+        this.#bindingInstance.$request = request;
+        this.#bindingInstance.$find = this.#find;
+        this.#bindingInstance.$findForm = this.#findForm;
 
         Object.entries(this.#methods).forEach(([methodName, method]) => {
             this.#bindingInstance[methodName] = method;
@@ -241,19 +247,19 @@ class Component {
         this.#children.push(childComponentInstance);
     }
 
-    _bindParentData() {
-        return this.#bindParentData;
+    _bindData() {
+        return this.#bindData;
     }
 
     _propsData() {
         return this.#propsData;
     }
 
-    find = function (elementId) {
+    #find = function(elementId) {
         return new Element(this.#id, elementId);
     }.bind(this);
 
-    form = function (elementId) {
+    #findForm = function(elementId) {
         return new Form(this.#id, elementId);
     }.bind(this);
 

@@ -1,65 +1,64 @@
+<%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}"/>
 
 <html>
-
-<head>
-    <title>Title</title>
-</head>
-
 <body>
     <div component-id="${componentId}">
-        <_:Form _dataName="forms" />
-<%--        <_:Input _dataName="input1" />--%>
-<%--        <_:Input _dataName="input1" />--%>
-
-<%--        <button c-id="ok">Main</button>--%>
-
-<%--        <form e-id="form">--%>
-<%--            <input type="text" name="a" value="1" />--%>
-<%--            <input type="password" name="b" value="2" />--%>
-<%--            <input type="hidden" name="c" value="3" />--%>
-<%--            <input type="checkbox" name="d" value="apple" checked />--%>
-<%--            <input type="checkbox" name="d" value="watermelon" checked />--%>
-<%--            <textarea name="e" >5</textarea>--%>
-<%--        </form>--%>
+        <_:Form _dataName="form"/>
     </div>
 </body>
 
 <script type="module">
-    import {dom} from 'dom';
+    import { dom, FormBuilder } from 'dom';
 
     const component = dom.newComponent({
         id: '${componentId}',
         mounted() {
-            console.log(this.$data);
-            this.$data.input1.name = 'bbb';
+            this.$request()
+                .get('https://api.restful-api.dev/objects', { a: 1 })
+                .then(({ data }) => {
+                    console.log(this.$data.forms[0].label);
+                    this.$data.forms[0].label = data[0].name;
+                    console.log(this.$data.forms[0].label);
+                });
         },
         data() {
+            const forms = FormBuilder.builder('form')
+                .Input('sample1', '아이디1')
+                .InputPassword('sample2', '비밀번호1')
+                .InputNumber('sample3', '나이1')
+                .Textarea('sample4', '비고1')
+                .Input('sample5', '아이디2')
+                .InputPassword('sample6', '비밀번호2')
+                .InputNumber('sample7', '나이2')
+                .Textarea('sample8', '비고2')
+                .Input('sample9', '아이디3')
+                .InputPassword('sample10', '비밀번호3')
+                .InputNumber('sample11', '나이3')
+                .Textarea('sample12', '비고3')
+                .Input('sample13', '아이디4')
+                .InputPassword('sample14', '비밀번호4')
+                .InputNumber('sample15', '나이4')
+                .Textarea('sample16', '비고4')
+                .Input('sample17', '아이디5')
+                .InputPassword('sample18', '비밀번호5')
+                .InputNumber('sample19', '나이5')
+                .Textarea('sample20', '비고5')
+                .build();
+
             return {
-                input1: {
-                    name: 'name1',
-                    click: (e) => this.onClickHandler1(e),
+                forms,
+                form: {
+                    countPerRow: 4,
+                    // title: '테스트 폼',
+                    onInput: ({ item, originEvent }) => {
+                        const { data } = this.$data.form;
+                        data[item.name] = originEvent.target.value;
+                    },
+                    data: {},
+                    content: forms
                 },
-                forms: {
-                  values: [
-                      {
-                          name: 'a',
-                          age: 10,
-                          phone: '010-1111-1111',
-                      },
-                      {
-                          name: 'b',
-                          age: 12,
-                          phone: '010-2222-2222',
-                      },
-                      {
-                          name: 'c',
-                          age: 14,
-                          phone: '010-3333-3333',
-                      },
-                  ],
-                },
-            }
+            };
         },
         methods: {
             onClickHandler1(e) {
@@ -76,17 +75,6 @@
             }
         },
     });
-
-    // console.log('parent', component);
-    // const form = component.form('form');
-    // console.log(form.toJson());
-    //
-    // form.setValue('c', 111);
-    // form.setValue('e', 555);
-    // console.log(form.toJson());
-    //
-    // form.clear();
-    // console.log(form.toJson());
 
 </script>
 </html>

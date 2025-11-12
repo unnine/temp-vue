@@ -1,4 +1,5 @@
 import Component from "./component.js";
+import FormBuilder from "./formBuilder.js";
 
 
 const dom = {
@@ -9,5 +10,6 @@ const dom = {
 
 
 export {
-    dom
+    dom,
+    FormBuilder,
 }

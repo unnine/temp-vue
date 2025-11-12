@@ -1,3 +1,5 @@
+import FormRenderer from "./formRenderer.js";
+
 export default class Element {
 
     _componentId;
@@ -16,6 +18,7 @@ export default class Element {
 
     _findElementById(id) {
         const $el = document.querySelector(`[component-id="${this._componentId}"] [e-id="${id}"]`);
+
         if (!$el || !($el instanceof HTMLElement)) {
             throw new Error(`Cannot find element with id ${id}`);
         }
@@ -48,6 +51,46 @@ export default class Element {
     emit(eventName) {
         const event = new Event(eventName, { bubbles: true });
         this._$el.dispatchEvent(event);
+        return this;
+    }
+
+    append($html) {
+        if (Array.isArray($html)) {
+            $html.forEach($el => this._$el.append($el));
+            return this;
+        }
+        this._$el.append($html);
+        return this;
+    }
+
+    addClass(className) {
+        this._$el.classList.add(className);
+        return this;
+    }
+
+    removeClass(className) {
+        this._$el.classList.remove(className);
+        return this;
+    }
+
+    addStyle(key, value) {
+        this._$el.style[key] = value;
+        return this;
+    }
+
+    removeStyle(key) {
+        this._$el.style[key] = null;
+        return this;
+    }
+
+    render(formValues) {
+        FormRenderer.render(this._$el, formValues);
+        return this;
+    }
+
+    clear() {
+        this._$el.replaceChildren();
+        return this;
     }
 
 }

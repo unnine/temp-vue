@@ -1,0 +1,52 @@
+.form-base {
+    overflow: auto;
+    display: grid;
+    border-top: 1px solid rgb(231, 231, 231);
+}
+
+.form-item {
+    position: relative;
+    margin: 4px 10px;
+}
+
+.form-item__label {
+    position: relative;
+    display: inline;
+    z-index: 2;
+    font-size: 1.02rem;
+    font-weight: 500;
+    background-color: rgb(255, 255, 255);
+    top: 8px;
+    left: 5px;
+    padding: 0 6px;
+}
+
+.form-element__input-text,
+.form-element__input-password,
+.form-element__input-number,
+.form-element__textarea {
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 2px;
+}
+
+input[type=text],
+input[type=password],
+input[type=number],
+textarea {
+    border-width: 0;
+    font-size: 0.95rem;
+    width: 100%;
+    padding: 8px 6px 6px 10px;
+    min-height: 24px;
+}
+
+input:focus {
+    outline: 1px solid var(--selection-color);
+}
+
+textarea:focus {
+    outline: none;
+    border: 1px solid var(--selection-color);
+}

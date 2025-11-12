@@ -1,3 +1,4 @@
+<%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag"%>
 <%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
 <c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}" />
@@ -19,7 +20,7 @@
         mounted() {
             // console.log('mounted:', this);
         },
-        bindParentData: {
+        bindData: {
             name: `${_dataName}`,
             props: {
                 name: {
