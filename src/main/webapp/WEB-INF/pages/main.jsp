@@ -9,54 +9,57 @@
 </body>
 
 <script type="module">
-    import { dom, FormBuilder } from 'dom';
+    import { newComponent } from 'dom';
+    import { FormBuilder, FormUtil } from 'form';
 
-    const component = dom.newComponent({
+    const component = newComponent({
         id: '${componentId}',
         mounted() {
+            setTimeout(() => this.$data.form.title ='qwdqwd', 1000);
+
             this.$request()
-                .get('https://api.restful-api.dev/objects', { a: 1 })
+                .get('https://jsonplaceholder.typicode.com/albums')
                 .then(({ data }) => {
-                    console.log(this.$data.forms[0].label);
-                    this.$data.forms[0].label = data[0].name;
-                    console.log(this.$data.forms[0].label);
+                    this.$data.form.content[0].label = data[0].title;
+                    this.$data.form.list = data;
                 });
         },
         data() {
-            const forms = FormBuilder.builder('form')
-                .Input('sample1', '아이디1')
-                .InputPassword('sample2', '비밀번호1')
-                .InputNumber('sample3', '나이1')
-                .Textarea('sample4', '비고1')
-                .Input('sample5', '아이디2')
-                .InputPassword('sample6', '비밀번호2')
-                .InputNumber('sample7', '나이2')
-                .Textarea('sample8', '비고2')
-                .Input('sample9', '아이디3')
-                .InputPassword('sample10', '비밀번호3')
-                .InputNumber('sample11', '나이3')
-                .Textarea('sample12', '비고3')
-                .Input('sample13', '아이디4')
-                .InputPassword('sample14', '비밀번호4')
-                .InputNumber('sample15', '나이4')
-                .Textarea('sample16', '비고4')
-                .Input('sample17', '아이디5')
-                .InputPassword('sample18', '비밀번호5')
-                .InputNumber('sample19', '나이5')
-                .Textarea('sample20', '비고5')
-                .build();
-
             return {
-                forms,
                 form: {
                     countPerRow: 4,
-                    // title: '테스트 폼',
+                    title: '',
                     onInput: ({ item, originEvent }) => {
                         const { data } = this.$data.form;
                         data[item.name] = originEvent.target.value;
+
+                        const formData = FormUtil.getData(this.$data.form.content);
+                        console.log(formData);
                     },
+                    list: [],
                     data: {},
-                    content: forms
+                    content: FormBuilder.builder('form')
+                        .Input('sample1', '아이디1')
+                        .InputPassword('sample2', '비밀번호1')
+                        .InputNumber('sample3', '나이1')
+                        .Textarea('sample4', '비고1')
+                        .Input('sample5', '아이디2')
+                        .InputPassword('sample6', '비밀번호2')
+                        .InputNumber('sample7', '나이2')
+                        .Textarea('sample8', '비고2')
+                        .Input('sample9', '아이디3')
+                        .InputPassword('sample10', '비밀번호3')
+                        .InputNumber('sample11', '나이3')
+                        .Textarea('sample12', '비고3')
+                        .Input('sample13', '아이디4')
+                        .InputPassword('sample14', '비밀번호4')
+                        .InputNumber('sample15', '나이4')
+                        .Textarea('sample16', '비고4')
+                        .Input('sample17', '아이디5')
+                        .InputPassword('sample18', '비밀번호5')
+                        .InputNumber('sample19', '나이5')
+                        .Textarea('sample20', '비고5')
+                        .build()
                 },
             };
         },

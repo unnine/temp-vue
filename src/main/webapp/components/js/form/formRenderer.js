@@ -13,6 +13,8 @@ class FormRenderer {
         for (let item of forms) {
             $formItem = null;
 
+            this.#initFormItem(item);
+
             const { type } = item;
 
             if (type === 'text') {
@@ -42,6 +44,10 @@ class FormRenderer {
             $nodes.push($formItem);
         }
         return $nodes;
+    }
+
+    #initFormItem(item) {
+        item._$value = '';
     }
 
     #input(item, event) {
@@ -127,7 +133,11 @@ class FormRenderer {
 
     #onInputEventHandler(item, $node, event) {
         const { onInput } = event ?? {};
-        $node.addEventListener('input', e => onInput({ item, originEvent: e }));
+
+        $node.addEventListener('input', e => {
+            item._$value = e.target.value;
+            onInput({ item, originEvent: e });
+        });
     }
 
 }

@@ -15,7 +15,8 @@
         <script type="importmap">
             {
                 "imports": {
-                    "dom": "${pageContext.request.contextPath}/components/js/dom/index.js"
+                    "dom": "${pageContext.request.contextPath}/components/js/dom/index.js",
+                    "form": "${pageContext.request.contextPath}/components/js/form/index.js"
                }
             }
         </script>

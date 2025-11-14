@@ -1,14 +1,82 @@
-export const objectUtil = {
-    find(o, targetKey) {
+export default {
+    traverse(o, handler, path = []) {
+        Object.entries(o).forEach(([key, value]) => {
+           if (typeof value !== 'object') {
+               handler(key, value, path);
+               return;
+           }
+           if (Array.isArray(value)) {
+               value.forEach((el, i) => this.traverse(el, handler, [...path, key, i]));
+               return;
+           }
+           this.traverse(value, handler, [...path, key]);
+        });
+    },
+    find(o, target) {
         const results = [];
 
-        const travers = (current, key, path = []) => {
+        if (o === target) {
+            results.push({
+                data: o,
+                path: [],
+                parent: null,
+            });
+            return results;
+        }
+
+        const _find = (current, _target, path = []) => {
             if (current == null || typeof current !== 'object') {
                 return;
             }
-
             if (Array.isArray(current)) {
-                current.forEach((el, i) => travers(el, key, [...path, i]));
+                current.forEach((el, i) => {
+                    if (target === el) {
+                        results.push({
+                            data: el,
+                            path: [...path, i],
+                            parent: current,
+                        });
+                    }
+                    _find(el, _target, [...path, i])
+                });
+                return;
+            }
+
+            Object.entries(current).forEach(([propKey, propValue]) => {
+                if (target === propValue) {
+                    results.push({
+                        data: propValue,
+                        path: [...path, propKey],
+                        parent: current,
+                    });
+                }
+                _find(propValue, _target, [...path, propKey]);
+            });
+        }
+
+        _find(o, target);
+        return results;
+    },
+    findFirst(o, target) {
+        const results = this.find(o, target);
+        if (!results || results.length === 0) {
+            return {
+                data: null,
+                path: [],
+                parent: null,
+            };
+        }
+        return results[0];
+    },
+    findByKey(o, targetKey) {
+        const results = [];
+
+        const _find = (current, key, path = []) => {
+            if (current == null || typeof current !== 'object') {
+                return;
+            }
+            if (Array.isArray(current)) {
+                current.forEach((el, i) => _find(el, key, [...path, i]));
                 return;
             }
 
@@ -20,16 +88,16 @@ export const objectUtil = {
                         parent: current,
                     });
                 }
-                travers(propValue, key, [...path, propKey]);
+                _find(propValue, key, [...path, propKey]);
             });
         }
 
-        travers(o, targetKey);
+        _find(o, targetKey);
         return results;
     },
 
-    findFirst(o, targetKey) {
-      const results = this.find(o, targetKey);
+    findFirstByKey(o, targetKey) {
+      const results = this.findByKey(o, targetKey);
       if (!results || results.length === 0) {
           return {
               data: null,
@@ -56,6 +124,7 @@ export const objectUtil = {
             }
             return current[key];
         }, obj);
+
         target[lastKey] = value;
     },
 
@@ -69,7 +138,10 @@ export const objectUtil = {
         if (Array.isArray(obj)) {
             return this.copyArray(obj, isDeep);
         }
-        return this.copyObject(obj, isDeep);
+        if (typeof obj === 'object') {
+            return this.copyObject(obj, isDeep);
+        }
+        return obj;
     },
 
     copyArray(arr, isDeep = true) {

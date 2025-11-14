@@ -13,9 +13,9 @@
 </div>
 
 <script type="module">
-    import {dom} from 'dom';
+    import { newComponent } from 'dom';
 
-    const component = dom.newComponent({
+    const component = newComponent({
         id: `${componentId}`,
         mounted() {
             // console.log('mounted:', this);

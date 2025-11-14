@@ -1,4 +1,4 @@
-import FormRenderer from "./formRenderer.js";
+import { FormRenderer } from '../form/index.js';
 
 export default class Element {
 
@@ -66,6 +66,10 @@ export default class Element {
     addClass(className) {
         this._$el.classList.add(className);
         return this;
+    }
+
+    remove() {
+        this._$el.remove();
     }
 
     removeClass(className) {

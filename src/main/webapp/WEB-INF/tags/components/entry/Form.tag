@@ -4,18 +4,21 @@
 <c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}"/>
 
 <div component-id="${componentId}">
-<%--    <h3 e-id="title" class="form-title"></h3>--%>
+    <h3 e-id="title" class="form-title"></h3>
     <form e-id="form" class="form-base"></form>
 </div>
 
 <script type="module">
-    import { dom } from 'dom';
+    import { newComponent } from 'dom';
 
-    const component = dom.newComponent({
+    const component = newComponent({
         id: '${componentId}',
         bindData: {
             name: `${_dataName}`,
             props: {
+                list: {
+                    type: 'Array',
+                },
                 countPerRow: {
                     type: 'Number',
                     defaultValue: 2,
@@ -23,12 +26,10 @@
                         this.$find('form').addStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
                     },
                 },
-                // title: {
-                //     type: 'String',
-                //     init(value) {
-                //         this.find('title').append(value);
-                //     },
-                // },
+                title: {
+                    type: 'String',
+                    showIf: ['title'],
+                },
                 content: {
                     type: 'Array',
                     required: true,
@@ -41,8 +42,7 @@
                             },
                         });
                     },
-                    watch(newValue, oldValue) {
-                        console.log(newValue, oldValue);
+                    watch(newValue) {
                     },
                 },
                 onInput: {

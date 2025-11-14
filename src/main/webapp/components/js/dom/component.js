@@ -1,7 +1,6 @@
 import Element from "./element.js";
-import Form from "./form.js";
-import { objectUtil } from './util.js';
-import { request } from '../http/http.js';
+import {objectUtil} from '../util/index.js';
+import {request} from '../http/index.js';
 
 const componentsConnector = new class ComponentsConnector {
 
@@ -41,7 +40,6 @@ const componentsConnector = new class ComponentsConnector {
                 return;
             }
             const instance = this.#instances.get($component);
-            instance._bindingDataToChildrenProps();
             instance._mount();
         });
     }
@@ -65,10 +63,8 @@ class Component {
         name: null,
         props: {},
     };
-    #props = {};
     #propsData = {};
     #data = {};
-    #dataProxy = {};
     #children = [];
     #methods = {};
     #bindingInstance = {};
@@ -83,7 +79,6 @@ class Component {
         componentsConnector.add(this.#$el, this);
         return this.#bindingInstance;
     }
-
 
     #initProps(options) {
         const {
@@ -112,33 +107,37 @@ class Component {
 
             Object.entries(props).forEach(([name, o]) => {
                 const {
-                    defaultValue = '',
                     type = 'String',
                     required = false,
+                    defaultValue = '',
+                    showIf = [],
                     init = () => {},
-                    watch = () => {},
+                    watch = () => true,
                 } = o ?? {};
 
                 this.#bindData.props[name] = {
                     type,
                     required,
                     defaultValue,
-                    init: init.bind(this.#bindingInstance),
+                    showIf,
+                    init: (value) => {
+                        this.#showIfElement(showIf, value);
+                        init.call(this.#bindingInstance, value);
+                    },
                     watch: watch.bind(this.#bindingInstance),
                 };
-
-                this.#propsData[name] = null;
             });
         }
 
         if (data && typeof data === 'function') {
-            this.#data = objectUtil.copy(data());
-            this.#dataProxy = objectUtil.copy(this.#data);
+            this.#data = objectUtil.copy(data.call(this.#bindingInstance));
         }
 
         if (methods) {
             Object.entries(methods).forEach(([methodName, method]) => {
-                this.#methods[methodName] = method.bind(this.#bindingInstance);
+                if (typeof method === 'function') {
+                    this.#methods[methodName] = method.bind(this.#bindingInstance);
+                }
             });
         }
 
@@ -147,94 +146,13 @@ class Component {
         }
     }
 
-    _bindingDataToChildrenProps() {
-        const data = this.#data;
-        const proxy = this.#dataProxy;
-        const children = this.#children;
-
-        this.#setValueToChildProps();
-
-        children.forEach(child => {
-           const { name, props: childProps } = child._bindData();
-           const { data: target, path: parentDataPath } = objectUtil.findFirst(proxy, name);
-           const childPropsData = child._propsData();
-
-           if (!target) {
-               return;
-           }
-
-           Object.keys(target).forEach(key => {
-               Object.defineProperty(target, key, {
-                   get() {
-                       return objectUtil.getValue(data, [...parentDataPath, key]);
-                   },
-                   set(newValue) {
-                       if (!Object.hasOwn(childProps, key)) {
-                           return;
-                       }
-
-                       const { type, required, watch } = childProps[key];
-
-                       if ((type.toLowerCase() === 'array' && Array.isArray(newValue)) ||
-                           ((typeof newValue).toLowerCase() !== type.toLowerCase())) {
-                           console.warn(`invalid type. '${key}' must be '${type}'. but '${newValue}' is '${typeof newValue}'`);
-                       }
-                       if (required && !newValue) {
-                           console.error(`${key} is required. but '${newValue}'`);
-                       }
-                       if (childPropsData[key] !== newValue) {
-                           childPropsData[key] = newValue;
-                           const oldValue = objectUtil.getValue(data, [...parentDataPath, key]);
-                           watch(newValue, oldValue);
-                       }
-
-                       objectUtil.setValue(data, [...parentDataPath, key], newValue);
-                   },
-               });
-           });
-        });
-    }
-
-    #setValueToChildProps() {
-        const data = this.#data;
-        const children = this.#children;
-
-        children.forEach(child => {
-           const { name, props } = child._bindData();
-           const { data: target } = objectUtil.findFirst(data, name);
-            const childPropsData = child._propsData();
-
-           if (!target) {
-               return;
-           }
-
-           Object.entries(props).forEach(([key, options]) => {
-               const { defaultValue, init } = options;
-
-               if (Object.hasOwn(target, key)) {
-                   childPropsData[key] = target[key] ? target[key] : defaultValue;
-                   init(childPropsData[key]);
-                   return;
-               }
-
-               childPropsData[key] = defaultValue;
-               init(childPropsData[key]);
-           });
-        });
-    }
-
-    _mount() {
-        this.#lifeCycle.mounted();
-    }
-
     #initBindingInstance() {
-        this.#bindingInstance.$id = this.#id;
-        this.#bindingInstance.$el = this.#$el;
-        this.#bindingInstance.$data = this.#dataProxy;
-        this.#bindingInstance.$props = this.#propsData;
-        this.#bindingInstance.$request = request;
-        this.#bindingInstance.$find = this.#find;
-        this.#bindingInstance.$findForm = this.#findForm;
+        this.#defineGetter(this.#bindingInstance, '$id', () => this.#id);
+        this.#defineGetter(this.#bindingInstance, '$el', () => this.#$el);
+        this.#defineGetter(this.#bindingInstance, '$data', () => this.#data);
+        this.#defineGetter(this.#bindingInstance, '$props', () => this.#propsData);
+        this.#defineGetter(this.#bindingInstance, '$request', () => request);
+        this.#defineGetter(this.#bindingInstance, '$find', () => this.#find);
 
         Object.entries(this.#methods).forEach(([methodName, method]) => {
             this.#bindingInstance[methodName] = method;
@@ -243,24 +161,167 @@ class Component {
         Object.freeze(this.#bindingInstance);
     }
 
+    #defineGetter(o, name, getter) {
+        Object.defineProperty(o, name, {
+            get() {
+                return getter();
+            },
+        });
+    }
+
+    _mount() {
+        this.#setValueToChildProps();
+        this.#bindingDataToChildrenProps();
+        this.#lifeCycle.mounted();
+    }
+
+    #setValueToChildProps() {
+        const baseData = this.#data;
+
+        this.#children.forEach(child => {
+            const { name, props } = child.#bindData;
+            const { data} = objectUtil.findFirstByKey(baseData, name);
+
+            if (!data) {
+                return;
+            }
+
+            child.#propsData = data;
+
+            Object.entries(props).forEach(([name, prop]) => {
+                if (!Object.hasOwn(prop, 'init')) {
+                    return;
+                }
+                const { type, init } = prop;
+                const value = data[name];
+                this.#validateType(name, type, value);
+                init(value);
+            });
+        });
+    }
+
+    #bindingDataToChildrenProps() {
+        const rootData = this.#data;
+
+        this.#children.forEach(child => {
+            const { name, props: childProps } = child.#bindData;
+            const { data: parentData, path: parentDataPath } = objectUtil.findFirstByKey(rootData, name);
+
+            if (!parentData) {
+                return;
+            }
+            const parentDataProxy = this.#createReactiveProxy(parentData, childProps);
+            objectUtil.setValue(rootData, parentDataPath, parentDataProxy);
+        });
+    }
+
+    #createReactiveProxy(baseData = {}, targetProps = {}) {
+        const proxyCache = new WeakMap();
+        const _this = this;
+
+        function _createReactiveProxy(obj) {
+            if (typeof obj !== 'object' || obj === null) {
+                return obj;
+            }
+
+            if (proxyCache.has(obj)) {
+                return proxyCache.get(obj);
+            }
+
+            const proxy = new Proxy(obj, {
+                get(o, prop) {
+                    const value = o[prop];
+
+                    if (typeof value === 'object' && value !== null) {
+                        return _createReactiveProxy(value);
+                    }
+                    return value;
+                },
+
+                set(o, prop, newValue, xy) {
+                    if (o === baseData) {
+                        _this.#updateProp(baseData, targetProps, prop, o, prop, newValue);
+                        return true;
+                    }
+
+                    const target = objectUtil.findFirst(baseData, o);
+                    if (!target) {
+                        return true;
+                    }
+
+                    const { path } = target;
+                    if (!path || path?.length === 0) {
+                        return true;
+                    }
+
+                    const [ propName ] = path;
+                    if (!Object.hasOwn(targetProps, propName)) {
+                        return true;
+                    }
+
+                    _this.#updateProp(baseData, targetProps, propName, o, prop, newValue);
+                    return true;
+                },
+            });
+
+            proxyCache.set(obj, proxy);
+            return proxy;
+        }
+
+        return _createReactiveProxy(baseData);
+    }
+
+    #updateProp(baseData, targetProps, targetPropName, updateData, updateName, newValue) {
+        const { type, watch, showIf } = targetProps[targetPropName];
+        
+        updateData[updateName] = newValue;
+
+        const propData = baseData[targetPropName];
+        watch(propData);
+
+        this.#validateType(targetPropName, type, propData);
+        this.#showIfElement(showIf, propData);
+    }
+
+    #showIfElement(showIf, value) {
+        if (!showIf || showIf.length === 0) {
+            return;
+        }
+        showIf.forEach(elementId => {
+            if (value) {
+                this.#find(elementId).append(value);
+                this.#find(elementId).removeStyle('display');
+                return;
+            }
+            this.#find(elementId).addStyle('display', 'none');
+        });
+    }
+
+    #validateType(name, type, value) {
+        if (!type) {
+            return;
+        }
+        const _type = type.toLowerCase();
+        const actualType = (typeof value).toLowerCase();
+
+        if (_type === 'array') {
+            if (!Array.isArray(value)) {
+                console.warn(`'${name}' prop is invalid type. expected 'array', but got '${actualType}'. value: ${value}`);
+            }
+            return;
+        }
+
+        if (actualType !== _type) {
+            console.warn(`'${name}' prop is invalid type. expected '${_type}', but got '${actualType}'. value: ${value}`);
+        }
+    }
+
     _addChildInstance(childComponentInstance) {
         this.#children.push(childComponentInstance);
     }
 
-    _bindData() {
-        return this.#bindData;
-    }
-
-    _propsData() {
-        return this.#propsData;
-    }
-
     #find = function(elementId) {
         return new Element(this.#id, elementId);
-    }.bind(this);
-
-    #findForm = function(elementId) {
-        return new Form(this.#id, elementId);
     }.bind(this);
 
 }
