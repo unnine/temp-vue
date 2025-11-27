@@ -1,11 +1,10 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
-<c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}"/>
+<c:set var="componentId" value="${UUID.randomUUID().toString()}"/>
 
-<html>
-<body>
-    <div component-id="${componentId}">
-        <_:Form _dataName="form"/>
-    </div>
+<body component-id="${componentId}">
+    <_:Layout>
+
+    </_:Layout>
 </body>
 
 <script type="module">
@@ -15,7 +14,7 @@
     const component = newComponent({
         id: '${componentId}',
         mounted() {
-            setTimeout(() => this.$data.form.title ='qwdqwd', 1000);
+            setTimeout(() => this.$data.form.title ='테스트 폼', 1000);
 
             this.$request()
                 .get('https://jsonplaceholder.typicode.com/albums')
@@ -37,7 +36,6 @@
                         console.log(formData);
                     },
                     list: [],
-                    data: {},
                     content: FormBuilder.builder('form')
                         .Input('sample1', '아이디1')
                         .InputPassword('sample2', '비밀번호1')
@@ -59,6 +57,7 @@
                         .InputPassword('sample18', '비밀번호5')
                         .InputNumber('sample19', '나이5')
                         .Textarea('sample20', '비고5')
+                        .TextView('sample17', '아이디6')
                         .build()
                 },
             };
@@ -80,4 +79,3 @@
     });
 
 </script>
-</html>

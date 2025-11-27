@@ -1,7 +1,7 @@
 <%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag" %>
 <%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
-<c:set var="componentId" value="${pageContext.request.requestedSessionId}-${UUID.randomUUID().toString()}"/>
+<c:set var="componentId" value="${UUID.randomUUID().toString()}"/>
 
 <div component-id="${componentId}">
     <h3 e-id="title" class="form-title"></h3>

@@ -9,6 +9,31 @@
     <uri>http://components</uri>
 
     <tag-file>
+        <name>Layout</name>
+        <path>/WEB-INF/tags/components/layout/BaseLayout.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Menubar</name>
+        <path>/WEB-INF/tags/components/layout/BaseMenubar.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Header</name>
+        <path>/WEB-INF/tags/components/layout/BaseHeader.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Toolbar</name>
+        <path>/WEB-INF/tags/components/layout/BaseToolbar.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Footer</name>
+        <path>/WEB-INF/tags/components/layout/BaseFooter.tag</path>
+    </tag-file>
+
+    <tag-file>
         <name>Input</name>
         <path>/WEB-INF/tags/components/entry/Input.tag</path>
     </tag-file>

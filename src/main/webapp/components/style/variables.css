@@ -1,4 +1,12 @@
 :root {
-    --primary-color: #87CEEBFF;
-    --selection-color: #87CEEBFF;
+    ---color--primary: rgb(45,60,95);
+    ---color--primary-light: rgb(75, 105, 155);
+
+    /*---color--primary: rgb(50, 120, 210);*/
+    /*---color-border--light: rgb(200, 200, 200);*/
+    ---color-bg--light: rgb(252, 252, 252);
+    /*---color-bg--deep: rgb(100, 100, 100);*/
+    /*---color-selection--primary: rgb(135, 206, 235);*/
+
+    ---side-bar-width: 120px;
 }

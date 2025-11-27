@@ -4,21 +4,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="_" uri="http://components" %>
 
-<html>
-    <head>
-        <title>imports</title>
+<head>
+    <title>imports</title>
 
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/components/style/index.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/components/style/index.css">
 
-        <script src="${pageContext.request.contextPath}/components/plugin/axios.min.js"></script>
+    <script src="${pageContext.request.contextPath}/components/plugin/axios.min.js"></script>
 
-        <script type="importmap">
-            {
-                "imports": {
-                    "dom": "${pageContext.request.contextPath}/components/js/dom/index.js",
-                    "form": "${pageContext.request.contextPath}/components/js/form/index.js"
-               }
-            }
-        </script>
-    </head>
-</html>
+    <script type="importmap">
+        {
+            "imports": {
+                "dom": "${pageContext.request.contextPath}/components/js/dom/index.js",
+                "form": "${pageContext.request.contextPath}/components/js/form/index.js"
+           }
+        }
+    </script>
+</head>

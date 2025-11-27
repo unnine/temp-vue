@@ -1,4 +1,9 @@
 .form-base {
+    --input-padding: 8px 6px 6px 10px;
+    --border-color: rgb(200, 200, 200);
+}
+
+.form-base {
     overflow: auto;
     display: grid;
     border-top: 1px solid rgb(231, 231, 231);
@@ -21,13 +26,17 @@
     padding: 0 6px;
 }
 
+.form-element {
+
+}
+
 .form-element__input-text,
 .form-element__input-password,
 .form-element__input-number,
 .form-element__textarea {
     position: relative;
     z-index: 1;
-    border: 1px solid rgb(200, 200, 200);
+    border: 1px solid var(--border-color);
     border-radius: 2px;
 }
 
@@ -38,15 +47,22 @@ textarea {
     border-width: 0;
     font-size: 0.95rem;
     width: 100%;
-    padding: 8px 6px 6px 10px;
+    padding: var(--input-padding);
     min-height: 24px;
 }
 
 input:focus {
-    outline: 1px solid var(--selection-color);
+    outline: 1px solid var(---color-selection--primary);
 }
 
 textarea:focus {
     outline: none;
-    border: 1px solid var(--selection-color);
+    border: 1px solid var(---color-selection--primary);
+}
+
+.form-element__text-view {
+    border: 1px solid var(--border-color);
+    min-height: 13px;
+    padding: var(--input-padding);
+    margin: 0;
 }
