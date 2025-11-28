@@ -1,9 +1,10 @@
 <%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag" %>
-<%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
-<c:set var="componentId" value="${UUID.randomUUID().toString()}"/>
+<c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<div component-id="${componentId}">
+<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+
+<div component-id="${cid}">
     <h3 e-id="title" class="form-title"></h3>
     <form e-id="form" class="form-base"></form>
 </div>
@@ -12,16 +13,16 @@
     import { newComponent } from 'dom';
 
     const component = newComponent({
-        id: '${componentId}',
+        id: '${cid}',
         bindData: {
-            name: `${_dataName}`,
+            target: `${_data}`,
             props: {
                 list: {
                     type: 'Array',
                 },
                 countPerRow: {
                     type: 'Number',
-                    defaultValue: 2,
+                    defaultValue: () => 2,
                     init(value) {
                         this.$find('form').addStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
                     },
@@ -33,7 +34,7 @@
                 content: {
                     type: 'Array',
                     required: true,
-                    defaultValue: [],
+                    defaultValue: () => [],
                     init(value) {
                         this.$find('form').render({
                             forms: value,

@@ -1,9 +1,10 @@
 <%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag" %>
-<%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
-<c:set var="componentId" value="${UUID.randomUUID().toString()}"/>
+<c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<div component-id="${componentId}" class="base-footer-component">
+<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+
+<div component-id="${cid}" class="base-footer-component">
     Footer
 </div>
 
@@ -11,7 +12,7 @@
     import { newComponent } from 'dom';
 
     const component = newComponent({
-        id: '${componentId}',
+        id: '${cid}',
     });
 
 </script>

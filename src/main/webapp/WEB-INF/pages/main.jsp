@@ -1,18 +1,32 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
-<c:set var="componentId" value="${UUID.randomUUID().toString()}"/>
+<c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<body component-id="${componentId}">
+<body component-id="${cid}">
     <_:Layout>
+        <_:Card _data="${cid}.card1">
+            <jsp:attribute name="actions">
+                <_:Button _data="${cid}.card1CancelButton">확인</_:Button>
+                <_:Button _data="${cid}.card1OkButton">취소</_:Button>
+            </jsp:attribute>
 
+            <jsp:body>
+                qwdqd222
+            </jsp:body>
+        </_:Card>
+
+        <_:Card>
+            카드2
+        </_:Card>
     </_:Layout>
 </body>
 
 <script type="module">
     import { newComponent } from 'dom';
     import { FormBuilder, FormUtil } from 'form';
+    import { searchForm } from '/values/main.js';
 
     const component = newComponent({
-        id: '${componentId}',
+        id: '${cid}',
         mounted() {
             setTimeout(() => this.$data.form.title ='테스트 폼', 1000);
 
@@ -25,6 +39,20 @@
         },
         data() {
             return {
+                card1: {
+                    title: 'Card - 1',
+
+                },
+                card1OkButton: {
+                    onClick(e) {
+                        console.log('ok');
+                    },
+                },
+                card1CancelButton: {
+                    onClick(e) {
+                        console.log('cancel');
+                    },
+                },
                 form: {
                     countPerRow: 4,
                     title: '',
@@ -36,29 +64,7 @@
                         console.log(formData);
                     },
                     list: [],
-                    content: FormBuilder.builder('form')
-                        .Input('sample1', '아이디1')
-                        .InputPassword('sample2', '비밀번호1')
-                        .InputNumber('sample3', '나이1')
-                        .Textarea('sample4', '비고1')
-                        .Input('sample5', '아이디2')
-                        .InputPassword('sample6', '비밀번호2')
-                        .InputNumber('sample7', '나이2')
-                        .Textarea('sample8', '비고2')
-                        .Input('sample9', '아이디3')
-                        .InputPassword('sample10', '비밀번호3')
-                        .InputNumber('sample11', '나이3')
-                        .Textarea('sample12', '비고3')
-                        .Input('sample13', '아이디4')
-                        .InputPassword('sample14', '비밀번호4')
-                        .InputNumber('sample15', '나이4')
-                        .Textarea('sample16', '비고4')
-                        .Input('sample17', '아이디5')
-                        .InputPassword('sample18', '비밀번호5')
-                        .InputNumber('sample19', '나이5')
-                        .Textarea('sample20', '비고5')
-                        .TextView('sample17', '아이디6')
-                        .build()
+                    content: searchForm,
                 },
             };
         },

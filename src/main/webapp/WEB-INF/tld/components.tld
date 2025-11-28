@@ -8,14 +8,16 @@
     <short-name>components</short-name>
     <uri>http://components</uri>
 
+
+    <!-- layout -->
     <tag-file>
         <name>Layout</name>
         <path>/WEB-INF/tags/components/layout/BaseLayout.tag</path>
     </tag-file>
 
     <tag-file>
-        <name>Menubar</name>
-        <path>/WEB-INF/tags/components/layout/BaseMenubar.tag</path>
+        <name>Sidebar</name>
+        <path>/WEB-INF/tags/components/layout/BaseSidebar.tag</path>
     </tag-file>
 
     <tag-file>
@@ -32,7 +34,23 @@
         <name>Footer</name>
         <path>/WEB-INF/tags/components/layout/BaseFooter.tag</path>
     </tag-file>
+    <!--/ layout /-->
 
+
+    <!-- display -->
+    <tag-file>
+        <name>Card</name>
+        <path>/WEB-INF/tags/components/display/Card.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Button</name>
+        <path>/WEB-INF/tags/components/display/Button.tag</path>
+    </tag-file>
+    <!--/ display /-->
+
+
+    <!-- entry -->
     <tag-file>
         <name>Input</name>
         <path>/WEB-INF/tags/components/entry/Input.tag</path>
@@ -42,5 +60,6 @@
         <name>Form</name>
         <path>/WEB-INF/tags/components/entry/Form.tag</path>
     </tag-file>
+    <!--/ entry /-->
 
 </taglib>

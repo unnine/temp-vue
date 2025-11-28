@@ -4,8 +4,10 @@
 
 <%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
 
-<div component-id="${cid}" class="base-toolbar-component">
+<div component-id="${cid}" class="base-sidebar-component">
+    <div class="base-sidebar-component__content">
 
+    </div>
 </div>
 
 <script type="module">
@@ -18,7 +20,14 @@
 </script>
 
 <style>
-.base-toolbar-component {
+.base-sidebar-component {
+    position: relative;
+    width: var(---side-bar-width);
+    height: 100%;
+    background: #fff;
+}
+
+.base-sidebar-component__content {
     position: relative;
     width: 100%;
     height: 100%;

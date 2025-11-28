@@ -1,25 +1,23 @@
 <%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag" %>
-<%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
-<c:set var="componentId" value="${UUID.randomUUID().toString()}"/>
+<c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<div component-id="${componentId}" class="base-layout-component">
+<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
 
-    <div class="side-bar">
+<div component-id="${cid}" class="base-layout-component">
+    <div class="base-layout-component__header-wrap">
+        <_:Header />
     </div>
 
-    <div class="content">
-        <div class="header-wrap">
-            <_:Header />
-        </div>
+    <div class="base-layout-component__side-bar">
+        <_:Sidebar />
+    </div>
 
-        <div class="body-wrap">
+    <div class="base-layout-component__content">
+
+        <div class="base-layout-component__body-wrap">
             <jsp:doBody />
         </div>
-
-<%--        <div class="footer-wrap">--%>
-<%--            <_:Footer />--%>
-<%--        </div>--%>
     </div>
 </div>
 
@@ -27,7 +25,7 @@
     import { newComponent } from 'dom';
 
     const component = newComponent({
-        id: '${componentId}',
+        id: '${cid}',
     });
 
 </script>
@@ -35,38 +33,30 @@
 <style>
 .base-layout-component {
     position: relative;
-    display: flex;
-    flex: 1 auto;
     width: 100%;
     height: 100%;
     background: var(---color-bg--light);
 }
 
-.base-layout-component > .side-bar {
-    position: relative;
-    min-width: var(---side-bar-width);
+.base-layout-component__side-bar {
+    position: fixed;
+    width: var(---side-bar-width);
     height: 100%;
-    background: linear-gradient(135deg, var(---color--primary-light), var(---color--primary));
-    border-radius: 0 24px 24px 0;
+    z-index: 2;
 }
 
-.base-layout-component .header-wrap {
+.base-layout-component__content {
     position: relative;
-    width: 100%;
-}
-
-.base-layout-component > .content {
-    position: relative;
-    width: 100%;
     height: 100%;
+    z-index: 1;
 }
 
-.base-layout-component > .content > .body-wrap {
+.base-layout-component__header-wrap {
     position: relative;
-    width: 100%;
 }
 
-/*.base-layout-component > .content > .footer-wrap {*/
-/*    position: relative;*/
-/*}*/
+.base-layout-component__body-wrap {
+    position: relative;
+    margin-left: var(---side-bar-width);
+}
 </style>

@@ -20,16 +20,18 @@ const componentsConnector = new class ComponentsConnector {
 
     #connectChildrenToParent() {
         this.#$components.forEach($component => {
-            const $parentComponent = $component.parentElement.closest('[component-id]');
-            if (!$parentComponent) {
-                return;
-            }
             if (!this.#instances.has($component)) {
                 return;
             }
 
-            const parentComponentInstance = this.#instances.get($parentComponent);
             const componentInstance = this.#instances.get($component);
+            const $parentComponent = componentInstance._getParentComponentElement();
+
+            if (!$parentComponent) {
+                return;
+            }
+
+            const parentComponentInstance = this.#instances.get($parentComponent);
             parentComponentInstance._addChildInstance(componentInstance);
         });
     }
@@ -60,6 +62,7 @@ class Component {
     #id;
     #$el;
     #bindData = {
+        parentComponentId: null,
         name: null,
         props: {},
     };
@@ -101,49 +104,61 @@ class Component {
         }
 
         if (bindData) {
-            const { name, props } = bindData;
+            const { target, props } = bindData ?? {};
+            const parentComponentDataName = target.split('.');
 
-            this.#bindData.name = name;
+            if (target && (!parentComponentDataName || parentComponentDataName.length < 2)) {
+                console.error(`unknown parent component id or data name. 'bindData.id' expression is '{parentComponentId}.{dataName}'`, this);
+            }
 
-            Object.entries(props).forEach(([name, o]) => {
-                const {
-                    type = 'String',
-                    required = false,
-                    defaultValue = '',
-                    showIf = [],
-                    init = () => {},
-                    watch = () => true,
-                } = o ?? {};
+            const [ parentComponentId, dataName ] = parentComponentDataName;
 
-                this.#bindData.props[name] = {
-                    type,
-                    required,
-                    defaultValue,
-                    showIf,
-                    init: (value) => {
-                        this.#showIfElement(showIf, value);
-                        init.call(this.#bindingInstance, value);
-                    },
-                    watch: watch.bind(this.#bindingInstance),
-                };
+            this.#bindData.parentComponentId = parentComponentId;
+            this.#bindData.name = dataName;
+
+            Object.entries(props).forEach(([name, prop]) => {
+                this.#bindData.props[name] = this.#makeBindProp(prop);
             });
         }
 
-        if (data && typeof data === 'function') {
+        if (typeof data === 'function') {
             this.#data = objectUtil.copy(data.call(this.#bindingInstance));
         }
 
         if (methods) {
-            Object.entries(methods).forEach(([methodName, method]) => {
-                if (typeof method === 'function') {
+            Object.entries(methods)
+                .filter(([, method]) => typeof method === 'function')
+                .forEach(([methodName, method]) => {
                     this.#methods[methodName] = method.bind(this.#bindingInstance);
-                }
             });
         }
 
-        if (mounted && typeof mounted === 'function') {
+        if (typeof mounted === 'function') {
             this.#lifeCycle.mounted = mounted.bind(this.#bindingInstance);
         }
+    }
+
+    #makeBindProp(prop) {
+        const {
+            type = 'String',
+            required = false,
+            defaultValue = () => '',
+            showIf = [],
+            init = () => {},
+            watch = () => true,
+        } = prop ?? {};
+
+        return {
+            type,
+            required,
+            defaultValue,
+            showIf,
+            init: (value) => {
+                this.#showIfElement(showIf, value);
+                init.call(this.#bindingInstance, value);
+            },
+            watch: watch.bind(this.#bindingInstance),
+        };
     }
 
     #initBindingInstance() {
@@ -187,16 +202,19 @@ class Component {
             }
 
             child.#propsData = data;
+            this.#initializeProps(data, props);
+        });
+    }
 
-            Object.entries(props).forEach(([name, prop]) => {
-                if (!Object.hasOwn(prop, 'init')) {
-                    return;
-                }
-                const { type, init } = prop;
-                const value = data[name];
-                this.#validateType(name, type, value);
-                init(value);
-            });
+    #initializeProps(data, props) {
+        Object.entries(props).forEach(([name, prop]) => {
+            if (!Object.hasOwn(prop, 'init')) {
+                return;
+            }
+            const { type, init, defaultValue } = prop;
+            const value = Object.hasOwn(data, name) ? data[name] : defaultValue();
+            this.#validateType(name, type, value);
+            init(value);
         });
     }
 
@@ -314,6 +332,10 @@ class Component {
         if (actualType !== _type) {
             console.warn(`'${name}' prop is invalid type. expected '${_type}', but got '${actualType}'. value: ${value}`);
         }
+    }
+
+    _getParentComponentElement() {
+        return document.querySelector(`[component-id="${this.#bindData.parentComponentId}"]`);
     }
 
     _addChildInstance(childComponentInstance) {

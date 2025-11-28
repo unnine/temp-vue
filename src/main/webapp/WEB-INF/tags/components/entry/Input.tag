@@ -1,10 +1,10 @@
 <%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag"%>
-<%@ attribute name="_dataName" fragment="false" required="false" type="java.lang.String" %>
-<c:set var="componentId" value="${UUID.randomUUID().toString()}" />
+<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+<c:set var="cid" value="${UUID.randomUUID().toString()}" />
 
 
-<div component-id="${componentId}">
+<div component-id="${cid}">
     Input:
     <label>
         <input type="text" />
@@ -16,12 +16,12 @@
     import { newComponent } from 'dom';
 
     const component = newComponent({
-        id: `${componentId}`,
+        id: `${cid}`,
         mounted() {
             // console.log('mounted:', this);
         },
         bindData: {
-            name: `${_dataName}`,
+            target: `${_data}`,
             props: {
                 name: {
                     type: 'String',
