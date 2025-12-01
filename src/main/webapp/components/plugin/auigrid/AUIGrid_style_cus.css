@@ -1,0 +1,259 @@
+/* @CHARSET "UTF-8"; */
+
+/*테이블01 CSS*/
+/*
+.aui-grid-table tr:nth-child(even) td {background:#fafafa;} .aui-grid-table tr:hover td {background:#eaebf4;}*/
+/*
+.ti tr td {background:none;} .ti tr:hover td {background:none;}
+.ti table tr td {background:none;} .ti table tr:hover td {background:none;}
+.ti .aui-grid-table tr td {background:none;} .ti .aui-grid-table tr:hover td {background:none;}*/
+/*.aui-grid input[type="radio"], .aui-grid input[type="checkbox"] {text-align: center !important;}*/
+input[type="checkbox"] {vertical-align:baseline !important;}
+
+
+/* 그리드 메인 외곽 DIV */
+.aui-grid {
+	border-top: 1px solid #77a2eb !important;
+	border-bottom: 1px solid #DCDCDC !important;
+	border-left: 0px solid #DCDCDC !important;
+	border-right: 1px solid #DCDCDC !important;
+	font-family: 'NanumGothic', '맑은 고딕', 'AppleSDGothicNeo-Light',	sans-serif !important;
+	color:#000 !important;
+}
+
+/* 헤더 상, 하 테두리 경계선 */
+.aui-grid-header-top-bottom-line {
+	background: #ddd !important;
+	/*수정 background: #bdbdbd; */
+}
+
+/*디폴트 헤더 스타일*/
+.aui-grid-default-header {
+	background: #f6f7ff;
+	background: -webkit-linear-gradient(top, #f6f7ff, #f6f7ff) ;
+	background: -moz-linear-gradient(top, #f6f7ff, #f6f7ff) ;
+	background: -ms-linear-gradient(top, #f6f7ff, #f6f7ff) ;
+	background: -o-linear-gradient(top, #f6f7ff, #f6f7ff) ;
+	background: linear-gradient(to bottom, #f6f7ff, #f6f7ff) ;
+	/*font-family:'NotoSansKR-Thin-Hestia';*/
+	vertical-align: middle;
+	color:#000 !important;
+}
+
+/*
+.aui-grid-default-header:hover {
+	background: #f6f7ff;
+	background: -webkit-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: -moz-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: -ms-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: -o-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: linear-gradient(to bottom, #f6f7ff, #f6f7ff) !important;
+}
+*/
+
+/* 셀렉션 헤더 칼럼 스타일 */
+/*
+.aui-grid-selection-header-column {
+	font-weight: bold !important;
+	background: #f6f7ff;
+	background: -webkit-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: -moz-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: -ms-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: -o-linear-gradient(top, #f6f7ff, #f6f7ff) !important;
+	background: linear-gradient(to bottom, #f6f7ff, #f6f7ff) !important;
+
+}/*
+
+/* 고정 칼럼과 일반 칼럼 경계선 */
+.aui-grid-fixed-column-rule {
+	background: #ddd !important;
+}
+
+/* 셀렉션의 대표 셀 보더(테두리) 색상 스타일*/
+.aui-grid-selection-cell-border-lines {
+	background: #77a2eb !important;
+}
+
+/* 셀력션 행 대표 백그라운드 스타일 */
+.aui-grid-selection-row-bg {
+	background: #dadada !important;
+	background: -webkit-linear-gradient(top, #dadada, #dadada) !important;
+	background: -moz-linear-gradient(top, #dadada, #dadada) ;
+	background: -ms-linear-gradient(top, #dadada, #dadada) ;
+	background: -o-linear-gradient(top, #dadada, #dadada) ;
+	background: linear-gradient(to bottom, #dadada, #dadada) ;
+}
+/* 셀력션 행 대표 셀 이외의 백그라운드 스타일 */
+.aui-grid-selection-row-others-bg {
+	background: #dadada !important;
+	background: -webkit-linear-gradient(top, #dadada, #dadada) !important;
+	background: -moz-linear-gradient(top, #dadada, #dadada) !important;
+	background: -ms-linear-gradient(top, #dadada, #dadada) !important;
+	background: -o-linear-gradient(top, #dadada, #dadada) !important;
+	background: linear-gradient(to bottom, #dadada, #dadada) !important;
+}
+
+/* 그리드 Row 배경색 */
+.aui-grid-row-background {
+	background: #fff !important;
+}
+
+/* 셀력션 행번호 칼럼 스타일 */
+.aui-grid-selection-row-num-column {
+	font-weight: bold !important;
+	background: #e8e8e8 !important;
+	background: -webkit-linear-gradient(top, #e8e8e8, #e8e8e8) !important;
+	background: -moz-linear-gradient(top, #e8e8e8, #e8e8e8) !important;
+	background: -ms-linear-gradient(top, #e8e8e8, #e8e8e8) !important;
+	background: -o-linear-gradient(top, #e8e8e8, #e8e8e8) !important;
+	background: linear-gradient(to bottom, #e8e8e8, #e8e8e8) !important;
+}
+/* 게시판 중요 표시 */
+.my-icon-subject{
+	display: inline-block;
+	width: 16px;
+	height:24px;
+	margin-right:4px;
+	vertical-align:middle;
+	background:url(../../../assets/images/mainConBbsNtc.png)no-repeat 50% 50%;
+	background-size:16px;
+}
+
+/* 디폴트 칼럼 스타일 */
+.aui-grid-default-column {
+	text-align: center;
+	font-size: 1em;
+	cursor: default;
+	vertical-align: middle;
+}
+
+/* 행 번호 칼럼 */
+.aui-grid-row-num-column {
+	text-align: center;
+	cursor: default;
+	vertical-align: middle;
+}
+/*행 체크박스 칼럼 */
+.aui-grid-row-check-column {
+	text-align: center;
+	vertical-align: middle;
+}
+
+/* 노데이터 메세지 레이어*/
+.aui-grid-nodata-msg-layer {
+	background: none;
+	background-size:30px;
+	position: absolute;
+	padding: 42px 0 0 40px;
+	margin: 0 auto;
+	width: auto;
+	height: 72px;
+	box-sizing:content-box;
+	padding-left: 0px;
+}
+
+/* 헤더 팝업 이미지 */
+.search-icon-header {
+	background-image: url(../../../assets/images/search.png);
+	background-repeat: no-repeat;
+	background-color: #f6f7ff;
+	background-position: right;
+}
+
+/* 그리드 임의 메세지 */
+.info-message {
+    display: -webkit-box; /* OLD: Safari, iOS 6 and earlier; Android browser, older WebKit */
+    display: -moz-box; /* OLD: Firefox (can be buggy) */
+    display: -ms-flexbox; /* OLD: IE 10 */
+    display: -webkit-flex; /* FINAL, PREFIXED, Chrome 21+ */
+    display: flex; /* FINAL: Opera 12.1+, Firefox 22+ */
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+
+.tbLft {text-align: left !important; text-indent: 10px !important;}
+.tbRgt {text-align: right !important; text-indent: 10px !important;}
+
+/*cell 색상변경*/
+.my-cell-style1 {
+	color: red;
+	font-weight:bold;
+}
+.my-cell-style3 {
+	color: yellow;
+	font-weight:bold;
+}
+.my-cell-style2 {
+	color: black;
+}
+.my-row-style2 {
+	background:#9FC93C;
+	font-weight:bold;
+	color:#22741C;
+}
+
+/* 컨텍스트 메뉴 */
+.aui-grid-context-popup-layer {
+	font-size:12px;
+	min-width:180px;
+	max-width: 300px;
+	padding: 10px 0px;
+	background: #fff;
+	border: 1px solid #aaaaaa;
+	border-radius: 0px;
+	box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3); 
+	-webkit-box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
+}
+/* 컨텍스트 아이템 */
+.aui-grid-context-item {
+	display: block;
+	cursor: default;
+	padding: 4px 6px 4px 20px;
+	background: #fff url(images/gray_circle.png) 0 50% no-repeat;
+	cursor: pointer;
+}
+
+.aui-grid-context-item:hover {
+	background: #ddd url(images/gray_circle.png) 0 50% no-repeat;
+}
+
+/* 컨텍스트 아이템 구분 라인 */
+.aui-grid-context-item-line {
+	display: inline-block;
+	width: 100%;
+	border-top: 1px solid #999;
+}
+
+/* 버턴 렌더러 스타일 */
+.aui-grid-button-renderer {
+	background-clip: padding-box;
+	display: inline-block;
+    -webkit-appearance: none;
+    font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light,	sans-serif;
+	font-weight: bold;
+	text-align: center;
+	cursor: pointer;
+    background:#354b77; 
+	color:#fff; 
+	height:24px;
+	line-height:24px; 
+	border-radius:5px; 
+	padding:0 15px; 
+	transition:ease-in-out all 0.3s;
+}
+
+.aui-grid-button-renderer:hover{
+	background:#1c263c; 
+}

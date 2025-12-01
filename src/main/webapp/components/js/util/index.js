@@ -1,5 +1,8 @@
-import objectUtil from "./objectUtil.js";
+import ObjectUtil from "./objectUtil.js";
+import Date from './date.js';
 
 export {
-    objectUtil,
+    Date,
+    ObjectUtil,
+
 }

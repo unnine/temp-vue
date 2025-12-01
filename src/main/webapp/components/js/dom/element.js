@@ -76,6 +76,14 @@ export default class Element {
         return this;
     }
 
+    setAttribute(key, value) {
+        this._$el.setAttribute(key, value);
+    }
+
+    removeAttribute(key) {
+        this._$el.removeAttribute(key);
+    }
+
     addClass(className) {
         this._$el.classList.add(className);
         return this;
@@ -90,7 +98,7 @@ export default class Element {
         return this;
     }
 
-    addStyle(key, value) {
+    setStyle(key, value) {
         this._$el.style[key] = value;
         return this;
     }

@@ -1,4 +1,5 @@
 import { FormBuilder } from 'form';
+import { ColumnBuilder } from 'grid';
 
 const searchForm = FormBuilder.builder('form')
     .Input('sample1', '아이디1')
@@ -24,7 +25,18 @@ const searchForm = FormBuilder.builder('form')
     .TextView('sample17', '아이디6')
     .build();
 
+const columns = ColumnBuilder.builder()
+    .col('id', 'ID')
+    .col('userId', '사용자')
+    .col('title', '제목')
+    // .calendar('b', '2')
+    // .icon('c', '3')
+    .button('d', '4', { buttonLabel: '버튼' })
+    // .checkbox('e', '5')
+    // .combo('f', '6')
+    .build();
 
 export {
     searchForm,
+    columns,
 }

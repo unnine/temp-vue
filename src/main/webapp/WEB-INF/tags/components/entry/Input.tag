@@ -17,9 +17,6 @@
 
     const component = newComponent({
         id: `${cid}`,
-        mounted() {
-            // console.log('mounted:', this);
-        },
         bindData: {
             target: `${_data}`,
             props: {
@@ -46,6 +43,9 @@
                     type: 'Function',
                 }
             },
+        },
+        mounted() {
+            // console.log('mounted:', this);
         },
     });
 

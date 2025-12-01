@@ -27,9 +27,6 @@
 
     const component = newComponent({
         id: '${cid}',
-        mounted() {
-            this.initializeFooter();
-        },
         bindData: {
             target: `${_data}`,
             props: {
@@ -41,6 +38,9 @@
                     },
                 },
             },
+        },
+        mounted() {
+            this.initializeFooter();
         },
         methods: {
             initializeFooter() {

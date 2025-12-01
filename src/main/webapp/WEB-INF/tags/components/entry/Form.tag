@@ -25,9 +25,9 @@
                 },
                 countPerRow: {
                     type: 'Number',
-                    defaultValue: () => 2,
+                    default: () => 2,
                     init(value) {
-                        this.$find('form').addStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
+                        this.$find('form').setStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
                     },
                 },
                 title: {
@@ -40,7 +40,7 @@
                 content: {
                     type: 'Array',
                     required: true,
-                    defaultValue: () => [],
+                    default: () => [],
                     init(value) {
                         this.$find('form').render({
                             forms: value,

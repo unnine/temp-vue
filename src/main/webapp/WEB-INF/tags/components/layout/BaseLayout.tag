@@ -38,6 +38,12 @@
     background: var(---color-bg--light);
 }
 
+.base-layout-component__header-wrap {
+    position: relative;
+    box-shadow: var(---box-shadow-base);
+    z-index: 3;
+}
+
 .base-layout-component__side-bar {
     position: fixed;
     width: var(---side-bar-width);
@@ -49,11 +55,6 @@
     position: relative;
     height: 100%;
     z-index: 1;
-}
-
-.base-layout-component__header-wrap {
-    position: relative;
-    box-shadow: var(---box-shadow-base);
 }
 
 .base-layout-component__body-wrap {

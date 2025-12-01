@@ -1,6 +1,6 @@
 import Element from "./element.js";
-import {objectUtil} from '../util/index.js';
-import {request} from '../http/index.js';
+import { ObjectUtil, Date } from '../util/index.js';
+import { request } from '../http/index.js';
 
 const componentsConnector = new class ComponentsConnector {
 
@@ -88,20 +88,24 @@ class Component {
 
 
     constructor(options) {
-        this.#initProps(options);
         this.#initBindingInstance();
+        this.#initProps(options);
         componentsConnector.add(this.#$el, this);
+        Object.freeze(this.#bindingInstance);
         return this.#bindingInstance;
     }
 
+    #initBindingInstance() {
+        this.#defineGetter(this.#bindingInstance, '$id', () => this.#id);
+        this.#defineGetter(this.#bindingInstance, '$el', () => this.#$el);
+        this.#defineGetter(this.#bindingInstance, '$props', () => this.#propsData);
+        this.#defineGetter(this.#bindingInstance, '$request', () => request);
+        this.#defineGetter(this.#bindingInstance, '$find', () => this.#find);
+        this.#defineGetter(this.#bindingInstance, '$date', () => Date);
+    }
+
     #initProps(options) {
-        const {
-            id,
-            bindData,
-            data,
-            methods,
-            mounted,
-        } = options;
+        const { id, bindData, methods, data, mounted } = options;
 
         if (!id) {
             throw new Error('id is required.');
@@ -128,12 +132,9 @@ class Component {
             this.#bindData.name = dataName;
 
             Object.entries(props).forEach(([name, prop]) => {
-                this.#bindData.props[name] = this.#makeBindProp(prop);
+                this.#bindData.props[name] = this.#makeBindProp(name, prop);
+                this.#propsData[name] = null;
             });
-        }
-
-        if (typeof data === 'function') {
-            this.#data = objectUtil.copy(data.call(this.#bindingInstance));
         }
 
         if (methods) {
@@ -141,6 +142,15 @@ class Component {
                 .filter(([, method]) => typeof method === 'function')
                 .forEach(([methodName, method]) => {
                     this.#methods[methodName] = method.bind(this.#bindingInstance);
+                    this.#bindingInstance[methodName] = method.bind(this.#bindingInstance);
+            });
+        }
+
+        if (typeof data === 'function') {
+            this.#data = ObjectUtil.copy(data.call(this.#bindingInstance));
+
+            Object.entries(this.#data).forEach(([key, value]) => {
+                this.#bindingInstance[key] = value;
             });
         }
 
@@ -149,20 +159,23 @@ class Component {
         }
     }
 
-    #makeBindProp(prop) {
+    #makeBindProp(name, prop) {
         const {
             type = 'String',
             required = false,
-            defaultValue = () => '',
             showIf = [],
             init = () => {},
             watch = () => true,
         } = prop ?? {};
 
+        if (prop.default != null && typeof prop.default !== 'function') {
+            console.warn(`${name}.default must be a function.`);
+        }
+
         return {
             type,
             required,
-            defaultValue,
+            default: prop.default ?? (() => ''),
             showIf,
             init: (value) => {
                 this.#showIfElement(showIf, value);
@@ -170,21 +183,6 @@ class Component {
             },
             watch: watch.bind(this.#bindingInstance),
         };
-    }
-
-    #initBindingInstance() {
-        this.#defineGetter(this.#bindingInstance, '$id', () => this.#id);
-        this.#defineGetter(this.#bindingInstance, '$el', () => this.#$el);
-        this.#defineGetter(this.#bindingInstance, '$data', () => this.#data);
-        this.#defineGetter(this.#bindingInstance, '$props', () => this.#propsData);
-        this.#defineGetter(this.#bindingInstance, '$request', () => request);
-        this.#defineGetter(this.#bindingInstance, '$find', () => this.#find);
-
-        Object.entries(this.#methods).forEach(([methodName, method]) => {
-            this.#bindingInstance[methodName] = method;
-        });
-
-        Object.freeze(this.#bindingInstance);
     }
 
     #defineGetter(o, name, getter) {
@@ -200,7 +198,7 @@ class Component {
 
         this.#children.forEach(child => {
             const { name, props } = child.#bindData;
-            const { data} = objectUtil.findFirstByKey(baseData, name);
+            const { data} = ObjectUtil.findFirstByKey(baseData, name);
 
             if (!data) {
                 return;
@@ -216,8 +214,12 @@ class Component {
             if (!Object.hasOwn(prop, 'init')) {
                 return;
             }
-            const { type, init, defaultValue } = prop;
-            const value = Object.hasOwn(data, name) ? data[name] : defaultValue();
+            const { type, init } = prop;
+
+            if (!Object.hasOwn(data, name)) {
+                data[name] = prop.default();
+            }
+            const value = data[name];
             this.#validateType(name, type, value);
             init(value);
         });
@@ -228,13 +230,13 @@ class Component {
 
         this.#children.forEach(child => {
             const { name, props: childProps } = child.#bindData;
-            const { data: parentData, path: parentDataPath } = objectUtil.findFirstByKey(rootData, name);
+            const { data: parentData, path: parentDataPath } = ObjectUtil.findFirstByKey(rootData, name);
 
             if (!parentData) {
                 return;
             }
             const parentDataProxy = this.#createReactiveProxy(parentData, childProps);
-            objectUtil.setValue(rootData, parentDataPath, parentDataProxy);
+            ObjectUtil.setValue(rootData, parentDataPath, parentDataProxy);
         });
     }
 
@@ -251,6 +253,12 @@ class Component {
                 return proxyCache.get(obj);
             }
 
+            Object.entries(obj).forEach(([key, value]) => {
+                if (typeof value === 'function') {
+                    obj[key] = value.bind(obj);
+                }
+            });
+
             const proxy = new Proxy(obj, {
                 get(o, prop) {
                     const value = o[prop];
@@ -261,13 +269,18 @@ class Component {
                     return value;
                 },
 
-                set(o, prop, newValue, xy) {
+                set(o, prop, newValue) {
+                    if (typeof newValue === 'function') {
+                        newValue = newValue.bind(obj);
+                    }
+
                     if (o === baseData) {
+                        _this.#updateData(o, prop, newValue);
                         _this.#updateProp(baseData, targetProps, prop, o, prop, newValue);
                         return true;
                     }
 
-                    const target = objectUtil.findFirst(baseData, o);
+                    const target = ObjectUtil.findFirst(baseData, o);
                     if (!target) {
                         return true;
                     }
@@ -282,6 +295,7 @@ class Component {
                         return true;
                     }
 
+                    _this.#updateData(o, prop, newValue);
                     _this.#updateProp(baseData, targetProps, propName, o, prop, newValue);
                     return true;
                 },
@@ -294,13 +308,18 @@ class Component {
         return _createReactiveProxy(baseData);
     }
 
-    #updateProp(baseData, targetProps, targetPropName, updateData, updateName, newValue) {
-        const { type, watch, showIf } = targetProps[targetPropName];
-        
+    #updateData(updateData, updateName, newValue) {
         updateData[updateName] = newValue;
+    }
 
-        const propData = baseData[targetPropName];
-        this.#validateType(targetPropName, type, propData);
+    #updateProp(baseData, props, propName) {
+        if (!Object.hasOwn(props, propName)) {
+            return;
+        }
+        const { type, watch, showIf } = props[propName];
+        const propData = baseData[propName];
+
+        this.#validateType(propName, type, propData);
         this.#showIfElement(showIf, propData);
         watch(propData);
     }

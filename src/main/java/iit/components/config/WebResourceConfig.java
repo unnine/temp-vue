@@ -13,6 +13,10 @@ public class WebResourceConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
+                .addResourceHandler("/components/**")
+                .addResourceLocations("/components/");
+
+        registry
                 .addResourceHandler("/assets/**")
                 .addResourceLocations("classpath:/assets/");
 

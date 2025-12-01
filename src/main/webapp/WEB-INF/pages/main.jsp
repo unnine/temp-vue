@@ -3,8 +3,8 @@
 
 
 <body component-id="${cid}">
-    <_:Layout>
-        <_:Card _data="${cid}.card1">
+<_:Layout>
+    <_:Card _data="${cid}.card1">
             <jsp:attribute name="actions">
                 <_:Button _data="${cid}.card1OkButton">확인</_:Button>
                 <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
@@ -12,37 +12,47 @@
                 <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
             </jsp:attribute>
 
-            <jsp:body>
-                <_:Form _data="${cid}.searchForm" />
-                <_:AUIGrid _data="${cid}.grid" />
-            </jsp:body>
-        </_:Card>
+        <jsp:body>
+            <_:Form _data="${cid}.searchForm"/>
+            <_:AUIGrid _data="${cid}.grid"/>
+        </jsp:body>
+    </_:Card>
 
-        <_:Card>
-            카드2
-        </_:Card>
-    </_:Layout>
+    <_:Card>
+        카드2
+    </_:Card>
+</_:Layout>
 </body>
 
 <script type="module">
-    import { newComponent } from 'dom';
-    import { FormUtil } from 'form';
-    import { searchForm } from '/values/main.js';
+    import {newComponent} from 'dom';
+    import {FormUtil} from 'form';
+    import {searchForm, columns} from '/values/main.js';
 
     const component = newComponent({
         id: '${cid}',
         mounted() {
             this.$request()
                 .get('https://jsonplaceholder.typicode.com/albums')
-                .then(({ data }) => {
-                    this.$data.searchForm.content[0].label = data[0].title;
-                    this.$data.searchForm.list = data;
+                .then(({data}) => {
+                    this.grid.$grid.setGridData(data);
                 });
         },
         data() {
             return {
                 grid: {
-
+                    $grid: null,
+                    columns,
+                    defaultData: [],
+                    event: {
+                        onCreated: (proxy) => {
+                            this.grid.$grid = proxy;
+                        },
+                        onClickButton: (e) => {
+                            const { $grid } = this.grid;
+                            const data = $grid.getGridData();
+                        },
+                    },
                 },
                 card1: {
                     title: 'Card - 1',
@@ -75,7 +85,7 @@
                     countPerRow: 4,
                     title: '',
                     onInput: e => {
-                        const formData = FormUtil.getData(this.$data.searchForm.content);
+                        const formData = FormUtil.getData(this.searchForm.content);
                         console.log(formData);
                     },
                     list: [],

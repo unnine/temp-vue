@@ -8,14 +8,20 @@
     <title>imports</title>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/components/style/index.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/components/plugin/auigrid/AUIGrid_modern_style.css">
 
-    <script src="${pageContext.request.contextPath}/components/plugin/axios.min.js"></script>
+    <script src="${pageContext.request.contextPath}/components/plugin/axios/axios.min.js"></script>
+    <script src="${pageContext.request.contextPath}/components/plugin/auigrid/AUIGridLicense.js"></script>
+    <script src="${pageContext.request.contextPath}/components/plugin/auigrid/AUIGrid.js"></script>
+    <script src="${pageContext.request.contextPath}/components/plugin/luxon/luxon.min.js"></script>
 
     <script type="importmap">
         {
             "imports": {
                 "dom": "${pageContext.request.contextPath}/components/js/dom/index.js",
-                "form": "${pageContext.request.contextPath}/components/js/form/index.js"
+                "form": "${pageContext.request.contextPath}/components/js/form/index.js",
+                "grid": "${pageContext.request.contextPath}/components/js/grid/index.js",
+                "util": "${pageContext.request.contextPath}/components/js/util/index.js"
            }
         }
     </script>

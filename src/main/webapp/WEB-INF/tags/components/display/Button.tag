@@ -18,25 +18,20 @@
 
     const component = newComponent({
         id: '${cid}',
-        mounted() {
-            this.$find('button').on('click', e => {
-                this.$props.onClick(e);
-            });
-        },
         bindData: {
             target: `${_data}`,
             props: {
                 type: {
                     type: 'String',
                     desc: ['normal', 'warn', 'danger',],
-                    defaultValue: () => 'normal',
+                    default: () => 'normal',
                     init(value) {
                         this.$find(`button`).addClass(value);
                     },
                 },
                 disabled: {
                     type: 'Boolean',
-                    defaultValue: () => false,
+                    default: () => false,
                     init(value) {
                         if (value) {
                             this.$find('button').addClass('disabled');
@@ -47,6 +42,11 @@
                     type: 'Function',
                 },
             },
+        },
+        mounted() {
+            this.$find('button').on('click', e => {
+                this.$props.onClick(e);
+            });
         },
     });
 
