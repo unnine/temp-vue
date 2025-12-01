@@ -1,12 +1,9 @@
 .form-base {
     --input-padding: 8px 6px 6px 10px;
     --border-color: rgb(200, 200, 200);
-}
 
-.form-base {
     overflow: auto;
     display: grid;
-    border-top: 1px solid rgb(231, 231, 231);
 }
 
 .form-item {

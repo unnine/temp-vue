@@ -4,8 +4,11 @@
 
 <%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
 
-<div component-id="${cid}">
-    <h3 e-id="title" class="form-title"></h3>
+
+<div component-id="${cid}" class="form-component">
+    <div e-id="header" class="form-component__header hide">
+        <h3 e-id="title" class="form-title"></h3>
+    </div>
     <form e-id="form" class="form-base"></form>
 </div>
 
@@ -29,7 +32,10 @@
                 },
                 title: {
                     type: 'String',
-                    showIf: ['title'],
+                    showIf: ['header'],
+                    init(value) {
+                        this.$find('title').append(value);
+                    },
                 },
                 content: {
                     type: 'Array',
@@ -54,3 +60,14 @@
     });
 
 </script>
+
+<style>
+.form-component {
+    position: relative;
+}
+
+.form-component__header {
+    border-bottom: 1px solid var(---color-border--light);
+    padding: 10px 6px;
+}
+</style>

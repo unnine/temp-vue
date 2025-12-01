@@ -1,16 +1,20 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
+
 <body component-id="${cid}">
     <_:Layout>
         <_:Card _data="${cid}.card1">
             <jsp:attribute name="actions">
-                <_:Button _data="${cid}.card1CancelButton">확인</_:Button>
-                <_:Button _data="${cid}.card1OkButton">취소</_:Button>
+                <_:Button _data="${cid}.card1OkButton">확인</_:Button>
+                <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
+                <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
+                <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
             </jsp:attribute>
 
             <jsp:body>
-                qwdqd222
+                <_:Form _data="${cid}.searchForm" />
+                <_:AUIGrid _data="${cid}.grid" />
             </jsp:body>
         </_:Card>
 
@@ -22,23 +26,24 @@
 
 <script type="module">
     import { newComponent } from 'dom';
-    import { FormBuilder, FormUtil } from 'form';
+    import { FormUtil } from 'form';
     import { searchForm } from '/values/main.js';
 
     const component = newComponent({
         id: '${cid}',
         mounted() {
-            setTimeout(() => this.$data.form.title ='테스트 폼', 1000);
-
             this.$request()
                 .get('https://jsonplaceholder.typicode.com/albums')
                 .then(({ data }) => {
-                    this.$data.form.content[0].label = data[0].title;
-                    this.$data.form.list = data;
+                    this.$data.searchForm.content[0].label = data[0].title;
+                    this.$data.searchForm.list = data;
                 });
         },
         data() {
             return {
+                grid: {
+
+                },
                 card1: {
                     title: 'Card - 1',
 
@@ -49,18 +54,28 @@
                     },
                 },
                 card1CancelButton: {
+                    type: 'warn',
                     onClick(e) {
                         console.log('cancel');
                     },
                 },
-                form: {
+                card1ErrorButton: {
+                    type: 'danger',
+                    onClick(e) {
+                        console.log('error');
+                    },
+                },
+                card1DisabledButton: {
+                    disabled: true,
+                    onClick(e) {
+                        console.log('never');
+                    },
+                },
+                searchForm: {
                     countPerRow: 4,
                     title: '',
-                    onInput: ({ item, originEvent }) => {
-                        const { data } = this.$data.form;
-                        data[item.name] = originEvent.target.value;
-
-                        const formData = FormUtil.getData(this.$data.form.content);
+                    onInput: e => {
+                        const formData = FormUtil.getData(this.$data.searchForm.content);
                         console.log(formData);
                     },
                     list: [],

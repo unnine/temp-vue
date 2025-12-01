@@ -30,13 +30,12 @@
     display: flex;
     height: 40px;
     background: linear-gradient(135deg, var(---color--primary-light), var(---color--primary));
-    box-shadow: var(---box-shadow-base);
 }
 
 .base-header-component__logo-box {
     position: relative;
     width: 100px;
-    height: 100px;
+    height: 100%;
     padding: 10px;
 }
 

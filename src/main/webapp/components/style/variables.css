@@ -6,7 +6,7 @@
     ---color-border--light: rgb(235, 235, 235);
     ---color-bg--light: rgb(246, 246, 246);
     /*---color-bg--deep: rgb(100, 100, 100);*/
-    /*---color-selection--primary: rgb(135, 206, 235);*/
+    ---color-selection--primary: rgb(135, 206, 235);
 
     ---side-bar-width: 120px;
     ---box-shadow-base: 0 0 3px 0 rgb(230, 230, 230);

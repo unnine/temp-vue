@@ -53,6 +53,7 @@
 
 .base-layout-component__header-wrap {
     position: relative;
+    box-shadow: var(---box-shadow-base);
 }
 
 .base-layout-component__body-wrap {

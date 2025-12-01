@@ -15,7 +15,8 @@ const componentsConnector = new class ComponentsConnector {
 
     connect() {
         this.#connectChildrenToParent();
-        this.#bindingParentDataToChildrenProps();
+        this.#bindingParentAndChildrenComponents();
+        this.#mount();
     }
 
     #connectChildrenToParent() {
@@ -36,7 +37,17 @@ const componentsConnector = new class ComponentsConnector {
         });
     }
 
-    #bindingParentDataToChildrenProps() {
+    #bindingParentAndChildrenComponents() {
+        this.#$components.forEach($component => {
+            if (!this.#instances.has($component)) {
+                return;
+            }
+            const instance = this.#instances.get($component);
+            instance._bindingComponents();
+        });
+    }
+
+    #mount() {
         this.#$components.forEach($component => {
             if (!this.#instances.has($component)) {
                 return;
@@ -184,12 +195,6 @@ class Component {
         });
     }
 
-    _mount() {
-        this.#setValueToChildProps();
-        this.#bindingDataToChildrenProps();
-        this.#lifeCycle.mounted();
-    }
-
     #setValueToChildProps() {
         const baseData = this.#data;
 
@@ -295,10 +300,9 @@ class Component {
         updateData[updateName] = newValue;
 
         const propData = baseData[targetPropName];
-        watch(propData);
-
         this.#validateType(targetPropName, type, propData);
         this.#showIfElement(showIf, propData);
+        watch(propData);
     }
 
     #showIfElement(showIf, value) {
@@ -307,11 +311,10 @@ class Component {
         }
         showIf.forEach(elementId => {
             if (value) {
-                this.#find(elementId).append(value);
-                this.#find(elementId).removeStyle('display');
+                this.#find(elementId).show();
                 return;
             }
-            this.#find(elementId).addStyle('display', 'none');
+            this.#find(elementId).hide();
         });
     }
 
@@ -332,6 +335,15 @@ class Component {
         if (actualType !== _type) {
             console.warn(`'${name}' prop is invalid type. expected '${_type}', but got '${actualType}'. value: ${value}`);
         }
+    }
+
+    _bindingComponents() {
+        this.#setValueToChildProps();
+        this.#bindingDataToChildrenProps();
+    }
+
+    _mount() {
+        this.#lifeCycle.mounted();
     }
 
     _getParentComponentElement() {

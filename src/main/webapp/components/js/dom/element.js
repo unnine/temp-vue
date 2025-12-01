@@ -1,4 +1,4 @@
-import { FormRenderer } from '../form/index.js';
+import {FormRenderer} from '../form/index.js';
 
 export default class Element {
 
@@ -10,17 +10,30 @@ export default class Element {
     constructor(componentId, id) {
         this._componentId = componentId;
         this._id = id;
-        this._$el = this._findElementById(id);
+
+        if (componentId === id) {
+            this._$el = this.#findByComponentId(componentId);
+        } else {
+            this._$el = this.#findByElementId(id);
+        }
 
         Object.freeze(this);
     }
 
-
-    _findElementById(id) {
-        const $el = document.querySelector(`[component-id="${this._componentId}"] [e-id="${id}"]`);
+    #findByComponentId(id) {
+        const $el = document.querySelector(`[component-id="${id}"]`);
 
         if (!$el || !($el instanceof HTMLElement)) {
             throw new Error(`Cannot find element with id ${id}`);
+        }
+        return $el;
+    }
+
+    #findByElementId(id) {
+        const $el = document.querySelector(`[component-id="${this._componentId}"] [e-id="${id}"]`);
+
+        if (!$el || !($el instanceof HTMLElement)) {
+            throw new Error(`Cannot find element with id '${id}'`);
         }
         return $el;
     }
@@ -84,6 +97,45 @@ export default class Element {
 
     removeStyle(key) {
         this._$el.style[key] = null;
+        return this;
+    }
+
+    isEmpty() {
+        return this._$el.children.length === 0;
+    }
+
+    isNotEmpty() {
+        return !this.isEmpty();
+    }
+
+    whenEmpty(fn) {
+        if (this.isEmpty()) {
+            fn(this);
+        }
+        return this;
+    }
+
+    whenNotEmpty(fn) {
+        if (!this.isEmpty()) {
+            fn(this);
+        }
+        return this;
+    }
+
+    showIf(predicate) {
+        if (predicate()) {
+            this.show();
+        }
+        return this;
+    }
+
+    hide() {
+        this.addClass('hide');
+        return this;
+    }
+
+    show() {
+        this.removeClass('hide');
         return this;
     }
 

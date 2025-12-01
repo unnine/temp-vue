@@ -47,6 +47,11 @@
         <name>Button</name>
         <path>/WEB-INF/tags/components/display/Button.tag</path>
     </tag-file>
+
+    <tag-file>
+        <name>AUIGrid</name>
+        <path>/WEB-INF/tags/components/display/AUIGrid.tag</path>
+    </tag-file>
     <!--/ display /-->
 
 
