@@ -25,7 +25,7 @@
                 },
                 countPerRow: {
                     type: 'Number',
-                    default: () => 2,
+                    default: () => 3,
                     init(value) {
                         this.$find('form').setStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
                     },

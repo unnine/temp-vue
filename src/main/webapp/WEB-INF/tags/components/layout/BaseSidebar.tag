@@ -6,7 +6,7 @@
 
 <div component-id="${cid}" class="base-sidebar-component">
     <div class="base-sidebar-component__content">
-
+Sidebar
     </div>
 </div>
 

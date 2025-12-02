@@ -5,12 +5,12 @@
 <body component-id="${cid}">
 <_:Layout>
     <_:Card _data="${cid}.card1">
-            <jsp:attribute name="actions">
-                <_:Button _data="${cid}.card1OkButton">확인</_:Button>
-                <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
-                <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
-                <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
-            </jsp:attribute>
+        <jsp:attribute name="header">
+            <_:Button _data="${cid}.card1OkButton">확인</_:Button>
+            <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
+            <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
+            <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
+        </jsp:attribute>
 
         <jsp:body>
             <_:Form _data="${cid}.searchForm"/>
@@ -51,7 +51,9 @@
                         onClickButton: (e) => {
                             const { $grid } = this.grid;
                             const data = $grid.getGridData();
+                            console.log(e, data);
                         },
+                        cellClick: e => console.log(e),
                     },
                 },
                 card1: {
@@ -82,7 +84,7 @@
                     },
                 },
                 searchForm: {
-                    countPerRow: 4,
+                    countPerRow: 2,
                     title: '',
                     onInput: e => {
                         const formData = FormUtil.getData(this.searchForm.content);

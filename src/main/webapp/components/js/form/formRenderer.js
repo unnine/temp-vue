@@ -68,7 +68,7 @@ class FormRenderer {
     #textView(item) {
         const { name, label, options } = item ?? {};
         const $node = document.createElement('div');
-        $node.classList.add('form-element', 'form-element__text-view');
+        $node.classList.add('form-element__text-view');
         $node.setAttribute('name', name);
         $node.innerHTML = options?.value ?? '234';
         return this.#createFormItem(label, $node);
@@ -77,7 +77,7 @@ class FormRenderer {
     #textarea(item, event) {
         const { name, label, options } = item ?? {};
         const $node = document.createElement('textarea');
-        $node.classList.add('form-element', 'form-element__textarea');
+        $node.classList.add('form-element__textarea');
         $node.setAttribute('name', name);
         $node.setAttribute('rows', 1);
         $node.innerHTML = options?.value ?? '';
@@ -88,17 +88,18 @@ class FormRenderer {
     #select(item, event) {
         const { name, label } = item ?? {};
         const $node = document.createElement('select');
-        $node.classList.add('form-element', 'form-element__select');
+        $node.classList.add('form-element__select');
         $node.setAttribute('name', name);
         this.#onInputEventHandler(item, $node, event);
         return this.#createFormItem(label, $node);
     }
 
-    #createFormItem(label, $element) {
+    #createFormItem(label, $node) {
         const $formItem = document.createElement('div');
         $formItem.classList.add('form-item');
 
         const $label = this.#createFormLabel(label);
+        const $element= this.#createFormElement($node);
         $formItem.append($label, $element);
 
         return $formItem;
@@ -106,9 +107,16 @@ class FormRenderer {
 
     #createFormLabel(label) {
         const $label = document.createElement('div');
-        $label.classList.add('form-item__label');
+        $label.classList.add('form-label');
         $label.textContent = label;
         return $label;
+    }
+
+    #createFormElement($node) {
+        const $element = document.createElement('div');
+        $element.classList.add('form-element');
+        $element.append($node);
+        return $element;
     }
 
     #createInput(type, item, event) {
@@ -125,7 +133,7 @@ class FormRenderer {
         }
 
         const $wrapper = document.createElement('div');
-        $wrapper.classList.add('form-element', `form-element__input-${type}`);
+        $wrapper.classList.add(`form-element__input-${type}`);
         $wrapper.append($input);
         return $wrapper;
     }

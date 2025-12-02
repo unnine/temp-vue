@@ -9,11 +9,11 @@
         <_:Header />
     </div>
 
-    <div class="base-layout-component__side-bar">
-        <_:Sidebar />
-    </div>
-
     <div class="base-layout-component__content">
+
+        <div class="base-layout-component__side-bar">
+            <_:Sidebar />
+        </div>
 
         <div class="base-layout-component__body-wrap">
             <jsp:doBody />
@@ -36,6 +36,7 @@
     width: 100%;
     height: 100%;
     background: var(---color-bg--light);
+    overflow: hidden;
 }
 
 .base-layout-component__header-wrap {
@@ -45,20 +46,23 @@
 }
 
 .base-layout-component__side-bar {
-    position: fixed;
+    position: relative;
     width: var(---side-bar-width);
     height: 100%;
+    overflow: scroll;
     z-index: 2;
 }
 
 .base-layout-component__content {
     position: relative;
+    display: flex;
     height: 100%;
     z-index: 1;
 }
 
 .base-layout-component__body-wrap {
     position: relative;
-    margin-left: var(---side-bar-width);
+    width: calc(100vw - var(---side-bar-width));
+    overflow: scroll;
 }
 </style>

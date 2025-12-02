@@ -1,28 +1,39 @@
 .form-base {
-    --input-padding: 8px 6px 6px 10px;
+    --input-padding: 3px 4px 4px 6px;
+    --input-min-height: 13px;
     --border-color: rgb(200, 200, 200);
 
     overflow: auto;
     display: grid;
+    border-top: 1px solid var(---color-border--base);
+    border-left: 1px solid var(---color-border--base);
 }
 
 .form-item {
     position: relative;
-    margin: 4px 10px;
+    display: flex;
+    border-collapse: collapse;
+    border-width: 0 1px 1px 0;
+    border-style: solid;
+    border-color: var(---color-border--base);
 }
 
-.form-item__label {
+.form-label {
     position: relative;
-    display: inline;
-    z-index: 2;
-    background-color: rgb(255, 255, 255);
-    top: 8px;
-    left: 5px;
-    padding: 0 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 80px;
+    height: 100%;
+    background-color: rgb(248, 248, 248);
+    padding-right: 4px;
+    border-right: 1px solid var(---color-border--base);
 }
 
 .form-element {
-
+    position: relative;
+    width: 100%;
+    padding: 4px;
 }
 
 .form-element__input-text,
@@ -30,7 +41,6 @@
 .form-element__input-number,
 .form-element__textarea {
     position: relative;
-    z-index: 1;
     border: 1px solid var(--border-color);
     border-radius: 2px;
 }
@@ -42,8 +52,8 @@ textarea {
     border-width: 0;
     font-size: 0.95rem;
     width: 100%;
+    min-height: var(--input-min-height);
     padding: var(--input-padding);
-    min-height: 24px;
 }
 
 input:focus {
@@ -56,8 +66,7 @@ textarea:focus {
 }
 
 .form-element__text-view {
-    border: 1px solid var(--border-color);
-    min-height: 13px;
+    min-height: var(--input-min-height);
     padding: var(--input-padding);
     margin: 0;
 }
