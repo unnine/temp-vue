@@ -1,7 +1,7 @@
 .form-base {
     --input-padding: 3px 4px 4px 6px;
-    --input-min-height: 13px;
     --border-color: rgb(200, 200, 200);
+    --label-bg-color: rgb(248, 248, 248);
 
     overflow: auto;
     display: grid;
@@ -12,10 +12,31 @@
 .form-item {
     position: relative;
     display: flex;
-    border-collapse: collapse;
     border-width: 0 1px 1px 0;
     border-style: solid;
     border-color: var(---color-border--base);
+}
+
+.form-item > .form-element {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 4px;
+}
+
+.form-item-single {
+    position: relative;
+    display: flex;
+    border-width: 0 1px 1px 0;
+    border-style: solid;
+    border-color: var(---color-border--base);
+}
+
+.form-item-single > .form-element {
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .form-label {
@@ -23,50 +44,159 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-width: 80px;
+    min-width: 120px;
     height: 100%;
-    background-color: rgb(248, 248, 248);
-    padding-right: 4px;
+    background-color: var(--label-bg-color);
+    padding: 0 8px 0 4px;
     border-right: 1px solid var(---color-border--base);
-}
-
-.form-element {
-    position: relative;
-    width: 100%;
-    padding: 4px;
-}
-
-.form-element__input-text,
-.form-element__input-password,
-.form-element__input-number,
-.form-element__textarea {
-    position: relative;
-    border: 1px solid var(--border-color);
-    border-radius: 2px;
 }
 
 input[type=text],
 input[type=password],
 input[type=number],
 textarea {
-    border-width: 0;
-    font-size: 0.95rem;
     width: 100%;
-    min-height: var(--input-min-height);
+}
+
+input[type=date],
+input[type=text],
+input[type=password],
+input[type=number],
+textarea {
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
     padding: var(--input-padding);
+    font-size: 0.95rem;
 }
 
 input:focus {
-    outline: 1px solid var(---color-selection--primary);
-}
-
-textarea:focus {
-    outline: none;
     border: 1px solid var(---color-selection--primary);
 }
 
+textarea:focus {
+    border: 1px solid var(---color-selection--primary);
+}
+
+input[type=button] {
+    position: relative;
+    min-width: 20px;
+    min-height: 18px;
+    margin-right: 4px;
+    background-color: var(--label-bg-color);
+    border: 1px solid var(---color-border--base);
+    border-radius: 2px;
+    padding: 3px 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+input[type=file] {
+    position: relative;
+    width: 160px;
+}
+
+input::file-selector-button {
+    background-color: #fff;
+    border: 1px solid var(---color-border--base);
+    border-radius: 2px;
+    font-weight: 400;
+    padding: 3px 7px;
+    cursor: pointer;
+}
+
+input::file-selector-button:hover,
+input[type=button]:hover {
+    background-color: rgb(242, 242, 242)
+}
+
+input::file-selector-button:active,
+input[type=button]:active {
+    background-color: rgb(236, 236, 236)
+}
+
+select {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(---color-border--base);
+}
+
+select:focus {
+    border: 1px solid var(---color-selection--primary);
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    position: relative;
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+    min-height: 16px;
+    background: #fff;
+    border: 1px solid var(---color-border--base);
+    border-radius: 2px;
+}
+
+input[type="checkbox"]:checked {
+    background: rgb(59, 130, 246);
+}
+
+input[type="checkbox"]::after {
+    position: relative;
+    display: none;
+    content: "";
+    width: 27%;
+    height: 53%;
+    top: 1px;
+    left: 4px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+input[type="checkbox"]:checked::after {
+    display: block
+}
+
+.form-element__radio-wrap,
+.form-element__checkbox-wrap {
+    position: relative;
+    display: flex;
+    gap: 3px;
+    margin: 2px 4px 2px 0;
+    white-space: nowrap;
+}
+
+.form-element__radio-group,
+.form-element__checkbox-group {
+    position: relative;
+    display: grid;
+    width: 100%;
+}
+
+.form-element__label {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--label-bg-color);
+    border: 0;
+}
+
+.form-element__blank {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
 .form-element__text-view {
-    min-height: var(--input-min-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: var(--input-padding);
     margin: 0;
 }

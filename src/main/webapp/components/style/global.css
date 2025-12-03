@@ -2,7 +2,8 @@
     color: rgb(40,40,40);
     font-size: 13px;
     font-weight: 400;
-    font-family: Helvetica, Arial, sans-serif, system-ui;
+    font-family: sans-serif, Arial, system-ui;
+    box-sizing: border-box;
 }
 
 h1 {

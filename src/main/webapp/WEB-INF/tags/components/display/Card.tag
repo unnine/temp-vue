@@ -9,7 +9,7 @@
 
 <div component-id="${cid}" class="card-component">
     <div e-id="header" class="card-component__header hide">
-        <div e-id="headerTitle">
+        <div>
             <h3 e-id="title"></h3>
         </div>
 
@@ -52,7 +52,7 @@
         methods: {
             initializeHeader() {
                 this.$find('header').showIf(() => {
-                   if (this.$find('headerTitle').isNotEmpty()) {
+                   if (this.$find('title').isNotEmpty()) {
                        return true;
                    }
                    if (this.$find('headerActions').isNotEmpty()) {

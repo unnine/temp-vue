@@ -2,27 +2,44 @@ import { FormBuilder } from 'form';
 import { ColumnBuilder } from 'grid';
 
 const searchForm = FormBuilder.builder('form')
-    .Input('sample1', '아이디1')
-    .InputPassword('sample2', '비밀번호1')
-    .InputNumber('sample3', '나이1')
-    .Textarea('sample4', '비고1')
-    .Input('sample5', '아이디2')
-    .InputPassword('sample6', '비밀번호2')
-    .InputNumber('sample7', '나이2')
-    .Textarea('sample8', '비고2')
-    .Input('sample9', '아이디3')
-    .InputPassword('sample10', '비밀번호3')
-    .InputNumber('sample11', '나이3')
-    .Textarea('sample12', '비고3')
-    .Input('sample13', '아이디4')
-    .InputPassword('sample14', '비밀번호4')
-    .InputNumber('sample15', '나이4')
-    .Textarea('sample16', '비고4')
-    .Input('sample17', '아이디5')
-    .InputPassword('sample18', '비밀번호5')
-    .InputNumber('sample19', '나이5')
-    .Textarea('sample20', '비고5')
-    .TextView('sample17', '아이디6')
+    .Hidden('sample8', 'Hidden')
+    .Input('sample1', 'Input', { value: '123' })
+    .InputPassword('sample2', 'InputPassword')
+    .InputNumber('sample3', 'InputNumber')
+    .Textarea('sample4', 'Textarea', { value: '234' })
+    .InputFile('sample5', 'InputFile')
+    .Select('sample6', 'Select')
+    .Button('sample9', 'Button', { value: '등록' })
+    .Blank('sample10', 'Blank')
+    .Radio('radio', 'Radio', {
+        label: '체크박스aaa'
+    })
+    .RadioGroup('radioGroup', 'RadioGroup', {
+        countPerRow: 2,
+        groups: [
+            { checkedValue: 1, label: 'a' },
+            { checkedValue: 2, label: 'b' },
+            { checkedValue: 3},
+        ],
+    })
+    .Datepicker('sample13', 'Datepicker')
+    .DatepickerTwin('sample14', 'DatepickerTwin')
+    .DatepickerWithSwitch('sample15', 'DatepickerWithSwitch')
+    .DatepickerTwinWithSwitch('sample16', 'DatepickerTwinWithSwitch')
+    .Checkbox('sample17', 'Checkbox', {
+        label: '라디오bbb',
+    })
+    .CheckboxGroup('sample18', 'CheckboxGroup', {
+        value: ['Y', '1'],
+        countPerRow: 3,
+        groups: [
+            { checkedValue: 'Y', uncheckedValue: 'N', label: '삭제여부' },
+            { checkedValue: 'O', uncheckedValue: 'X', label: '동의여부' },
+            { checkedValue: '1', label: '값' },
+        ],
+    })
+    .TextView('sample19', 'TextView')
+    .Label('sample7', 'Label')
     .build();
 
 const columns = ColumnBuilder.builder()

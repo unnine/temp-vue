@@ -59,9 +59,11 @@
 
     .button-component__button {
         min-width: 20px;
+        min-height: 18px;
         margin-left: 6px;
         border: 1px solid var(---color-border--light);
         border-radius: 3px;
+        font-size: 0.95rem;
         padding: 4px;
         cursor: pointer;
     }
@@ -76,11 +78,11 @@
     }
 
     .button-component__button.normal:hover {
-        background-color: rgb(40, 110, 200);
+        background-color: rgb(44, 114, 204);
     }
 
     .button-component__button.normal:active {
-        background-color: rgb(30, 100, 190);
+        background-color: rgb(38, 108, 198);
     }
 
     .button-component__button.warn {
@@ -88,11 +90,11 @@
     }
 
     .button-component__button.warn:hover {
-        background-color: rgb(235, 190, 80);
+        background-color: rgb(239, 194, 84);
     }
 
     .button-component__button.warn:active {
-        background-color: rgb(225, 180, 70);
+        background-color: rgb(233, 188, 78);
     }
 
     .button-component__button.danger {
@@ -100,11 +102,11 @@
     }
 
     .button-component__button.danger:hover {
-        background-color: rgb(220, 65, 65);
+        background-color: rgb(224, 69, 69);
     }
 
     .button-component__button.danger:active {
-        background-color: rgb(210, 55, 55);
+        background-color: rgb(218, 63, 63);
     }
 
     .button-component__button.danger:disabled {

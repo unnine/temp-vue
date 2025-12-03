@@ -1,0 +1,148 @@
+.simple-datepicker {
+    --base-color: rgb(170, 170, 170);
+
+    box-sizing: border-box;
+    position: relative;
+    height: 24px;
+    width: 120px;
+    background-color: #fff;
+    border: 1px solid var(--base-color);
+    border-radius: 2px;
+    padding: 5px 27px 5px 10px;
+    font-size: 12px;
+}
+
+.simple-datepicker-input {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    letter-spacing: 0.04rem;
+    cursor: default;
+}
+
+.simple-datepicker-input:focus {
+    outline: none;
+    border: 0;
+}
+
+.simple-datepicker-calendar * {
+    box-sizing: border-box;
+    font-size: 12px;
+}
+
+.simple-datepicker-calendar {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid rgb(170, 170, 170);
+    z-index: 2000000000;
+}
+
+.simple-datepicker-calendar__header {
+    position: relative;
+    border-bottom: 1px solid rgb(240, 240, 240);
+}
+
+.simple-datepicker-calendar__header-interaction {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 50px;
+}
+
+.simple-datepicker-calendar__header-interaction__title {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: rgb(50, 50, 50);
+    font-size: 18px;
+    font-weight: normal;
+    font-style: normal;
+    cursor: default;
+}
+
+.simple-datepicker-calendar__header-interaction__button {
+    appearance: none;
+    position: relative;
+    width: 32px;
+    height: 50px;
+    cursor: pointer;
+}
+
+.simple-datepicker-calendar__header-interaction__button:after {
+    position: absolute;
+    display: block;
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-width: 2px 0 0 2px;
+    border-color: rgb(140, 140, 140);
+    border-style: solid;
+    top: 21px;
+}
+
+.simple-datepicker-calendar__header-interaction__button.prev:after {
+    left: 50%;
+    transform: rotate(-45deg);
+}
+
+.simple-datepicker-calendar__header-interaction__button.next:after {
+    right: 50%;
+    transform: rotate(135deg);
+}
+
+.simple-datepicker-calendar__header-divider {
+    width: 100%;
+    height: 3px;
+    background-color: rgb(245, 245, 245);
+}
+
+.simple-datepicker-calendar__body {
+    position: relative;
+    width: 100%;
+    height: 273px;
+}
+
+.simple-datepicker-calendar__body table {
+    table-layout: fixed;
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.simple-datepicker-calendar__body__day-of-week {
+    height: 39px;
+    color: #777;
+    text-align: center;
+    font-weight: 400;
+    cursor: default;
+}
+
+.simple-datepicker-calendar__body__date {
+    height: 39px;
+    color: #999;
+    text-align: center;
+    cursor: pointer;
+}
+
+.simple-datepicker-calendar__body__date.sun {
+    color: rgb(250, 170, 170);
+}
+
+.simple-datepicker-calendar__body__date.sat {
+    color: rgb(170, 170, 250);
+}
+
+.simple-datepicker-calendar__body__date:not(.selected):hover {
+    /*background-color: #edf4fc;*/
+    background-color: rgb(235, 245, 250);
+}
+
+.simple-datepicker-calendar__body__date.selected {
+    background-color: rgb(75, 150, 230);
+    color: #fff;
+}

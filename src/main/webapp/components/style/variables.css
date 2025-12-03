@@ -2,11 +2,9 @@
     ---color--primary: rgb(40, 55, 90);
     ---color--primary-light: rgb(80, 115, 170);
 
-    /*---color--primary: rgb(50, 120, 210);*/
     ---color-border--light: rgb(235, 235, 235);
     ---color-border--base: rgb(204, 204, 204);
     ---color-bg--light: rgb(246, 246, 246);
-    /*---color-bg--deep: rgb(100, 100, 100);*/
     ---color-selection--primary: rgb(135, 206, 235);
 
     ---side-bar-width: 120px;
