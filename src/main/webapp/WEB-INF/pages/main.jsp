@@ -22,12 +22,12 @@
         카드2
     </_:Card>
 
-    <div style="display: flex; justify-content: end; align-items: center; height: 100%;">
+    <div style="display: flex; justify-content: space-between;">
         <div id="datepicker1"></div>
         <div id="datepicker2"></div>
         <div id="datepicker3"></div>
-        <div id="datepicker4"></div>
-        <div id="datepicker5"></div>
+<%--        <div id="datepicker4"></div>--%>
+<%--        <div id="datepicker5"></div>--%>
     </div>
 </_:Layout>
 </body>
@@ -37,11 +37,16 @@
     import {FormUtil} from 'form';
     import {searchForm, columns} from '/values/main.js';
 
-    new Datepicker('datepicker1');
+    const d1 = new Datepicker('datepicker1');
+
+    d1.onInput(e => {
+        console.log(e, d1.value());
+    });
+
     new Datepicker('datepicker2');
     new Datepicker('datepicker3');
-    new Datepicker('datepicker4');
-    new Datepicker('datepicker5');
+    // new Datepicker('datepicker4');
+    // new Datepicker('datepicker5');
 
     const component = newComponent({
         id: '${cid}',

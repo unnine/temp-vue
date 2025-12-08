@@ -3,15 +3,18 @@
  * created: 2025. 12. 04
  */
 
-const format = (year, month, date) => `${year}-${month}-${date}`;
-
 class Calendar {
 
     #constants = {
+        selectType: {
+            DATE: 'date',
+            MONTH: 'month',
+            YEAR: 'year',
+        },
         rect: {
             calendar: {
-                width: 280,
-                height: 329,
+                width: 282,
+                height: 336,
             },
         },
         language: {
@@ -49,28 +52,28 @@ class Calendar {
     #id = 'simple-datepicker-calendar';
     #locale = 'en';
     #isOpen = false;
-    #elements = {};
+    #elements = {
+        $calendar: null,
+        header: {
+            $title: null,
+        },
+        body: {
+            $table: null,
+        },
+    };
+    #selectType = null;
     #displayValue = {};
     #state = {};
 
 
     constructor() {
         this.#initState();
+        this.#renderCalendar();
     }
 
 
     #initState() {
-        this.$el = null;
-        this.#isOpen = false;
-        this.#elements = {
-            $calendar: null,
-            header: {
-                $title: null,
-            },
-            body: {
-                $table: null,
-            },
-        };
+        this.#selectType = this.#constants.selectType.DATE;
         this.#displayValue = {
             year: 0,
             month: 0,
@@ -101,6 +104,14 @@ class Calendar {
         return this.#constants.language[this.#locale];
     }
 
+    #currentSelectType() {
+        return {
+           isDate: this.#selectType === this.#constants.selectType.DATE,
+           isMonth: this.#selectType === this.#constants.selectType.MONTH,
+           isYear: this.#selectType === this.#constants.selectType.YEAR,
+        };
+    }
+
     setConfig(config) {
         const { locale } = config;
 
@@ -115,56 +126,29 @@ class Calendar {
 
     toggle(state) {
         if (this.#isOpen) {
-            this.#isOpen = false;
             this.#close();
             return;
         }
-        this.#isOpen = true;
         this.#state = state;
-        this.#render();
+        this.#open();
     }
 
-    #close() {
-        this.#destroy();
-    }
-
-    #destroy() {
-        if (!this.#elements.$calendar) {
-            return;
-        }
-        this.#elements.$calendar.replaceChildren();
-        this.#elements.$calendar.remove();
-        this.#initState();
-    }
-
-    #render() {
+    #open() {
         const { year, month } = this.#state.value;
+
+        this.#isOpen = true;
+        this.#showCalendar();
         this.#setDisplayYear(year);
         this.#setDisplayMonth(month);
-        this.#renderCalendar();
-        this.#renderDays();
+        this.#renderDatePicker();
     }
 
-    #renderCalendar() {
-        const $calendar = document.createElement('div');
-        $calendar.id = this.#id;
-        $calendar.classList.add('simple-datepicker-calendar');
-
-        const { calendar } = this.#constants.rect;
-        $calendar.style.width = `${calendar.width}px`;
-        $calendar.style.height = `${calendar.height}px`;
-
+    #showCalendar() {
         const { top, left } = this.#getRenderingPoint();
+        const { $calendar } = this.#elements;
+        $calendar.style.display = 'block';
         $calendar.style.top = top;
         $calendar.style.left = left;
-
-        const $header = this.#createHeader();
-        const $body = this.#createBody();
-        $calendar.append($header, $body);
-
-        this.#elements.$calendar = $calendar;
-        document.body.insertAdjacentElement("beforeend", $calendar);
-        this.#bindCalendarCloseEvent();
     }
 
     #getRenderingPoint() {
@@ -178,15 +162,52 @@ class Calendar {
         const overflowScreenY = renderingTop + calendar.height > window.innerHeight;
 
         if (overflowScreenX) {
-            renderingLeft = right - 280;
+            renderingLeft = right - this.#constants.rect.calendar.width;
         }
         if (overflowScreenY) {
-            renderingTop = top - 329;
+            renderingTop = top - this.#constants.rect.calendar.height;
         }
         return {
             top: renderingTop,
             left: renderingLeft,
         };
+    }
+
+    #close() {
+        this.#isOpen = false;
+
+        if (!this.#elements.$calendar) {
+            return;
+        }
+        this.#elements.$calendar.style.display = 'none';
+        this.#clearTable();
+        this.#initState();
+    }
+
+    #renderCalendar() {
+        const $calendar = document.createElement('div');
+        $calendar.id = this.#id;
+        $calendar.classList.add('simple-datepicker-calendar');
+
+        const { calendar } = this.#constants.rect;
+        $calendar.style.width = `${calendar.width}px`;
+        $calendar.style.height = `${calendar.height}px`;
+        $calendar.style.top = `-${calendar.height}px`;
+        $calendar.style.left = `-${calendar.width}px`;
+
+        const $header = this.#createHeader();
+        const $body = this.#createBody();
+        $calendar.append($header, $body);
+
+        this.#bindCalendarCloseEvent($calendar);
+
+        this.#elements.$calendar = $calendar;
+
+        const onLoaded = () => {
+            document.body.insertAdjacentElement("beforeend", $calendar);
+            document.removeEventListener('DOMContentLoaded', onLoaded);
+        }
+        document.addEventListener('DOMContentLoaded', onLoaded);
     }
 
     #createHeader() {
@@ -198,38 +219,19 @@ class Calendar {
         return $header;
     }
 
-    #onPrevMonthButtonEvent = function() {
-        const { year, month } = this.#displayValue;
-        const isJanuary = month === 1;
-        const prevYear = isJanuary ? year -1 : year;
-        const prevMonth = isJanuary ? 12 : month - 1;
-        this.#setDisplayYear(prevYear);
-        this.#setDisplayMonth(prevMonth);
-        this.#renderDays();
-    }.bind(this);
-
-    #onNextMonthButtonEvent = function() {
-        const { year, month } = this.#displayValue;
-        const isDecember = month === 12;
-        const nextYear = isDecember ? year + 1 : year;
-        const nextMonth = isDecember ? 1 : month + 1;
-        this.#setDisplayYear(nextYear);
-        this.#setDisplayMonth(nextMonth);
-        this.#renderDays();
-    }.bind(this);
-
     #createHeaderInteraction() {
         const $prevButton = document.createElement('button');
         $prevButton.classList.add('simple-datepicker-calendar__header-interaction__button', 'prev');
-        $prevButton.addEventListener('click', this.#onPrevMonthButtonEvent);
+        this.#bindPrevMonthButtonEvent($prevButton);
 
         const $title = document.createElement('div');
         $title.classList.add('simple-datepicker-calendar__header-interaction__title');
         this.#elements.header.$title = $title;
+        this.#bindTitleButtonEvent($title);
 
         const $nextButton = document.createElement('button');
         $nextButton.classList.add('simple-datepicker-calendar__header-interaction__button', 'next');
-        $nextButton.addEventListener('click', this.#onNextMonthButtonEvent);
+        this.#bindNextMonthButtonEvent($nextButton);
 
         const $interaction = document.createElement('div');
         $interaction.classList.add('simple-datepicker-calendar__header-interaction');
@@ -253,12 +255,17 @@ class Calendar {
         return $body;
     }
 
-    #renderDays() {
-        this.#removeDays();
+    #renderDatePicker() {
+        this.#selectType = this.#constants.selectType.DATE;
+
+        this.#clearTable();
         this.#renderDaysOfWeek();
-        this.#renderDatePicker();
+        this.#renderDates();
         this.#selectDateByCurrentValue();
-        this.#refreshHeader();
+
+        const { year, month } = this.#displayValue;
+        const title = this.#getLanguage().makeTitle(year, month);
+        this.#refreshTitle(title);
     }
 
     #renderDaysOfWeek() {
@@ -273,7 +280,7 @@ class Calendar {
         this.#elements.body.$table.append($tr);
     }
 
-    #removeDays() {
+    #clearTable() {
         const $table = this.#elements.body.$table;
         if (!$table) {
             return;
@@ -281,14 +288,14 @@ class Calendar {
         $table.replaceChildren();
     }
 
-    #renderDatePicker() {
+    #renderDates() {
         const { year, month } = this.#displayValue;
 
         const getDatesByMonth = () => {
             const firstDate = new Date(year, month - 1, 1);
             const firstDayOfWeek = firstDate.getDay();
             const lastDate = new Date(year, month, 0);
-            const dates = [...Array(lastDate.getDate()).keys().map(i => i + 1)];
+            const dates = [...new Array(lastDate.getDate()).keys().map(i => i + 1)];
 
             for (let i = 0; i < firstDayOfWeek; i++) {
                 dates.unshift(-1);
@@ -330,7 +337,7 @@ class Calendar {
         }
         $cell.classList.add('simple-datepicker-calendar__body__date');
         $cell.innerText = date;
-        $cell.setAttribute('data-simple-datepicker-value', format(year, month, date));
+        $cell.setAttribute('data-value', this.#format(year, month, date));
 
         const dayOfWeekColor = this.#constants.color.dayOfWeek;
         const dayOfWeek = new Date(year, month - 1, date).getDay();
@@ -343,8 +350,115 @@ class Calendar {
         return $cell;
     }
 
+    #renderMonthPicker() {
+        this.#selectType = this.#constants.selectType.MONTH;
+
+        this.#clearTable();
+        this.#renderMonths();
+        this.#selectMonthByCurrentValue();
+
+        const { year } = this.#displayValue;
+        this.#refreshTitle(year);
+    }
+
+    #renderMonths() {
+        const monthNames = [...this.#getLanguage().month.names];
+
+        const toRows = (monthNames) => {
+            const rows = [];
+
+            while (monthNames.length > 0) {
+                rows.push([...monthNames.splice(0, 3)]);
+            }
+            return rows;
+        }
+
+        let monthValue = 0;
+
+        const addRow = (row) => {
+            const $row = document.createElement('tr');
+
+            row.forEach((monthName) => {
+                monthValue += 1;
+                const $cell = this.#createMonthCell(monthName, monthValue);
+                $row.append($cell);
+            });
+            this.#elements.body.$table.append($row);
+        }
+
+        const rows = toRows(monthNames);
+        rows.forEach(row => addRow(row));
+    }
+
+    #createMonthCell(monthName, monthValue) {
+        const $cell = document.createElement('td');
+        $cell.classList.add('simple-datepicker-calendar__body__month');
+        $cell.innerText = monthName;
+        $cell.setAttribute('data-value', monthValue);
+        this.#bindSelectMonthEvent($cell);
+        return $cell;
+    }
+
+    #renderYearPicker() {
+        this.#selectType = this.#constants.selectType.YEAR;
+
+        this.#clearTable();
+        this.#renderYears();
+        this.#selectYearByCurrentValue();
+
+        const { min, max } = this.#getYearsRange();
+        this.#refreshTitle(`${min} - ${max}`);
+    }
+
+    #renderYears() {
+        const { year } = this.#displayValue;
+
+        const toRows = (years) => {
+            const rows = [];
+
+            while (years.length > 0) {
+                rows.push([...years.splice(0, 3)]);
+            }
+            return rows;
+        }
+
+        const addRow = (row) => {
+            const $row = document.createElement('tr');
+
+            row.forEach((year) => {
+                const $cell = this.#createYearCell(year);
+                $row.append($cell);
+            });
+            this.#elements.body.$table.append($row);
+        }
+
+        const { min, max } = this.#getYearsRange();
+        const years = new Array(max - min)
+            .fill(min)
+            .map((v, i) => v + i);
+
+        const rows = toRows(years);
+        rows.forEach(row => addRow(row));
+    }
+
+    #createYearCell(year) {
+        const $cell = document.createElement('td');
+        $cell.classList.add('simple-datepicker-calendar__body__year');
+        $cell.innerText = year;
+        $cell.setAttribute('data-value', year);
+        this.#bindSelectYearEvent($cell);
+        return $cell;
+    }
+
+    #getYearsRange() {
+        const { year } = this.#displayValue;
+        const min = year - (year % 10);
+        const max = min + 10;
+        return { min, max };
+    }
+
     #bindSelectDateEvent($date) {
-        $date.addEventListener('click', e => {
+        $date.addEventListener('pointerdown', e => {
             e.stopPropagation();
             const { year, month }  = this.#displayValue;
             this.#selectValue(year, month, e.target.innerText);
@@ -352,15 +466,125 @@ class Calendar {
         });
     }
 
-    #bindCalendarCloseEvent() {
-        this.#elements.$calendar.addEventListener('click', e => e.stopPropagation());
-        document.removeEventListener('click', this.#onCloseCalendar);
-        document.addEventListener('click', this.#onCloseCalendar);
+    #bindSelectMonthEvent($month) {
+        $month.addEventListener('pointerdown', e => {
+            e.stopPropagation();
+            this.#setDisplayMonth(e.target.dataset.value);
+            this.#renderDatePicker();
+        });
     }
 
-    #onCloseCalendar = function(e) {
-        this.#close();
-    }.bind(this);
+    #bindSelectYearEvent($year) {
+        $year.addEventListener('pointerdown', e => {
+            e.stopPropagation();
+            this.#setDisplayYear(e.target.dataset.value);
+            this.#renderMonthPicker();
+        });
+    }
+
+    #bindCalendarCloseEvent($calendar) {
+        $calendar.addEventListener('pointerdown', e => e.stopPropagation());
+        document.addEventListener('pointerdown', () => this.#close());
+    }
+
+    #bindPrevMonthButtonEvent($button) {
+        const onDatePicker = () => {
+            const { year, month } = this.#displayValue;
+            const isJanuary = month === 1;
+            const prevYear = isJanuary ? year - 1 : year;
+            const prevMonth = isJanuary ? 12 : month - 1;
+            this.#setDisplayYear(prevYear);
+            this.#setDisplayMonth(prevMonth);
+            this.#renderDatePicker();
+        }
+
+        const onMonthPicker = () => {
+            const { year } = this.#displayValue;
+            const prevYear = year - 1;
+            this.#setDisplayYear(prevYear);
+            this.#refreshTitle(prevYear);
+        }
+
+        const onYearPicker = () => {
+            const { year } = this.#displayValue;
+            const prevYear = year - 10;
+            this.#setDisplayYear(prevYear);
+            this.#renderYearPicker();
+        }
+
+        $button.addEventListener('pointerdown', e => {
+            const currentSelectType = this.#currentSelectType();
+
+            if (currentSelectType.isDate) {
+                onDatePicker();
+                return;
+            }
+            if (currentSelectType.isMonth) {
+                onMonthPicker();
+                return;
+            }
+            if (currentSelectType.isYear) {
+                onYearPicker();
+            }
+        });
+    }
+
+    #bindNextMonthButtonEvent($button) {
+        const onDatePicker = () => {
+            const { year, month } = this.#displayValue;
+            const isDecember = month === 12;
+            const nextYear = isDecember ? year + 1 : year;
+            const nextMonth = isDecember ? 1 : month + 1;
+            this.#setDisplayYear(nextYear);
+            this.#setDisplayMonth(nextMonth);
+            this.#renderDatePicker();
+        }
+
+        const onMonthPicker = () => {
+            const { year } = this.#displayValue;
+            const nextYear = year + 1;
+            this.#setDisplayYear(nextYear);
+            this.#refreshTitle(nextYear);
+        }
+
+        const onYearPicker = () => {
+            const { year } = this.#displayValue;
+            const nextYear = year + 10;
+            this.#setDisplayYear(nextYear);
+            this.#renderYearPicker();
+        }
+
+        $button.addEventListener('pointerdown', e => {
+            const currentSelectType = this.#currentSelectType();
+
+            if (currentSelectType.isDate) {
+                onDatePicker();
+                return;
+            }
+            if (currentSelectType.isMonth) {
+                onMonthPicker();
+                return;
+            }
+            if (currentSelectType.isYear) {
+                onYearPicker();
+            }
+        });
+    }
+
+    #bindTitleButtonEvent($title) {
+        $title.addEventListener('pointerdown', () => {
+            const currentSelectType = this.#currentSelectType();
+
+            if (currentSelectType.isDate) {
+                this.#renderMonthPicker();
+                return;
+            }
+            if (currentSelectType.isMonth) {
+                this.#renderYearPicker();
+                return;
+            }
+        });
+    }
 
     #setDisplayYear(year) {
         this.#displayValue.year = Number(year);
@@ -384,9 +608,8 @@ class Calendar {
         this.#state.onSelectedDate(n_date);
     }
 
-    #selectDateByCurrentValue() {
-        const { year, month, date } = this.#state.value;
-        const $target = document.querySelector(`[data-simple-datepicker-value="${format(year, month, date)}"]`);
+    #selectCellByValue(value) {
+        const $target = document.querySelector(`#${this.#id} [data-value="${value}"]`);
 
         if (!$target) {
             return;
@@ -394,14 +617,33 @@ class Calendar {
         $target.classList.add('selected');
     }
 
-    #refreshHeader() {
-        const { year, month } = this.#displayValue;
-        this.#elements.header.$title.innerText = this.#getLanguage().makeTitle(year, month);
+    #selectDateByCurrentValue() {
+        const { year, month, date } = this.#state.value;
+        this.#selectCellByValue(this.#format(year, month, date));
     }
+
+    #selectMonthByCurrentValue() {
+        const { month } = this.#displayValue;
+        this.#selectCellByValue(month);
+    }
+
+    #selectYearByCurrentValue() {
+        const { year } = this.#displayValue;
+        this.#selectCellByValue(year);
+    }
+
+    #refreshTitle(title) {
+        this.#elements.header.$title.innerText = title;
+    }
+
+    #format(year, month, date) {
+        return `${year}-${month}-${date}`;
+    }
+
 }
 
 const globalCalendar = new Calendar();
-globalCalendar.setConfig({ locale: 'ko' });
+// globalCalendar.setConfig({ locale: 'ko' });
 
 class Datepicker {
 
@@ -413,6 +655,12 @@ class Datepicker {
         year: 0,
         month: 0,
         date: 0,
+    };
+
+    #state = {
+        event: {
+            onInput: () => {},
+        },
     };
 
 
@@ -465,23 +713,37 @@ class Datepicker {
         const year = today.getFullYear();
         const month = today.getMonth() + 1;
         const date = today.getDate();
-        return format(year, month, date);
+        return this.#format(year, month, date);
     }
 
     #synchronizeValueToView() {
-        const { year, month, date } = this.#value;
-        const value = format(year, month, date);
-        this.#$input.value = value;
+        this.#$input.value = this.value();
+    }
+
+    #format(year, month, date) {
+        return `${year}-${this.#padZero(month)}-${this.#padZero(date)}`;
+    }
+
+    #padZero = (value) => {
+        if (value == null) {
+            return value;
+        }
+        return String(value).padStart(2, '0');
     }
 
     #bindContainerEvents() {
-        this.#$el.addEventListener('click', e => {
-            e.stopPropagation();
+        document.addEventListener('pointerdown', e => {
+            const isMe = this.#$el === e.target;
+            const isChild = this.#$el.contains(e.target);
 
+            if (!isMe && !isChild) {
+                return;
+            }
             if (globalCalendar.isOpen()) {
                 return;
             }
-            const { x, y, width, height, top, left, right, bottom } = e.currentTarget.getBoundingClientRect();
+
+            const { x, y, width, height, top, left, right, bottom } = this.#$el.getBoundingClientRect();
 
             globalCalendar.toggle({
                 rect: { x, y, width, height, top, left, right, bottom },
@@ -493,21 +755,34 @@ class Datepicker {
         });
     }
 
-    #onSelectedYear = function(selectedYear) {
+    #onSelectedYear = (selectedYear) => {
         this.#value.year = selectedYear;
         this.#synchronizeValueToView();
-    }.bind(this);
+    };
 
-    #onSelectedMonth = function(selectedMonth) {
+    #onSelectedMonth = (selectedMonth) => {
         this.#value.month = selectedMonth;
         this.#synchronizeValueToView();
-    }.bind(this);
+    };
 
-    #onSelectedDate = function(selectedDate) {
+    #onSelectedDate = (selectedDate) => {
         this.#value.date = selectedDate;
         this.#synchronizeValueToView();
-    }.bind(this);
+        this.#state.event.onInput({
+            value: this.value()
+        });
+    };
 
+    value() {
+        const { year, month, date } = this.#value;
+        return this.#format(year, month, date);
+    }
+
+    onInput(handler) {
+        if (typeof handler === 'function') {
+            this.#state.event.onInput = handler;
+        }
+    }
 
 }
 
