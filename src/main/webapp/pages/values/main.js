@@ -3,12 +3,49 @@ import { ColumnBuilder } from 'grid';
 
 const searchForm = FormBuilder.builder('form')
     .Hidden('sample8', 'Hidden')
-    .Input('sample1', 'Input', { value: '123' })
+    .multiple('multiple', '멀티', {
+        countPerRow: 2,
+        children: FormBuilder.builder()
+            .Input('m1', 'm1')
+            .InputPassword('m3', 'm2')
+            .Input('m2', 'm1')
+            .InputPassword('m4', 'm2')
+            .required()
+            .build(),
+    })
+    .Input('sample1', 'Input', {
+        validator(value) {
+            if (value == 1) {
+                return '1은 입력할 수 없습니다.';
+            }
+            if (value == 12) {
+                return false;
+            }
+            if (value === '') {
+                return '필수입니다.';
+            }
+            return true;
+        },
+    })
+    .required()
+    // .colSpan(2)
+    // .rowSpan(2)
     .InputPassword('sample2', 'InputPassword')
+    .required()
     .InputNumber('sample3', 'InputNumber')
+    .required()
+    .Select('sample6', 'Select', {
+        value: 1,
+        options: async () => {
+            return [
+                { label: '전체', value: '' },
+                { label: 'a', value: 1 },
+                { label: 'b', value: 2 }
+            ];
+        },
+    })
     .Textarea('sample4', 'Textarea', { value: '234' })
     .InputFile('sample5', 'InputFile')
-    .Select('sample6', 'Select')
     .Button('sample9', 'Button', { value: '등록' })
     .Blank('sample10', 'Blank')
     .Radio('radio', 'Radio', {
@@ -19,13 +56,16 @@ const searchForm = FormBuilder.builder('form')
         groups: [
             { checkedValue: 1, label: 'a' },
             { checkedValue: 2, label: 'b' },
-            { checkedValue: 3},
         ],
     })
     .Datepicker('sample13', 'Datepicker')
-    .DatepickerTwin('sample14', 'DatepickerTwin')
-    .DatepickerWithSwitch('sample15', 'DatepickerWithSwitch')
-    .DatepickerTwinWithSwitch('sample16', 'DatepickerTwinWithSwitch')
+    .DatepickerRange('sample14', 'DatepickerRange')
+    .DatepickerToggle('sample15', 'DatepickerWithSwitch', {
+        checked: true,
+    })
+    .DatepickerRangeToggle('sample16', 'DatepickerRangeWithSwitch', {
+        checked: true,
+    })
     .Checkbox('sample17', 'Checkbox', {
         label: '라디오bbb',
     })

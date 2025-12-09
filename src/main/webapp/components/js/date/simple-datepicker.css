@@ -1,22 +1,57 @@
-.simple-datepicker {
+/**
+ * author: 정언구
+ * created: 2025. 12. 04
+ */
+
+/** basic **/
+
+.simple-datepicker-container {
     --base-color: rgb(170, 170, 170);
+    --disabled-color: rgba(245, 245, 245, 0.5);
 
     box-sizing: border-box;
     position: relative;
+    display: flex;
+    align-items: center;
+    width: 100px;
     height: 24px;
-    width: 120px;
     background-color: #fff;
     border-width: 1px;
     border-style: solid;
     border-radius: 2px;
-    padding: 5px 27px 5px 10px;
+    padding: 0 20px 0 3px;
+    font-family: sans-serif, Arial, system-ui;
+    font-weight: 400;
+}
+
+.simple-datepicker-container.disabled {
+    pointer-events: none;
+    background-color: var(--disabled-color);
+}
+
+.simple-datepicker-container.disabled .simple-datepicker-input  {
+    pointer-events: none;
+    background-color: var(--disabled-color);
+}
+
+.simple-datepicker-container.readonly {
+    pointer-events: none;
+    background-color: var(--disabled-color);
+}
+
+.simple-datepicker-container.readonly .simple-datepicker-input  {
+    pointer-events: none;
+    background-color: var(--disabled-color);
+}
+
+.simple-datepicker-container * {
     font-size: 12px;
 }
 
 .simple-datepicker-input {
     position: relative;
     width: 100%;
-    height: 100%;
+    border: 0;
     letter-spacing: 0.04rem;
     cursor: default;
 }
@@ -27,16 +62,45 @@
 }
 
 
-/* calendar */
+/** range **/
+
+.simple-range-datepicker-container {
+    position: relative;
+    display: flex;
+    gap: 12px;
+}
+
+.simple-range-datepicker-container.disabled {
+    pointer-events: none;
+}
+
+.simple-range-datepicker-container.readonly {
+    pointer-events: none;
+}
+
+.simple-range-datepicker-container:after {
+    position: absolute;
+    content: '~';
+    left: 102px;
+    top: 20%;
+}
+
+
+/** calendar **/
 
 .simple-datepicker-calendar {
-    --cell-color: rgb(100, 100, 100);
+    --cell-color: rgb(110, 110, 110);
+    --day-of-week-cell-color: rgb(130, 130, 130);
     --selected-cell-bg-color: rgb(75, 150, 230);
+    --cell-hover-bg-color:  rgb(235, 245, 250);
 
     position: absolute;
     display: block;
     background-color: #fff;
     border: 1px solid rgb(170, 170, 170);
+    font-size: 12px;
+    font-family: sans-serif, Arial, system-ui;
+    font-weight: 400;
     z-index: 2000000000;
 }
 
@@ -79,6 +143,8 @@
     display: block;
     width: 32px;
     height: 50px;
+    background-color: transparent;
+    border: 0;
     cursor: pointer;
 }
 
@@ -88,7 +154,7 @@
     content: '';
     width: 7px;
     height: 7px;
-    border-width: 2px 0 0 2px;
+    border-width: 1px 0 0 1px;
     border-color: rgb(140, 140, 140);
     border-style: solid;
     top: 21px;
@@ -104,10 +170,40 @@
     transform: rotate(135deg);
 }
 
-.simple-datepicker-calendar__header-divider {
+.simple-datepicker-calendar__header-info {
+    position: relative;
+    display: flex;
     width: 100%;
     height: 30px;
     background-color: rgb(245, 245, 245);
+}
+
+.simple-datepicker-calendar__header-info__button {
+    appearance: none;
+    position: relative;
+    width: 50%;
+    height: 30px;
+    color: var(--cell-color);
+    border: 0;
+    cursor: pointer;
+}
+
+.simple-datepicker-calendar__header-info__button.empty {
+    pointer-events: none;
+}
+
+.simple-datepicker-calendar__header-info__button:hover {
+    background-color: var(--cell-hover-bg-color);
+}
+
+.simple-datepicker-calendar__header-info__button.prev {
+    border-color: rgb(230, 230, 230);
+    border-width: 0 1px 0 0;
+    border-style: solid;
+}
+
+.simple-datepicker-calendar__header-info__button.prev.empty {
+    border-width: 0 0 0 0;
 }
 
 .simple-datepicker-calendar__body {
@@ -124,7 +220,7 @@
 
 .simple-datepicker-calendar__body__day-of-week {
     height: 40px;
-    color: rgb(120, 120, 120);
+    color: var(--day-of-week-cell-color);
     text-align: center;
     font-weight: 400;
     cursor: default;
@@ -151,10 +247,18 @@
     cursor: pointer;
 }
 
+.simple-datepicker-calendar__body__year.disabled,
+.simple-datepicker-calendar__body__month.disabled,
+.simple-datepicker-calendar__body__date.disabled {
+    color: rgb(220, 220, 220);
+    cursor: default;
+    pointer-events: none;
+}
+
 .simple-datepicker-calendar__body__date:not(.selected):hover,
 .simple-datepicker-calendar__body__month:not(.selected):hover,
 .simple-datepicker-calendar__body__year:not(.selected):hover {
-    background-color: rgb(235, 245, 250);
+    background-color: var(--cell-hover-bg-color);
 }
 
 .simple-datepicker-calendar__body__date.selected,
@@ -162,4 +266,12 @@
 .simple-datepicker-calendar__body__year.selected {
     background-color: var(--selected-cell-bg-color);
     color: #fff;
+}
+
+.form-element__datepicker,
+.form-element__datepicker-range {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
 }

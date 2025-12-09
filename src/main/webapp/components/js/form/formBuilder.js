@@ -160,21 +160,18 @@ export default class FormBuilder {
         });
     }
 
-    DatepickerTwin(name, label, props) {
+    DatepickerRange(name, label, props) {
         return this.#addItem({
-            type: 'twinDatepicker',
+            type: 'datepickerRange',
             name,
             label,
-            props: {
-                ...props,
-                twin: true,
-            },
+            props,
         });
     }
 
-    DatepickerWithSwitch(name, label, props) {
+    DatepickerToggle(name, label, props) {
         return this.#addItem({
-            type: 'switchDatepicker',
+            type: 'datepickerToggle',
             name,
             label,
             props: {
@@ -184,14 +181,13 @@ export default class FormBuilder {
         });
     }
 
-    DatepickerTwinWithSwitch(name, label, props) {
+    DatepickerRangeToggle(name, label, props) {
         return this.#addItem({
-            type: 'datepickerTwinWithSwitch',
+            type: 'datepickerRangeToggle',
             name,
             label,
             props: {
                 ...props,
-                twin: true,
                 disabled: true,
             },
         });
@@ -217,43 +213,39 @@ export default class FormBuilder {
 
     readonly() {
         this.#lastItem().props.readonly = true;
+        return this;
     }
 
     disabled() {
-        this.#lastItem().props.disabled = false;
+        this.#lastItem().props.disabled = true;
+        return this;
     }
 
     required() {
-        this.#lastItem().props._required = true;
+        this.#lastItem().props.required = true;
+        return this;
     }
 
     colSpan(span) {
-        this.#lastItem().props._colSpan = span;
+        this.#lastItem().props.colSpan = span;
         return this;
     }
 
     rowSpan(span) {
-        this.#lastItem().props._rowSpan = span;
+        this.#lastItem().props.rowSpan = span;
         return this;
     }
 
-    multiple(name, label, formValues) {
-        if (!Array.isArray(formValues)) {
+    multiple(name, label, props) {
+        if (!Array.isArray(props?.children)) {
             throw new TypeError(`[FormBuilder] multiple's third arguments must be array.`);
         }
         this.#addItem({
             type: 'multiple',
             name,
             label,
-            props: {
-                items: formValues,
-            },
+            props,
         });
         return this;
     }
-
-    // suffix(string) {
-    //     this._lastItem().suffix = string;
-    //     return this;
-    // },
 }

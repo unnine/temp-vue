@@ -60,12 +60,15 @@
     .button-component__button {
         min-width: 20px;
         min-height: 18px;
-        margin-left: 6px;
+        margin-left: 4px;
         border: 1px solid var(---color-border--light);
         border-radius: 3px;
-        font-size: 0.95rem;
-        padding: 4px;
+        padding: 4px 5px;
         cursor: pointer;
+    }
+
+    .button-component__button > button {
+        font-size: 0.96rem;
     }
 
     .button-component__button > button {

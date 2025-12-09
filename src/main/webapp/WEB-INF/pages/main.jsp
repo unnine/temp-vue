@@ -3,33 +3,27 @@
 
 
 <body component-id="${cid}">
-<_:Layout>
-    <_:Card _data="${cid}.card1">
-        <jsp:attribute name="header">
-            <_:Button _data="${cid}.card1OkButton">확인</_:Button>
-            <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
-            <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
-            <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
-        </jsp:attribute>
+    <_:Layout>
+        <_:Horizontal spans="[5, 5]">
+            <_:Card _data="${cid}.card1">
+                <jsp:attribute name="header">
+                    <_:Button _data="${cid}.card1OkButton">확인</_:Button>
+                    <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
+                    <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
+                    <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
+                </jsp:attribute>
 
-        <jsp:body>
-            <_:Form _data="${cid}.searchForm"/>
-            <_:AUIGrid _data="${cid}.grid"/>
-        </jsp:body>
-    </_:Card>
+                <jsp:body>
+                    <_:Form _data="${cid}.searchForm"/>
+                    <_:AUIGrid _data="${cid}.grid"/>
+                </jsp:body>
+            </_:Card>
 
-    <_:Card>
-        카드2
-    </_:Card>
-
-    <div style="display: flex; justify-content: space-between;">
-        <div id="datepicker1"></div>
-        <div id="datepicker2"></div>
-        <div id="datepicker3"></div>
-<%--        <div id="datepicker4"></div>--%>
-<%--        <div id="datepicker5"></div>--%>
-    </div>
-</_:Layout>
+            <_:Card>
+                카드2
+            </_:Card>
+        </_:Horizontal>
+    </_:Layout>
 </body>
 
 <script type="module">
@@ -37,26 +31,12 @@
     import {FormUtil} from 'form';
     import {searchForm, columns} from '/values/main.js';
 
-    const d1 = Datepicker.create('datepicker1');
-
-    d1.onInput(e => {
-        console.log(e, d1.value());
-    });
-
-    Datepicker.create('datepicker2');
-    Datepicker.create('datepicker3');
-    Datepicker.setConfig({ locale: 'ko' });
-    // new Datepicker('datepicker4');
-    // new Datepicker('datepicker5');
-
     const component = newComponent({
         id: '${cid}',
         mounted() {
             this.$request()
                 .get('https://jsonplaceholder.typicode.com/albums')
-                .then(({data}) => {
-                    this.grid.$grid.setGridData(data);
-                });
+                .then(({data}) => this.grid.$grid.setGridData(data));
         },
         data() {
             return {
@@ -69,9 +49,11 @@
                             this.grid.$grid = proxy;
                         },
                         onClickButton: (e) => {
+                            this.searchForm.content.validate().then(e => console.log('then', e))
+                                .catch(e => console.log('catch', e));
                             const { $grid } = this.grid;
                             const data = $grid.getGridData();
-                            console.log(e, data);
+                            // console.log(e, data);
                         },
                         cellClick: e => console.log(e),
                     },
@@ -106,8 +88,7 @@
                 searchForm: {
                     countPerRow: 3,
                     title: '',
-                    onInput: e => {
-                        console.log('main.jsp => ', e);
+                    onInput: () => {
                         const formData = FormUtil.getData(this.searchForm.content);
                         console.log(formData);
                     },

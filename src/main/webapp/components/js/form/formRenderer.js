@@ -4,52 +4,64 @@ class FormRenderer {
 
     #generators = {
         text: (item, event) => {
-            return this.#createFormItem(item.label, this.#text(item, event));
+            return this.#createFormItem(item, this.#text(item, event));
         },
         password: (item, event) => {
-            return this.#createFormItem(item.label, this.#password(item, event));
+            return this.#createFormItem(item, this.#password(item, event));
         },
         number: (item, event) => {
-            return this.#createFormItem(item.label, this.#number(item, event));
+            return this.#createFormItem(item, this.#number(item, event));
         },
         checkbox: (item, event) => {
-            return this.#createFormItem(item.label, this.#checkbox(item, event));
+            return this.#createFormItem(item, this.#checkbox(item, event));
         },
         checkboxGroup: (item, event) => {
-            return this.#createFormItem(item.label, this.#checkboxGroup(item, event));
+            return this.#createFormItem(item, this.#checkboxGroup(item, event));
         },
         radio: (item, event) => {
-            return this.#createFormItem(item.label, this.#radio(item, event));
+            return this.#createFormItem(item, this.#radio(item, event));
         },
         radioGroup: (item, event) => {
-            return this.#createFormItem(item.label, this.#radioGroup(item, event));
+            return this.#createFormItem(item, this.#radioGroup(item, event));
         },
         file: (item, event) => {
-            return this.#createFormItem(item.label, this.#file(item, event));
+            return this.#createFormItem(item, this.#file(item, event));
         },
         button: (item, event) => {
-            return this.#createFormItem(item.label, this.#button(item, event));
+            return this.#createFormItem(item, this.#button(item, event));
         },
         textarea: (item, event) => {
-            return this.#createFormItem(item.label, this.#textarea(item, event));
+            return this.#createFormItem(item, this.#textarea(item, event));
         },
         select: (item, event) => {
-            return this.#createFormItem(item.label, this.#select(item, event));
+            return this.#createFormItem(item, this.#select(item, event));
         },
         datepicker: (item, event) => {
-            return this.#createFormItem(item.label, this.#datepicker(item, event));
+            return this.#createFormItem(item, this.#datepicker(item, event));
+        },
+        datepickerRange: (item, event) => {
+            return this.#createFormItem(item, this.#datepickerRange(item, event));
+        },
+        datepickerToggle: (item, event) => {
+            return this.#createFormItem(item, this.#datepickerToggle(item, event));
+        },
+        datepickerRangeToggle: (item, event) => {
+            return this.#createFormItem(item, this.#datepickerRangeToggle(item, event));
+        },
+        multiple: (item, event) => {
+            return this.#createFormItem(item, this.#multiple(item, event));
+        },
+        textView: (item) => {
+            return this.#createFormItem(item, this.#textView(item));
         },
         hidden: (item, event) => {
             return this.#hidden(item, event);
         },
-        textView: (item) => {
-            return this.#createFormItem(item.label, this.#textView(item));
-        },
         label: (item) => {
-            return this.#createFormItemSingle(this.#label(item));
+            return this.#createFormItemSingle(item, this.#label(item));
         },
         blank: (item) => {
-            return this.#createFormItemSingle(this.#blank(item));
+            return this.#createFormItemSingle(item, this.#blank(item));
         },
     };
 
@@ -63,17 +75,25 @@ class FormRenderer {
         if (!props?.event) {
             props.event = {};
         }
-        if (typeof props.event.onInput !== 'function') {
+        if (typeof props?.event?.onInput !== 'function') {
             props.event.onInput = () => {};
         }
-        const $nodes = this.#valuesToNodes(props);
-        $nodes.forEach($node => $target.append($node));
+
+        const nodes = this.#valuesToNodes(props.forms, props.event);
+
+        props.forms.validate = () => this.#validateFormValues(nodes);
+
+        nodes.forEach(({ $node, onRendered }) => {
+            $target.append($node);
+
+            if (onRendered) {
+                onRendered();
+            }
+        });
     }
 
-    #valuesToNodes(props) {
-        const { forms, event: eventHandlers } = props ?? {};
-        const $nodes = [];
-        let $formItem;
+    #valuesToNodes(forms, eventHandlers) {
+        const nodes = [];
 
         for (let item of forms) {
             this.#initFormItem(item);
@@ -84,35 +104,112 @@ class FormRenderer {
                 console.warn('unknown type form item', item);
                 continue;
             }
-            $formItem = this.#generators[type](item, eventHandlers);
-            $nodes.push($formItem);
+            const formItem = this.#generators[type](item, eventHandlers);
+            nodes.push(formItem);
         }
-        return $nodes;
+        return nodes;
     }
 
     #initFormItem(item) {
+        if (Object.hasOwn(item, '_$value')) {
+            return;
+        }
         item._$value = '';
     }
 
-    #createFormItem(label, $node) {
-        const $formItem = document.createElement('div');
-        $formItem.classList.add('form-item');
+    #validateFormValues(nodes) {
+        const invalidNodes = this.#findNodesWithInvalidValues(nodes);
+        const invalidNodeNames = invalidNodes.map(({ item }) => item.name);
+        return invalidNodes.length > 0 ? Promise.reject(invalidNodeNames) : Promise.resolve();
+    }
+
+    #findNodesWithInvalidValues(nodes) {
+        return nodes.reduce((invalidNodes, node) => {
+            const { $node, item }  = node;
+            const { props } = item;
+
+            if (item?.type === 'multiple' && node.children) {
+                const childrenInvalidNodes = this.#findNodesWithInvalidValues(node.children);
+                if (childrenInvalidNodes.length > 0) {
+                    invalidNodes.concat(childrenInvalidNodes);
+                }
+                return invalidNodes;
+            }
+
+            if (!props?.required) {
+                return invalidNodes;
+            }
+
+            const $message = $node.querySelector('.form-item-message');
+            const validator = props?.validator ?? this.#defaultFormValueValidator;
+            const validateResult = validator(item._$value);
+
+            if (validateResult === false || typeof validateResult === 'string') {
+                $node.classList.add('invalid');
+                $message.innerText = typeof validateResult === 'string' ? validateResult : '필수 입력입니다.';
+                $message.classList.remove('hide');
+                invalidNodes.push(node);
+                return invalidNodes;
+            }
+
+            $node.classList.remove('invalid');
+            $message.innerText = '';
+            return invalidNodes;
+        }, []);
+    }
+
+    #defaultFormValueValidator(value) {
+        if (value == null) {
+            return false;
+        }
+        if (value === '') {
+            return false;
+        }
+        return true;
+    }
+
+    #createFormItem(item, { $node, onRendered, children }) {
+        const { label } = item;
 
         const $label = this.#createFormLabel(label);
         const $element= this.#createFormElement($node);
-        $formItem.append($label, $element);
 
-        return $formItem;
+        const $formItemMessage = document.createElement('div');
+        $formItemMessage.classList.add('form-item-message', 'hide');
+
+        const $formItemContent = document.createElement('div');
+        $formItemContent.classList.add('form-item-content');
+        $formItemContent.append($element, $formItemMessage);
+
+        const $formItem = document.createElement('div');
+        $formItem.classList.add('form-item');
+        $formItem.append($label, $formItemContent);
+
+        this.#applyFormItemAttributes($formItem, item);
+
+        return {
+            $node: $formItem,
+            item,
+            onRendered,
+            children,
+        };
     }
 
-    #createFormItemSingle($node) {
+    #createFormItemSingle(item, { $node, onRendered, children }) {
         const $formItem = document.createElement('div');
         $formItem.classList.add('form-item-single');
 
         const $element= this.#createFormElement($node);
         $formItem.append($element);
 
-        return $formItem;
+        this.#applyFormItemAttributes($formItem, item);
+
+        return {
+            $node: $formItem,
+            item,
+            onRendered,
+            children,
+        };
     }
 
     #createFormLabel(label) {
@@ -130,8 +227,8 @@ class FormRenderer {
     }
 
     #createInput(type, item, event) {
-        const { name, props } = item;
-        const value = props.value ?? '';
+        const { name, props } = item ?? {};
+        const value = props?.value ?? '';
         item._$value = value;
 
         const $input = document.createElement('input');
@@ -145,7 +242,7 @@ class FormRenderer {
 
     #createEtcInput(type, item, event) {
         const { name, props } = item;
-        const value = props.value ?? '';
+        const value = props?.value ?? '';
         item._$value = value;
 
         const $input = document.createElement(type);
@@ -160,38 +257,97 @@ class FormRenderer {
     #onInputEventHandler(item, $node, event) {
         const { onInput } = event ?? {};
 
-        $node.addEventListener('input', e => {
+        let eventName = 'input';
+
+        if (item.type === 'button') {
+            eventName = 'click';
+        }
+
+        $node.addEventListener(eventName, e => {
             const value = e.target.value;
             item._$value = value;
-            onInput({ item, value, originEvent: e });
+            onInput({
+                name: item.name,
+                item,
+                value,
+                target: e.target,
+            });
         });
     }
 
+    #applyFormItemAttributes($node, item) {
+        const { props } = item;
+
+        if (props?.rowSpan) {
+            $node.style.gridRow = `span ${props?.rowSpan}`;
+        }
+
+        if (props?.colSpan) {
+            $node.style.gridColumn = `span ${props?.colSpan}`;
+        }
+    }
+
+    #applyInputAttributes($node, item) {
+        const { props } = item;
+
+        if (props?.disabled) {
+            $node.disabled = true;
+            $node.classList.add('disabled');
+        }
+        else if (props?.readonly) {
+            $node.readOnly = true;
+            $node.classList.add('readonly');
+        }
+    }
+
+    #applyDatepickerAttributes(datepicker, item) {
+        const { props } = item;
+
+        if (props?.disabled) {
+            datepicker.disable();
+        }
+        else if (props?.readonly) {
+            datepicker.readonly();
+        }
+    }
+
     #text(item, event) {
-        return this.#createInput('text', item, event);
+        const $node = this.#createInput('text', item, event);
+        this.#applyInputAttributes($node, item)
+        return {
+            $node,
+        };
     }
 
     #password(item, event) {
-        return this.#createInput('password', item, event);
+        const $node = this.#createInput('password', item, event);
+        this.#applyInputAttributes($node, item);
+        return {
+            $node,
+        };
     }
 
     #number(item, event) {
-        return this.#createInput('number', item, event);
+        const $node = this.#createInput('number', item, event);
+        this.#applyInputAttributes($node, item);
+        return {
+            $node,
+        };
     }
 
     #checkbox(item, event) {
         const { onInput } = event;
-        const { label, props } = item;
+        const { props } = item ?? {};
         const {
             checkedValue = 'true',
             uncheckedValue = 'false',
             label: checkboxLabel,
             value,
-        } = props;
+        } = props ?? {};
 
         const newEvent = {
             onInput: (e) => {
-                const isChecked = e.originEvent.target.checked;
+                const isChecked = e.target.checked;
                 const value = isChecked ? checkedValue : uncheckedValue;
                 item._$value = value;
                 onInput({ ...e, value });
@@ -208,11 +364,15 @@ class FormRenderer {
             $node.checked = true;
         }
 
+        this.#applyInputAttributes($node, item);
+
         const $wrap = document.createElement('div');
         $wrap.classList.add('form-element__checkbox-wrap');
         $wrap.append($node, $label);
 
-        return $wrap;
+        return {
+            $node: $wrap,
+        };
     }
 
     #checkboxGroup(item, event) {
@@ -236,7 +396,7 @@ class FormRenderer {
         }
 
         const onInputCheckbox = (checkedValue, uncheckedValue, e) => {
-            const isChecked = e.originEvent.target.checked;
+            const isChecked = e.target.checked;
             const index = item._$value.findIndex((v) => v == checkedValue);
 
             if (isChecked && index === -1) {
@@ -269,14 +429,16 @@ class FormRenderer {
                         uncheckedValue,
                         label: checkboxLabel,
                         value: alreadyChecked ? checkedValue : uncheckedValue,
+                        readonly: props?.readonly,
+                        disabled: props?.disabled,
                     },
                 };
 
-                const $checkbox = this.#checkbox(checkboxItem, {
+                const checkbox = this.#checkbox(checkboxItem, {
                     onInput: (e) => onInputCheckbox(checkedValue, uncheckedValue, e),
                 });
 
-                $nodes.push($checkbox);
+                $nodes.push(checkbox.$node);
                 return $nodes;
             }, []);
         }
@@ -285,16 +447,15 @@ class FormRenderer {
         const $group = createCheckboxGroup();
         const $checkboxes = createCheckboxes();
         $checkboxes.forEach($checkbox => $group.append($checkbox));
-        return $group;
+
+        return {
+            $node: $group,
+        };
     }
 
     #radio(item, event) {
         const { props } = item;
-        const {
-            checkedValue = 'true',
-            label,
-            value,
-        } = props;
+        const { checkedValue = 'true', label, value } = props;
 
         const createWrap = () => {
             const $wrap = document.createElement('div');
@@ -322,7 +483,11 @@ class FormRenderer {
         const $label = createLabel();
         const $node = createRadio();
         $wrap.append($node, $label);
-        return $wrap;
+        this.#applyInputAttributes($node, item);
+
+        return {
+            $node: $wrap,
+        };
     }
 
     #radioGroup(item, event) {
@@ -337,12 +502,8 @@ class FormRenderer {
             countPerRow
         } = props;
 
-        const initItemValue = () => {
-            item._$value = value ?? '';
-        }
-
-        const onInputCheckbox = (checkedValue, e) => {
-            const isChecked = e.originEvent.target.checked;
+        const onInputRadio = (checkedValue, e) => {
+            const isChecked = e.target.checked;
 
             if (isChecked) {
                 item._$value = checkedValue;
@@ -370,27 +531,34 @@ class FormRenderer {
                         checkedValue,
                         label: radioLabel,
                         value: alreadyChecked ? checkedValue : '',
+                        readonly: props?.readonly,
+                        disabled: props?.disabled,
                     },
                 };
 
-                const $radio = this.#radio(checkboxItem, {
-                    onInput: (e) => onInputCheckbox(checkedValue, e),
+                const radio = this.#radio(checkboxItem, {
+                    onInput: (e) => onInputRadio(checkedValue, e),
                 });
 
-                $nodes.push($radio);
+                $nodes.push(radio.$node);
                 return $nodes;
             }, []);
         }
 
-        initItemValue();
+        item._$value = value ?? '';
         const $group = createRadioGroup();
         const $radios = createRadios();
         $radios.forEach($radio => $group.append($radio));
-        return $group;
+
+        return {
+            $node: $group,
+        };
     }
 
     #file(item, event) {
-        return this.#createInput('file', item, event);
+        return {
+            $node: this.#createInput('file', item, event),
+        };
     }
 
     #button(item, event) {
@@ -399,25 +567,71 @@ class FormRenderer {
         if (!label) {
             item.label = name;
         }
-        if (!props.value) {
+        if (!props?.value) {
             props.value = label;
         }
-        return this.#createInput('button', item, event);
+
+        const $node = this.#createInput('button', item, event)
+        this.#applyInputAttributes($node, props);
+        return {
+            $node,
+        };
     }
 
     #textarea(item, event) {
         const $node = this.#createEtcInput('textarea', item, event);
         $node.rows = 1;
-        return $node;
+        this.#applyInputAttributes($node, item);
+        return {
+            $node,
+        };
     }
 
     #select(item, event) {
-        return this.#createEtcInput('select', item, event);
-    }
+        const { props } = item;
 
-    #datepicker(item, event) {
-        const $node = this.#createInput('date', item, event);
-        return $node;
+        const $node = this.#createEtcInput('select', item, event);
+
+        const addOptions = (options) => {
+            const $options = options.map(option => {
+               const $option = document.createElement('option');
+               $option.value = option?.value ?? '';
+               $option.innerText = option?.label ?? '';
+
+               if (option?.value == props?.value) {
+                   $option.selected = true;
+               }
+               return $option;
+            });
+
+            $node.append(...$options);
+        }
+
+        const addOptionsByFunction = (options) => {
+            const result = options();
+
+            if (result instanceof Promise) {
+                result.then(data => addOptions(data));
+                return;
+            }
+            addOptions(result);
+        }
+
+        if (props?.options) {
+            const { options } = props;
+
+            if (Array.isArray(options)) {
+                addOptions(options);
+            }
+            if (typeof options === 'function') {
+                addOptionsByFunction(options);
+            }
+        }
+
+        this.#applyInputAttributes($node, item);
+        return {
+            $node,
+        };
     }
 
     #hidden(item, event) {
@@ -425,7 +639,164 @@ class FormRenderer {
         const $node = this.#createInput('hidden', item, event);
         $node.classList.add('hide');
         $node.name = name;
-        return $node;
+
+        return {
+            $node,
+            item,
+        };
+    }
+
+    #datepicker(item, event) {
+        const { name, props } = item;
+        const { onInput } = event ?? {};
+        const $node = document.createElement('div');
+        $node.classList.add('form-element__datepicker');
+        $node.name = name;
+
+        const onRendered = () => {
+            const datepicker = Datepicker.single($node);
+
+            datepicker.onInput((e) => {
+                item._$value = e.value;
+                onInput({
+                    ...e,
+                    name,
+                    item,
+                });
+            });
+
+            if (props?.value) {
+                datepicker.setValue(props.value);
+            }
+
+            this.#applyDatepickerAttributes(datepicker, props);
+
+            return datepicker;
+        }
+
+        return {
+            $node,
+            onRendered,
+        };
+    }
+
+    #datepickerToggle(item, event) {
+        const datepicker = this.#datepicker(item, event);
+        return this.#toTogglable(datepicker, item.props);
+    }
+
+    #datepickerRange(item, event) {
+        const { name, props } = item;
+        const { onInput } = event ?? {};
+        const $node = document.createElement('div');
+        $node.classList.add('form-element__datepicker-range');
+        $node.name = name;
+
+        const renderDatepicker = () => {
+            const datepicker = Datepicker.range($node);
+
+            datepicker.onInput((e) => {
+                item._$value = e.value;
+                onInput({
+                    ...e,
+                    name,
+                    item,
+                });
+            });
+
+            if (props?.value) {
+                datepicker.setValue(props.value);
+            }
+
+            this.#applyDatepickerAttributes(datepicker, props);
+
+            return datepicker;
+        }
+
+        return {
+            $node,
+            onRendered: renderDatepicker,
+        };
+    }
+
+    #datepickerRangeToggle(item, event) {
+        const datepickerRange = this.#datepickerRange(item, event);
+        return this.#toTogglable(datepickerRange, item.props);
+    }
+
+    #toTogglable({ $node, onRendered }, props) {
+        const initialChecked = props?.checked ?? false;
+
+        let datepicker = null;
+
+        const onRenderedDatepicker = () => {
+            datepicker = onRendered();
+
+            if (!initialChecked) {
+                datepicker.disable();
+            }
+        }
+
+        const checkbox = this.#checkbox({
+            props: {
+                checkedValue: true,
+                uncheckedValue: false,
+                value: initialChecked,
+            }
+        }, {
+            onInput: e => {
+                if (!datepicker) {
+                    return;
+                }
+                if (datepicker.isDeactivated()) {
+                    return;
+                }
+                if (e.target.checked) {
+                    datepicker.enable();
+                    return;
+                }
+                datepicker.disable();
+            },
+        });
+
+        $node.insertAdjacentElement('afterbegin', checkbox.$node);
+
+        return {
+            $node,
+            onRendered: onRenderedDatepicker,
+        };
+    }
+
+    #multiple(item, event) {
+        const { props } = item;
+        const {
+            gap,
+            rowGap,
+            columnGap,
+            countPerRow,
+            children,
+        } = props;
+
+        const nodes = this.#valuesToNodes(children, event);
+
+        const $wrap = document.createElement('div');
+        $wrap.classList.add('form-element__multiple-wrap');
+        $wrap.style.gridTemplateColumns = `repeat(${countPerRow ?? 1}, 1fr)`;
+        $wrap.style.rowGap = `${gap ?? rowGap ?? 0}px`;
+        $wrap.style.columnGap = `${gap ?? columnGap ?? 0}px`;
+
+        nodes.forEach(({ $node }) => {
+
+            if (props?.showLabel) {
+                const childLabel = $node.querySelector('.form-label');
+                childLabel.style.display = 'var(--label-display)';
+            }
+            $wrap.append($node);
+        });
+        return {
+            $node: $wrap,
+            children: nodes,
+        };
     }
 
     #textView(item) {
@@ -433,8 +804,11 @@ class FormRenderer {
         const $node = document.createElement('div');
         $node.classList.add('form-element__text-view');
         $node.name = name;
-        $node.innerHTML = props.value ?? '234';
-        return $node;
+        $node.innerHTML = props?.value ?? '';
+
+        return {
+            $node,
+        };
     }
 
     #label(item) {
@@ -443,13 +817,19 @@ class FormRenderer {
         $node.classList.add('form-element__label');
         $node.name = name;
         $node.innerHTML = label;
-        return $node;
+
+        return {
+            $node,
+        };
     }
 
     #blank() {
         const $node = document.createElement('div');
         $node.classList.add('form-element__blank');
-        return $node;
+
+        return {
+            $node,
+        };
     }
 
 }

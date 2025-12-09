@@ -147,7 +147,6 @@ export default class Element {
         return this;
     }
 
-    // TODO extends form element
     render(formValues) {
         FormRenderer.render(this._$el, formValues);
         return this;
