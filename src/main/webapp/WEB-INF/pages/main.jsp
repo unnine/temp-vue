@@ -37,14 +37,15 @@
     import {FormUtil} from 'form';
     import {searchForm, columns} from '/values/main.js';
 
-    const d1 = new Datepicker('datepicker1');
+    const d1 = Datepicker.create('datepicker1');
 
     d1.onInput(e => {
         console.log(e, d1.value());
     });
 
-    new Datepicker('datepicker2');
-    new Datepicker('datepicker3');
+    Datepicker.create('datepicker2');
+    Datepicker.create('datepicker3');
+    Datepicker.setConfig({ locale: 'ko' });
     // new Datepicker('datepicker4');
     // new Datepicker('datepicker5');
 
