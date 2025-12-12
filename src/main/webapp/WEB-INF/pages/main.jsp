@@ -4,7 +4,7 @@
 
 <body component-id="${cid}">
     <_:Layout>
-        <_:Horizontal spans="[5, 5]">
+        <_:Vertical>
             <_:Card _data="${cid}.card1">
                 <jsp:attribute name="header">
                     <_:Button _data="${cid}.card1OkButton">확인</_:Button>
@@ -22,7 +22,7 @@
             <_:Card>
                 카드2
             </_:Card>
-        </_:Horizontal>
+        </_:Vertical>
     </_:Layout>
 </body>
 

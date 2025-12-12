@@ -61,6 +61,7 @@
 
 <style>
 .horizontal-component {
+    position: relative;
     display: flex;
     width: 100%;
 }
