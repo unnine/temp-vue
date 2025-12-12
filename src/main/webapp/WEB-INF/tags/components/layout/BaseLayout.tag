@@ -42,7 +42,6 @@
 .base-layout-component__header-wrap {
     position: relative;
     box-shadow: var(---box-shadow-base);
-    z-index: 3;
 }
 
 .base-layout-component__side-bar {
@@ -50,14 +49,12 @@
     width: var(---side-bar-width);
     height: 100%;
     overflow: scroll;
-    z-index: 2;
 }
 
 .base-layout-component__content {
     position: relative;
     display: flex;
     height: 100%;
-    z-index: 1;
 }
 
 .base-layout-component__body-wrap {

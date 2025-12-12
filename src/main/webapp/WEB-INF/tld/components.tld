@@ -65,6 +65,14 @@
     <!--/ display /-->
 
 
+    <!--/ feedback /-->
+    <tag-file>
+        <name>Modal</name>
+        <path>/WEB-INF/tags/components/feedback/Modal.tag</path>
+    </tag-file>
+    <!--/ feedback /-->
+
+
     <!-- entry -->
     <tag-file>
         <name>Input</name>
