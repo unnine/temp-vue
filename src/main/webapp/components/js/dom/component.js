@@ -148,10 +148,7 @@ class Component {
 
         if (typeof data === 'function') {
             this.#data = ObjectUtil.copy(data.call(this.#bindingInstance));
-
-            Object.entries(this.#data).forEach(([key, value]) => {
-                this.#bindingInstance[key] = value;
-            });
+            Object.keys(this.#data).forEach(key => this.#bindDataAndBindingInstance(this.#data, key));
         }
 
         if (typeof mounted === 'function') {
@@ -183,6 +180,17 @@ class Component {
             },
             watch: watch.bind(this.#bindingInstance),
         };
+    }
+
+    #bindDataAndBindingInstance(_data, key) {
+        Object.defineProperty(this.#bindingInstance, key, {
+            get() {
+                return _data[key];
+            },
+            set(v) {
+                _data[key] = v;
+            },
+        });
     }
 
     #defineGetter(o, name, getter) {
