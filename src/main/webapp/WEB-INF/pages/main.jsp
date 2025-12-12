@@ -22,6 +22,8 @@
             <_:Card>
                 카드2
             </_:Card>
+
+            <_:Modal _data="${cid}.modal" />
         </_:Vertical>
     </_:Layout>
 </body>
@@ -40,6 +42,9 @@
         },
         data() {
             return {
+                modal: {
+                    show: false,
+                },
                 grid: {
                     $grid: null,
                     columns,
@@ -91,6 +96,8 @@
                     onInput: () => {
                         const formData = FormUtil.getData(this.searchForm.content);
                         console.log(formData);
+                        console.log(this.modal);
+                        this.modal.show = true;
                     },
                     list: [],
                     content: searchForm,
