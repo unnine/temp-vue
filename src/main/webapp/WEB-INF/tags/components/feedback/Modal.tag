@@ -3,12 +3,18 @@
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
 <%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
-
+<%@ attribute name="footer" fragment="true" required="false" %>
 
 <div component-id="${cid}" class="modal-component hide">
     <div class="modal-container">
-        <_:Card>
-            <jsp:doBody />
+        <_:Card _data="${cid}.card">
+            <jsp:attribute name="footer">
+                <jsp:invoke fragment="footer" />
+            </jsp:attribute>
+
+            <jsp:body>
+                <jsp:doBody />
+            </jsp:body>
         </_:Card>
     </div>
 </div>
@@ -28,28 +34,29 @@
                         value ? this.show() : this.hide();
                     },
                     watch(value) {
-                        console.log(value);
                         value ? this.show() : this.hide();
                     },
+                },
+                title: {
+                    type: 'String',
                 }
             },
+        },
+        mounted() {
+            this.card.title = this.$props.title;
+        },
+        data() {
+            return {
+                card: {
+                    title: null,
+                },
+            };
         },
         methods: {
             show() {
                 const component = this.$find('${cid}');
                 component.removeClass('hide');
-                // this.drawBackground();
-                // this.drawContent();
             },
-            drawBackground() {
-                // const modalBg = this.$find('modal-bg');
-                // const clone = modalBg._$el.cloneNode(true);
-                // document.body.insertAdjacentElement('beforebegin', clone);
-            },
-            drawContent() {
-
-            },
-
             hide() {
                 const component = this.$find('${cid}');
                 component.addClass('hide');

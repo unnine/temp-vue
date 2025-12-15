@@ -76,6 +76,16 @@ export default class Element {
         return this;
     }
 
+    innerHTML($html) {
+        this._$el.innerHTML = $html;
+        return this;
+    }
+
+    innerText($html) {
+        this._$el.innerText = $html;
+        return this;
+    }
+
     setAttribute(key, value) {
         this._$el.setAttribute(key, value);
     }
@@ -87,10 +97,6 @@ export default class Element {
     addClass(className) {
         this._$el.classList.add(className);
         return this;
-    }
-
-    remove() {
-        this._$el.remove();
     }
 
     removeClass(className) {
@@ -108,8 +114,26 @@ export default class Element {
         return this;
     }
 
+    destroy() {
+        this._$el.replaceChildren();
+        this._$el.remove();
+    }
+
     isEmpty() {
-        return this._$el.children.length === 0;
+        const elementNodeType = 1;
+        const textNodeType = 3;
+
+        return Array.from(this._$el.childNodes ?? []).filter(childNode => {
+            const { nodeType, textContent } = childNode;
+
+            if (nodeType === elementNodeType) {
+                return true;
+            }
+            if (nodeType === textNodeType && textContent != null && textContent.trim() !== '') {
+                return true;
+            }
+            return false;
+        }).length === 0;
     }
 
     isNotEmpty() {

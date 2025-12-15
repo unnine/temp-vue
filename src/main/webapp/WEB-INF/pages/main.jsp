@@ -24,7 +24,14 @@
             </_:Card>
 
             <_:Modal _data="${cid}.modal">
-                qwpiodqiod
+                <jsp:attribute name="footer">
+                    <_:Button _data="${cid}.card1OkButton">확인</_:Button>
+                    <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
+                </jsp:attribute>
+
+                <jsp:body>
+                    qwpiodqiod
+                </jsp:body>
             </_:Modal>
         </_:Vertical>
     </_:Layout>
@@ -46,6 +53,7 @@
             return {
                 modal: {
                     show: false,
+                    title: '123',
                 },
                 grid: {
                     $grid: null,

@@ -40,17 +40,21 @@
                 title: {
                     type: 'String',
                     init(value) {
-                        this.$find('title').append(value);
+                        this.$find('title').innerText(value);
+                        this.toggleHeader();
+                    },
+                    watch(value) {
+                        this.$find('title').innerText(value);
+                        this.toggleHeader();
                     },
                 },
             },
         },
         mounted() {
-            this.initializeHeader();
-            this.initializeFooter();
+            this.toggleFooter();
         },
         methods: {
-            initializeHeader() {
+            toggleHeader() {
                 this.$find('header').showIf(() => {
                    if (this.$find('title').isNotEmpty()) {
                        return true;
@@ -61,7 +65,7 @@
                    return false;
                 });
             },
-            initializeFooter() {
+            toggleFooter() {
                 this.$find('footer').showIf(() => this.$find('footerActions').isNotEmpty());
             },
         },

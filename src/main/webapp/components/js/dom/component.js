@@ -349,6 +349,10 @@ class Component {
         if (!type) {
             return;
         }
+        if (value == null) {
+            return;
+        }
+
         const _type = type.toLowerCase();
         const actualType = (typeof value).toLowerCase();
 
