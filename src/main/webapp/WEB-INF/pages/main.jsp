@@ -30,7 +30,19 @@
                 </jsp:attribute>
 
                 <jsp:body>
-                    qwpiodqiod
+                    <_:Card _data="${cid}.card1">
+                        <jsp:attribute name="header">
+                            <_:Button _data="${cid}.card1OkButton">확인</_:Button>
+                            <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
+                            <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
+                            <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
+                        </jsp:attribute>
+
+                        <jsp:body>
+                            <_:Form _data="${cid}.searchForm"/>
+                            <_:AUIGrid _data="${cid}.grid2"/>
+                        </jsp:body>
+                    </_:Card>
                 </jsp:body>
             </_:Modal>
         </_:Vertical>
@@ -56,6 +68,24 @@
                     title: '123',
                 },
                 grid: {
+                    $grid: null,
+                    columns,
+                    defaultData: [],
+                    event: {
+                        onCreated: (proxy) => {
+                            this.grid.$grid = proxy;
+                        },
+                        onClickButton: (e) => {
+                            this.searchForm.content.validate().then(e => console.log('then', e))
+                                .catch(e => console.log('catch', e));
+                            const { $grid } = this.grid;
+                            const data = $grid.getGridData();
+                            // console.log(e, data);
+                        },
+                        cellClick: e => console.log(e),
+                    },
+                },
+                grid2: {
                     $grid: null,
                     columns,
                     defaultData: [],

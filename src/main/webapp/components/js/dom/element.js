@@ -30,12 +30,21 @@ export default class Element {
     }
 
     #findByElementId(id) {
-        const $el = document.querySelector(`[component-id="${this._componentId}"] [e-id="${id}"]`);
+        const [ $el ] = this.findAllByElementId(id);
 
         if (!$el || !($el instanceof HTMLElement)) {
             throw new Error(`Cannot find element with id '${id}'`);
         }
         return $el;
+    }
+
+    findAllByElementId(id) {
+        const $els = document.querySelectorAll(`[component-id="${this._componentId}"] [e-id="${id}"]`);
+
+        if (!$els || $els.length === 0) {
+            throw new Error(`Cannot find elements with id '${id}'`);
+        }
+        return $els;
     }
 
     on(eventName, handler) {

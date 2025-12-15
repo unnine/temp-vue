@@ -32,18 +32,19 @@
                     default: false,
                     init(value) {
                         value ? this.show() : this.hide();
+                        this.refreshTitle();
+                        this.resizeAllGrids();
                     },
                     watch(value) {
                         value ? this.show() : this.hide();
+                        this.refreshTitle();
+                        this.resizeAllGrids();
                     },
                 },
                 title: {
                     type: 'String',
                 }
             },
-        },
-        mounted() {
-            this.card.title = this.$props.title;
         },
         data() {
             return {
@@ -61,6 +62,12 @@
                 const component = this.$find('${cid}');
                 component.addClass('hide');
             },
+            refreshTitle() {
+                this.card.title = this.$props.title;
+            },
+            resizeAllGrids() {
+                this.$findAll('grid-component');
+            }
         },
     });
 
@@ -77,6 +84,7 @@
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 0.2);
+    z-index: 100000;
 }
 
 .modal-container {

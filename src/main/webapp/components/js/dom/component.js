@@ -101,6 +101,7 @@ class Component {
         this.#defineGetter(this.#bindingInstance, '$props', () => this.#propsData);
         this.#defineGetter(this.#bindingInstance, '$request', () => request);
         this.#defineGetter(this.#bindingInstance, '$find', () => this.#find);
+        this.#defineGetter(this.#bindingInstance, '$findAll', () => this.#findAll);
         this.#defineGetter(this.#bindingInstance, '$date', () => Date);
     }
 
@@ -387,6 +388,12 @@ class Component {
 
     #find = function(elementId) {
         return new Element(this.#id, elementId);
+    }.bind(this);
+
+    #findAll = function() {
+        const component = new Element(this.#id, this.#id);
+        const $els = component.findAllByElementId('grid-container');
+        console.log($els);
     }.bind(this);
 
 }
