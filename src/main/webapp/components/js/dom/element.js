@@ -3,16 +3,18 @@ import {FormRenderer} from '../form/index.js';
 export default class Element {
 
     _componentId;
+    _$component;
     _id;
     _$el;
 
 
     constructor(componentId, id) {
         this._componentId = componentId;
+        this._$component = this.#findComponentElement();
         this._id = id;
 
         if (componentId === id) {
-            this._$el = this.#findByComponentId(componentId);
+            this._$el = this._$component;
         } else {
             this._$el = this.#findByElementId(id);
         }
@@ -20,35 +22,46 @@ export default class Element {
         Object.freeze(this);
     }
 
-    #findByComponentId(id) {
-        const $el = document.querySelector(`[component-id="${id}"]`);
+    #findComponentElement() {
+        const $el = document.querySelector(`[component-id="${this._componentId}"]`);
 
         if (!$el || !($el instanceof HTMLElement)) {
-            throw new Error(`Cannot find element with id ${id}`);
+            throw new Error(`Cannot find element with component id. ${this._componentId}`);
         }
         return $el;
     }
 
-    #findByElementId(id) {
-        return this.querySelector(`[e-id="${id}"]`);
-    }
-
-    querySelector(selector) {
-        const $el = document.querySelector(`[component-id="${this._componentId}"] ${selector}`);
+    #findByElementId(eid) {
+        const [ $el ] = this.#findAllByElementId(eid);
 
         if (!$el || !($el instanceof HTMLElement)) {
-            throw new Error(`Cannot find element by selector. '${selector}'`);
+            throw new Error(`Cannot find element by e-id. '${eid}'`);
         }
         return $el;
     }
 
-    querySelectorAll(selector) {
-        const $els = document.querySelectorAll(`[component-id="${this._componentId}"] ${selector}`);
+    #findAllByElementId(eid) {
+        const walker = document.createTreeWalker(this._$component, NodeFilter.SHOW_ELEMENT, {
+            acceptNode: ($node) => {
+                if ($node === this._$el) {
+                    return NodeFilter.FILTER_SKIP;
+                }
+                if ($node.hasAttribute && $node.hasAttribute('component-id')) {
+                    return NodeFilter.FILTER_REJECT;
+                }
+                if ($node.getAttribute && $node.getAttribute('e-id') === eid) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+                return NodeFilter.FILTER_SKIP
+            }
+        });
 
-        if (!$els) {
-            throw new Error(`Cannot find elements by selector. '${selector}'`);
+        const result = [];
+
+        while(walker.nextNode()) {
+            result.push(walker.currentNode);
         }
-        return $els;
+        return result;
     }
 
     on(eventName, handler) {

@@ -66,7 +66,9 @@
                 });
             },
             toggleFooter() {
-                this.$find('footer').showIf(() => this.$find('footerActions').isNotEmpty());
+                this.$find('footer').showIf(() => {
+                    return this.$find('footerActions').isNotEmpty();
+                });
             },
         },
     });
@@ -103,11 +105,13 @@
 }
 
 .card-component__footer {
+    position: relative;
     border-top: 1px solid var(---color-border--light);
     padding: var(--padding);
 }
 
 .card-component__footer-actions {
+    position: relative;
     display: flex;
     justify-content: flex-end;
 }

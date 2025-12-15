@@ -23,8 +23,8 @@
             props: {
                 type: {
                     type: 'String',
-                    desc: ['normal', 'warn', 'danger',],
-                    default: () => 'normal',
+                    desc: ['primary', 'normal', 'warn', 'danger',],
+                    default: () => 'primary',
                     init(value) {
                         this.$find(`button`).addClass(value);
                     },
@@ -53,67 +53,79 @@
 </script>
 
 <style>
-    .button-component {
-        position: relative;
-    }
+.button-component {
+    position: relative;
+}
 
-    .button-component__button {
-        min-width: 20px;
-        min-height: 18px;
-        margin-left: 4px;
-        border: 1px solid var(---color-border--light);
-        border-radius: 3px;
-        padding: 4px 5px;
-        cursor: pointer;
-    }
+.button-component__button {
+    min-width: 20px;
+    min-height: 18px;
+    margin-left: 4px;
+    border: 1px solid var(---color-border--light);
+    border-radius: 3px;
+    padding: 4px 5px;
+    cursor: pointer;
+}
 
-    .button-component__button > button {
-        font-size: 0.96rem;
-    }
+.button-component__button > button {
+    font-size: 0.96rem;
+}
 
-    .button-component__button > button {
-        position: relative;
-        color: #fff;
-    }
+.button-component__button > button {
+    position: relative;
+    color: #fff;
+}
 
-    .button-component__button.normal {
-        background-color: rgb(50, 120, 210);
-    }
+.button-component__button.primary {
+    background-color: rgb(50, 120, 210);
+}
 
-    .button-component__button.normal:hover {
-        background-color: rgb(44, 114, 204);
-    }
+.button-component__button.primary:hover {
+    background-color: rgb(44, 114, 204);
+}
 
-    .button-component__button.normal:active {
-        background-color: rgb(38, 108, 198);
-    }
+.button-component__button.primary:active {
+    background-color: rgb(38, 108, 198);
+}
 
-    .button-component__button.warn {
-        background-color: rgb(245, 200, 90);
-    }
+.button-component__button.normal {
+    background-color: rgb(180, 180, 180);
+}
 
-    .button-component__button.warn:hover {
-        background-color: rgb(239, 194, 84);
-    }
+.button-component__button.normal:hover {
+    background-color: rgb(174, 174, 174);
+}
 
-    .button-component__button.warn:active {
-        background-color: rgb(233, 188, 78);
-    }
+.button-component__button.normal:active {
+    background-color: rgb(168, 168, 168);
+}
 
-    .button-component__button.danger {
-        background-color: rgb(230, 75, 75);
-    }
+.button-component__button.warn {
+    background-color: rgb(245, 200, 90);
+}
 
-    .button-component__button.danger:hover {
-        background-color: rgb(224, 69, 69);
-    }
+.button-component__button.warn:hover {
+    background-color: rgb(239, 194, 84);
+}
 
-    .button-component__button.danger:active {
-        background-color: rgb(218, 63, 63);
-    }
+.button-component__button.warn:active {
+    background-color: rgb(233, 188, 78);
+}
 
-    .button-component__button.danger:disabled {
-        background-color: rgba(150, 150, 150, 1);
-        pointer-events: none;
-    }
+.button-component__button.danger {
+    background-color: rgb(230, 75, 75);
+}
+
+.button-component__button.danger:hover {
+    background-color: rgb(224, 69, 69);
+}
+
+.button-component__button.danger:active {
+    background-color: rgb(218, 63, 63);
+}
+
+.button-component__button.disabled {
+    background-color: rgb(150, 150, 150);
+    pointer-events: none;
+}
 </style>

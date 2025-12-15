@@ -24,9 +24,8 @@
             </_:Card>
 
             <_:Modal _data="${cid}.modal">
-                <jsp:attribute name="footer">
-                    <_:Button _data="${cid}.card1OkButton">확인</_:Button>
-                    <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
+                <jsp:attribute name="header">
+                    header
                 </jsp:attribute>
 
                 <jsp:body>
@@ -66,6 +65,10 @@
                 modal: {
                     show: false,
                     title: '123',
+                    useFooter: true,
+                    onClose() {
+                        console.log(this);
+                    }
                 },
                 grid: {
                     $grid: null,
@@ -119,7 +122,7 @@
                     },
                 },
                 card1ErrorButton: {
-                    type: 'danger',
+                    type: 'normal',
                     onClick(e) {
                         console.log('error');
                     },

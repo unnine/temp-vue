@@ -284,7 +284,7 @@ class Component {
 
                     if (o === baseData) {
                         _this.#updateData(o, prop, newValue);
-                        _this.#updateProp(baseData, targetProps, prop, o, prop, newValue);
+                        _this.#processPropAfterUpdateData(baseData, targetProps, prop);
                         return true;
                     }
 
@@ -304,7 +304,7 @@ class Component {
                     }
 
                     _this.#updateData(o, prop, newValue);
-                    _this.#updateProp(baseData, targetProps, propName, o, prop, newValue);
+                    _this.#processPropAfterUpdateData(baseData, targetProps, propName);
                     return true;
                 },
             });
@@ -320,7 +320,7 @@ class Component {
         updateData[updateName] = newValue;
     }
 
-    #updateProp(baseData, props, propName) {
+    #processPropAfterUpdateData(baseData, props, propName) {
         if (!Object.hasOwn(props, propName)) {
             return;
         }
