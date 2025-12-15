@@ -30,19 +30,23 @@ export default class Element {
     }
 
     #findByElementId(id) {
-        const [ $el ] = this.findAllByElementId(id);
+        return this.querySelector(`[e-id="${id}"]`);
+    }
+
+    querySelector(selector) {
+        const $el = document.querySelector(`[component-id="${this._componentId}"] ${selector}`);
 
         if (!$el || !($el instanceof HTMLElement)) {
-            throw new Error(`Cannot find element with id '${id}'`);
+            throw new Error(`Cannot find element by selector. '${selector}'`);
         }
         return $el;
     }
 
-    findAllByElementId(id) {
-        const $els = document.querySelectorAll(`[component-id="${this._componentId}"] [e-id="${id}"]`);
+    querySelectorAll(selector) {
+        const $els = document.querySelectorAll(`[component-id="${this._componentId}"] ${selector}`);
 
-        if (!$els || $els.length === 0) {
-            throw new Error(`Cannot find elements with id '${id}'`);
+        if (!$els) {
+            throw new Error(`Cannot find elements by selector. '${selector}'`);
         }
         return $els;
     }
@@ -78,15 +82,10 @@ export default class Element {
 
     append($html) {
         if (Array.isArray($html)) {
-            $html.forEach($el => this._$el.append($el));
+            this._$el.append(...$html);
             return this;
         }
         this._$el.append($html);
-        return this;
-    }
-
-    innerHTML($html) {
-        this._$el.innerHTML = $html;
         return this;
     }
 

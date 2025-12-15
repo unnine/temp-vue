@@ -11,7 +11,8 @@
 
 <script type="module">
     import { newComponent } from 'dom';
-    import { AUIGrid, GridUtil } from 'grid';
+    import { AUIGrid } from 'grid';
+    import { StringUtil } from 'util';
 
     const Math = window.Math;
 
@@ -122,8 +123,34 @@
                 }, {});
 
                 proxy._pid = pid;
-                proxy._useLoader = (asyncFn) => GridUtil.useLoader(pid, asyncFn);
+                this.addUtilMethods(proxy);
                 return proxy;
+            },
+            addUtilMethods(proxy) {
+                proxy._useLoader = (asyncFn) => {
+                    proxy.showAjaxLoader();
+                    return asyncFn().finally(() => proxy.removeAjaxLoader());
+                };
+
+                proxy._sendCheckedRows = (targetProxy) => {
+                    const checkedRows = proxy.getCheckedRowItems();
+                    proxy.removeRow(
+                        checkedRows.map(({ rowIndex }) => rowIndex)
+                    );
+                    AUIGrid.addRow(
+                        targetProxy._pid,
+                        checkedRows.map(({ item }) => item),
+                    );
+                };
+
+                proxy._findColumn = (dataField) => {
+                    return this.$props.columns.find((col) => col.dataField === dataField);
+                }
+
+                proxy._existsValue = (rowIndex, columnNameOrColumnIndex) => {
+                    const cellValue = proxy.getCellValue(rowIndex, columnNameOrColumnIndex);
+                    return StringUtil.isNotEmpty(cellValue);
+                }
             },
             destroy() {
                 window.removeEventListener('resize', this.resize);

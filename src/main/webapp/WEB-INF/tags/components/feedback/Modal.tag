@@ -20,7 +20,8 @@
 </div>
 
 <script type="module">
-    import {newComponent} from 'dom';
+    import { newComponent } from 'dom';
+    import { resizeAllGrids } from 'grid';
 
     const component = newComponent({
         id: '${cid}',
@@ -31,20 +32,29 @@
                     type: 'Boolean',
                     default: false,
                     init(value) {
-                        value ? this.show() : this.hide();
-                        this.refreshTitle();
-                        this.resizeAllGrids();
+                        if (value) {
+                            this.show();
+                            return;
+                        }
+                        this.hide();
                     },
                     watch(value) {
-                        value ? this.show() : this.hide();
-                        this.refreshTitle();
-                        this.resizeAllGrids();
+                        if (value) {
+                            this.show();
+                            this.refreshTitle();
+                            resizeAllGrids();
+                            return;
+                        }
+                        this.hide();
                     },
                 },
                 title: {
                     type: 'String',
                 }
             },
+        },
+        mounted() {
+            this.refreshTitle();
         },
         data() {
             return {
@@ -65,9 +75,6 @@
             refreshTitle() {
                 this.card.title = this.$props.title;
             },
-            resizeAllGrids() {
-                this.$findAll('grid-component');
-            }
         },
     });
 
