@@ -147,7 +147,10 @@ class Component {
         }
 
         if (typeof data === 'function') {
-            this.#data = ObjectUtil.copy(data.call(this.#bindingInstance));
+            const dataObject = data.call(this.#bindingInstance, {
+                state: this.#setState,
+            });
+            this.#data = ObjectUtil.copy(dataObject);
             Object.keys(this.#data).forEach(key => this.#bindDataAndBindingInstance(this.#data, key));
         }
 
@@ -156,29 +159,44 @@ class Component {
         }
     }
 
+    #setState(key, value) {
+        return {
+            [key]: value,
+        };
+    }
+
     #makeBindProp(name, prop) {
         const {
             type = 'String',
             required = false,
             showIf = [],
-            init = () => {},
-            watch = () => true,
+            onInit = () => {},
+            onUpdate = () => {},
+            watch = () => {},
         } = prop ?? {};
 
-        if (prop.default != null && typeof prop.default !== 'function') {
+
+        const _type = type.toLowerCase();
+        if (prop.default != null && _type === 'array' && _type === 'object' && typeof prop.default !== 'function') {
             console.warn(`${name}.default must be a function.`);
         }
 
         return {
             type,
             required,
-            default: prop.default ?? (() => ''),
+            default: prop.default,
             showIf,
-            init: (value) => {
+            onInit: (value) => {
                 this.#showIfElement(showIf, value);
-                init.call(this.#bindingInstance, value);
+                onInit.call(this.#bindingInstance, value);
             },
-            watch: watch.bind(this.#bindingInstance),
+            onUpdate: (value) => {
+                this.#showIfElement(showIf, value);
+                onUpdate.call(this.#bindingInstance, value);
+            },
+            watch: (value) => {
+                watch.call(this.#bindingInstance, value);
+            },
         };
     }
 
@@ -218,19 +236,35 @@ class Component {
     }
 
     #initializeProps(data, props) {
-        Object.entries(props).forEach(([name, prop]) => {
-            if (!Object.hasOwn(prop, 'init')) {
-                return;
-            }
-            const { type, init } = prop;
 
-            if (!Object.hasOwn(data, name)) {
-                data[name] = prop.default();
-            }
+        Object.entries(props).forEach(([name, prop]) => {
+            const { type, onInit, watch } = prop;
+
+            this.#setDefaultDataToData(data, prop, name);
             const value = data[name];
             this.#validateType(name, type, value);
-            init(value);
+
+            if (onInit) {
+                onInit(value);
+            }
+            if (watch) {
+                watch(value);
+            }
         });
+    }
+
+    #setDefaultDataToData(data, prop, propName) {
+        const { type } = prop;
+        const _type = type.toLowerCase();
+
+        if (Object.hasOwn(data, propName)) {
+            return;
+        }
+        if (_type === 'array' || _type === 'object') {
+            data[propName] = typeof prop.default === 'function' ? prop.default() : prop.default;
+            return;
+        }
+        data[propName] = prop.default;
     }
 
     #bindingDataToChildrenProps() {
@@ -256,7 +290,6 @@ class Component {
             if (typeof obj !== 'object' || obj === null) {
                 return obj;
             }
-
             if (proxyCache.has(obj)) {
                 return proxyCache.get(obj);
             }
@@ -324,12 +357,18 @@ class Component {
         if (!Object.hasOwn(props, propName)) {
             return;
         }
-        const { type, watch, showIf } = props[propName];
+        const { type, onUpdate, watch, showIf } = props[propName];
         const propData = baseData[propName];
 
         this.#validateType(propName, type, propData);
         this.#showIfElement(showIf, propData);
-        watch(propData);
+
+        if (onUpdate) {
+            onUpdate(propData);
+        }
+        if (watch) {
+            watch(propData);
+        }
     }
 
     #showIfElement(showIf, value) {

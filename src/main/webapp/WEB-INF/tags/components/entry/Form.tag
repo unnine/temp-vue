@@ -25,15 +25,15 @@
                 },
                 countPerRow: {
                     type: 'Number',
-                    default: () => 3,
-                    init(value) {
+                    default: 3,
+                    onInit(value) {
                         this.$find('form').setStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
                     },
                 },
                 title: {
                     type: 'String',
                     showIf: ['header'],
-                    init(value) {
+                    onInit(value) {
                         this.$find('title').append(value);
                     },
                 },
@@ -41,15 +41,13 @@
                     type: 'Array',
                     required: true,
                     default: () => [],
-                    init(value) {
+                    onInit(value) {
                         this.$find('form').render({
                             forms: value,
                             event: {
                                 onInput: e => this.$props.onInput(e),
                             },
                         });
-                    },
-                    watch(newValue) {
                     },
                 },
                 onInput: {

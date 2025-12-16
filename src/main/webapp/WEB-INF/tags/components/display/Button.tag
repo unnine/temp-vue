@@ -24,15 +24,15 @@
                 type: {
                     type: 'String',
                     desc: ['primary', 'normal', 'warn', 'danger',],
-                    default: () => 'primary',
-                    init(value) {
+                    default: 'primary',
+                    onInit(value) {
                         this.$find(`button`).addClass(value);
                     },
                 },
                 disabled: {
                     type: 'Boolean',
-                    default: () => false,
-                    init(value) {
+                    default: false,
+                    onInit(value) {
                         if (value) {
                             this.$find('button').addClass('disabled');
                         }

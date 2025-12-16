@@ -39,10 +39,6 @@
             props: {
                 title: {
                     type: 'String',
-                    init(value) {
-                        this.$find('title').innerText(value);
-                        this.toggleHeader();
-                    },
                     watch(value) {
                         this.$find('title').innerText(value);
                         this.toggleHeader();

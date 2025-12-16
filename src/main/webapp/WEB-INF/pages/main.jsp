@@ -60,17 +60,17 @@
                 .get('https://jsonplaceholder.typicode.com/albums')
                 .then(({data}) => this.grid.$grid.setGridData(data));
         },
-        data() {
+        data({ state }) {
             return {
-                modal: {
+                ...state('modal', {
                     show: false,
                     title: '123',
                     useFooter: true,
                     onClose() {
                         console.log(this);
                     }
-                },
-                grid: {
+                }),
+                ...state('grid', {
                     $grid: null,
                     columns,
                     defaultData: [],
@@ -87,53 +87,59 @@
                         },
                         cellClick: e => console.log(e),
                     },
-                },
-                grid2: {
-                    $grid: null,
-                    columns,
-                    defaultData: [],
-                    event: {
-                        onCreated: (proxy) => {
-                            this.grid.$grid = proxy;
-                        },
-                        onClickButton: (e) => {
-                            this.searchForm.content.validate().then(e => console.log('then', e))
-                                .catch(e => console.log('catch', e));
-                            const { $grid } = this.grid;
-                            const data = $grid.getGridData();
-                            // console.log(e, data);
-                        },
-                        cellClick: e => console.log(e),
-                    },
-                },
-                card1: {
-                    title: 'Card - 1',
+                }),
 
-                },
-                card1OkButton: {
+                ...state('grid2', {
+                    $grid: null,
+                    columns,
+                    defaultData: [],
+                    event: {
+                        onCreated: (proxy) => {
+                            this.grid.$grid = proxy;
+                        },
+                        onClickButton: (e) => {
+                            this.searchForm.content.validate().then(e => console.log('then', e))
+                                .catch(e => console.log('catch', e));
+                            const { $grid } = this.grid;
+                            const data = $grid.getGridData();
+                            // console.log(e, data);
+                        },
+                        cellClick: e => console.log(e),
+                    },
+                }),
+
+                ...state('card1', {
+                    title: 'Card - 1',
+                }),
+
+                ...state('card1OkButton', {
                     onClick(e) {
                         console.log('ok');
                     },
-                },
-                card1CancelButton: {
+                }),
+
+                ...state('card1CancelButton', {
                     type: 'warn',
                     onClick(e) {
                         console.log('cancel');
                     },
-                },
-                card1ErrorButton: {
+                }),
+
+                ...state('card1ErrorButton', {
                     type: 'normal',
                     onClick(e) {
                         console.log('error');
                     },
-                },
-                card1DisabledButton: {
+                }),
+
+                ...state('card1DisabledButton', {
                     disabled: true,
                     onClick(e) {
                         console.log('never');
                     },
-                },
-                searchForm: {
+                }),
+
+                ...state('searchForm', {
                     countPerRow: 3,
                     title: '',
                     onInput: () => {
@@ -144,7 +150,7 @@
                     },
                     list: [],
                     content: searchForm,
-                },
+                }),
             };
         },
         methods: {

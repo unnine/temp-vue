@@ -39,14 +39,14 @@
                 show: {
                     type: 'Boolean',
                     default: false,
-                    init(value) {
+                    onInit(value) {
                         if (value) {
                             this.show();
                             return;
                         }
                         this.close();
                     },
-                    watch(value) {
+                    onUpdate(value) {
                         if (value) {
                             this.show();
                             this.refreshTitle();
@@ -59,6 +59,10 @@
                 title: {
                     type: 'String',
                 },
+                onOk: {
+                    type: 'Function',
+                    default: () => {},
+                },
                 onClose: {
                     type: 'Function',
                     default: () => {},
@@ -69,22 +73,20 @@
             this.refreshTitle();
             this.onClickCloseButton();
         },
-        data() {
+        data({ state }) {
             return {
-                card: {
+                ...state('card', {
                     title: null,
-                },
-                okButton: {
-                    onClick(e) {
-                        console.log(e);
-                    },
-                },
-                cancelButton: {
+                }),
+
+                ...state('okButton', {
+                    onClick: (e) => this.ok(),
+                }),
+
+                ...state('cancelButton', {
                     type: 'normal',
-                    onClick(e) {
-                        console.log(e);
-                    },
-                },
+                    onClick: (e) => this.close(),
+                }),
             };
         },
         methods: {
@@ -95,6 +97,11 @@
             hide() {
                 const component = this.$find('${cid}');
                 component.addClass('hide');
+            },
+            ok() {
+                console.log(this.$props.onOk);
+                this.$props.onOk();
+                this.close();
             },
             close() {
                 this.hide();
