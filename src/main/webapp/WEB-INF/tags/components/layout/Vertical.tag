@@ -7,7 +7,7 @@
 </div>
 
 <script type="module">
-    import { newComponent } from 'dom';
+    import { newComponent } from 'component';
 
     const component = newComponent({
         id: '${cid}',

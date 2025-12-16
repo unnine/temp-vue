@@ -20,9 +20,11 @@
     <script type="importmap">
         {
             "imports": {
-                "dom": "${pageContext.request.contextPath}/components/js/dom/index.js",
+                "component": "${pageContext.request.contextPath}/components/js/component/index.js",
                 "form": "${pageContext.request.contextPath}/components/js/form/index.js",
                 "grid": "${pageContext.request.contextPath}/components/js/grid/index.js",
+                "store": "${pageContext.request.contextPath}/components/js/store/index.js",
+                "consts": "${pageContext.request.contextPath}/components/js/consts/index.js",
                 "util": "${pageContext.request.contextPath}/components/js/util/index.js"
            }
         }

@@ -5,41 +5,38 @@
 <body component-id="${cid}">
     <_:Layout>
         <_:Vertical>
-            <_:Card _data="${cid}.card1">
+            <_:Card _bind="${cid}.card1">
                 <jsp:attribute name="header">
-                    <_:Button _data="${cid}.card1OkButton">확인</_:Button>
-                    <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
-                    <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
-                    <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
+                    <_:Button _bind="${cid}.card1OkButton">확인</_:Button>
+                    <_:Button _bind="${cid}.card1CancelButton">취소</_:Button>
+                    <_:Button _bind="${cid}.card1ErrorButton">에러</_:Button>
+                    <_:Button _bind="${cid}.card1DisabledButton">사용불가</_:Button>
                 </jsp:attribute>
 
                 <jsp:body>
-                    <_:Form _data="${cid}.searchForm"/>
-                    <_:AUIGrid _data="${cid}.grid"/>
+                    <_:Form _bind="${cid}.searchForm"/>
+                    <_:AUIGrid _bind="${cid}.grid"/>
                 </jsp:body>
             </_:Card>
 
-            <_:Card>
-                카드2
-            </_:Card>
-
-            <_:Modal _data="${cid}.modal">
+            <_:Modal _bind="${cid}.modal">
                 <jsp:attribute name="header">
                     header
                 </jsp:attribute>
 
                 <jsp:body>
-                    <_:Card _data="${cid}.card1">
+                    <_:Card _bind="${cid}.card1">
                         <jsp:attribute name="header">
-                            <_:Button _data="${cid}.card1OkButton">확인</_:Button>
-                            <_:Button _data="${cid}.card1CancelButton">취소</_:Button>
-                            <_:Button _data="${cid}.card1ErrorButton">에러</_:Button>
-                            <_:Button _data="${cid}.card1DisabledButton">사용불가</_:Button>
+                            <_:Button _bind="${cid}.card1OkButton">확인</_:Button>
+                            <_:Button _bind="${cid}.card1CancelButton">취소</_:Button>
+                            <_:Button _bind="${cid}.card1ErrorButton">에러</_:Button>
+                            <_:Button _bind="${cid}.card1DisabledButton">사용불가</_:Button>
                         </jsp:attribute>
 
                         <jsp:body>
-                            <_:Form _data="${cid}.searchForm"/>
-                            <_:AUIGrid _data="${cid}.grid2"/>
+                            <_:AUIGridSearch _bind="${cid}.grid" />
+                            <_:Form _bind="${cid}.searchForm"/>
+                            <_:AUIGrid _bind="${cid}.grid2"/>
                         </jsp:body>
                     </_:Card>
                 </jsp:body>
@@ -49,7 +46,7 @@
 </body>
 
 <script type="module">
-    import {newComponent} from 'dom';
+    import {newComponent} from 'component';
     import {FormUtil} from 'form';
     import {searchForm, columns} from '/values/main.js';
 
@@ -62,14 +59,16 @@
         },
         data({ state }) {
             return {
+
                 ...state('modal', {
                     show: false,
                     title: '123',
                     useFooter: true,
                     onClose() {
                         console.log(this);
-                    }
+                    },
                 }),
+
                 ...state('grid', {
                     $grid: null,
                     columns,
@@ -126,7 +125,7 @@
                 }),
 
                 ...state('card1ErrorButton', {
-                    type: 'normal',
+                    type: 'danger',
                     onClick(e) {
                         console.log('error');
                     },
@@ -143,13 +142,16 @@
                     countPerRow: 3,
                     title: '',
                     onInput: () => {
-                        const formData = FormUtil.getData(this.searchForm.content);
+                        const formData = FormUtil.getData(this.searchForm.forms);
                         console.log(formData);
-                        console.log(this.modal);
-                        this.modal.show = true;
+                        this.$info('123');
                     },
                     list: [],
-                    content: searchForm,
+                    forms: searchForm,
+                }),
+
+                ...state('grid', {
+
                 }),
             };
         },

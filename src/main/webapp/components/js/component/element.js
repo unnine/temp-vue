@@ -102,6 +102,11 @@ export default class Element {
         return this;
     }
 
+    innerHtml($html) {
+        this._$el.innerHtml = $html;
+        return this;
+    }
+
     innerText($html) {
         this._$el.innerText = $html;
         return this;
@@ -115,13 +120,13 @@ export default class Element {
         this._$el.removeAttribute(key);
     }
 
-    addClass(className) {
-        this._$el.classList.add(className);
+    addClass(...classNames) {
+        this._$el.classList.add(...classNames);
         return this;
     }
 
-    removeClass(className) {
-        this._$el.classList.remove(className);
+    removeClass(...classNames) {
+        this._$el.classList.remove(...classNames);
         return this;
     }
 
@@ -133,11 +138,6 @@ export default class Element {
     removeStyle(key) {
         this._$el.style[key] = null;
         return this;
-    }
-
-    destroy() {
-        this._$el.replaceChildren();
-        this._$el.remove();
     }
 
     isEmpty() {

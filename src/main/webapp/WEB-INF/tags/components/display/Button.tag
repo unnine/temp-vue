@@ -2,10 +2,10 @@
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+<%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 
 
-<div component-id="${cid}" class="button-component">
+<div component-id="${cid}" class="button-component hide">
     <div e-id="button" class="button-component__button">
         <button>
             <jsp:doBody />
@@ -14,23 +14,34 @@
 </div>
 
 <script type="module">
-    import {newComponent} from 'dom';
+    import {newComponent} from 'component';
 
     const component = newComponent({
         id: '${cid}',
-        bindData: {
-            target: `${_data}`,
-            props: {
+        propsTarget: `${_bind}`,
+        props() {
+            return {
                 type: {
-                    type: 'String',
+                    type: String,
                     desc: ['primary', 'normal', 'warn', 'danger',],
                     default: 'primary',
                     onInit(value) {
                         this.$find(`button`).addClass(value);
                     },
                 },
+                show: {
+                    type: Boolean,
+                    default: true,
+                    watch(value) {
+                        if (value) {
+                            this.$self.show();
+                            return;
+                        }
+                        this.$self.hide();
+                    },
+                },
                 disabled: {
-                    type: 'Boolean',
+                    type: Boolean,
                     default: false,
                     onInit(value) {
                         if (value) {
@@ -39,9 +50,9 @@
                     },
                 },
                 onClick: {
-                    type: 'Function',
+                    type: Function,
                 },
-            },
+            };
         },
         mounted() {
             this.$find('button').on('click', e => {

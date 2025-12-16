@@ -11,7 +11,7 @@
 </div>
 
 <script type="module">
-    import { newComponent } from 'dom';
+    import { newComponent } from 'component';
     import { StringUtil } from 'util';
 
     const component = newComponent({

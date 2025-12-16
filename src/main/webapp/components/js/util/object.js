@@ -2,7 +2,7 @@ export default {
     traverse(o, handler, path = []) {
         Object.entries(o).forEach(([key, value]) => {
            if (typeof value !== 'object') {
-               handler(key, value, path);
+               handler(key, value, o, path);
                return;
            }
            if (Array.isArray(value)) {
@@ -180,10 +180,10 @@ export default {
     },
 
     isObject(value) {
-        return value != null && !Array.isArray(value) && typeof value === 'object';
+        return Object.prototype.toString.call(value) === '[object Object]';
     },
 
     isFunction(value) {
-        return value === 'function';
+        return typeof value === 'function';
     },
 }

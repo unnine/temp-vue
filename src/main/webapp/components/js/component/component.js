@@ -1,6 +1,10 @@
 import Element from "./element.js";
-import { ObjectUtil, Date } from '../util/index.js';
+import { ObjectUtil } from '../util/index.js';
 import { request } from '../http/index.js';
+import { store } from '../store/index.js';
+import consts from '../consts/index.js';
+
+const { SHOW_ALERT } = consts.store;
 
 const componentsConnector = new class ComponentsConnector {
 
@@ -72,12 +76,14 @@ class Component {
 
     #id;
     #$el;
-    #bindData = {
+    #bindStore = {};
+    #storeData = {};
+    #bindProps = {
         parentComponentId: null,
         name: null,
         props: {},
+        data: {},
     };
-    #propsData = {};
     #data = {};
     #children = [];
     #methods = {};
@@ -89,23 +95,28 @@ class Component {
 
     constructor(options) {
         this.#initBindingInstance();
-        this.#initProps(options);
+        this.#initComponent(options);
         componentsConnector.add(this.#$el, this);
         Object.freeze(this.#bindingInstance);
         return this.#bindingInstance;
     }
 
     #initBindingInstance() {
-        this.#defineGetter(this.#bindingInstance, '$id', () => this.#id);
-        this.#defineGetter(this.#bindingInstance, '$el', () => this.#$el);
-        this.#defineGetter(this.#bindingInstance, '$props', () => this.#propsData);
-        this.#defineGetter(this.#bindingInstance, '$request', () => request);
-        this.#defineGetter(this.#bindingInstance, '$find', () => this.#find);
-        this.#defineGetter(this.#bindingInstance, '$date', () => Date);
+        const o = this.#bindingInstance;
+
+        this.#defineGetter(o, '$self', () => this.#find(this.#id));
+        this.#defineGetter(o, '$props', () => this.#bindProps.data);
+        this.#defineGetter(o, '$find', () => this.#find);
+
+        o.$request = request;
+        o.$confirm = (message) => store.commit(SHOW_ALERT, { type: 'info', message, isConfirm: true });
+        o.$info = (message) => store.commit(SHOW_ALERT, { type: 'info', message });
+        o.$warn = (message) => store.commit(SHOW_ALERT, { type: 'warn', message });
+        o.$danger = (message) => store.commit(SHOW_ALERT, { type: 'danger', message });
     }
 
-    #initProps(options) {
-        const { id, bindData, methods, data, mounted } = options;
+    #initComponent(options) {
+        const { id, propsTarget, props, bindStore, data, methods, mounted } = options;
 
         if (!id) {
             throw new Error('id is required.');
@@ -118,40 +129,20 @@ class Component {
             throw new Error(`component with id '${id}' not found in DOM. make sure the component is rendered before initializing.`);
         }
 
-        if (bindData) {
-            const { target, props } = bindData ?? {};
-            const parentComponentDataName = target.split('.');
+        if (bindStore) {
+            this.#initBindStore(bindStore);
+        }
 
-            if (target && (!parentComponentDataName || parentComponentDataName.length < 2)) {
-                console.error(`unknown parent component id or data name. 'bindData.id' expression is '{parentComponentId}.{dataName}'`, this);
-            }
-
-            const [ parentComponentId, dataName ] = parentComponentDataName;
-
-            this.#bindData.parentComponentId = parentComponentId;
-            this.#bindData.name = dataName;
-
-            Object.entries(props).forEach(([name, prop]) => {
-                this.#bindData.props[name] = this.#makeBindProp(name, prop);
-                this.#propsData[name] = null;
-            });
+        if (props) {
+            this.#initProps(propsTarget, props);
         }
 
         if (methods) {
-            Object.entries(methods)
-                .filter(([, method]) => typeof method === 'function')
-                .forEach(([methodName, method]) => {
-                    this.#methods[methodName] = method.bind(this.#bindingInstance);
-                    this.#bindingInstance[methodName] = method.bind(this.#bindingInstance);
-            });
+            this.#initMethods(methods)
         }
 
         if (typeof data === 'function') {
-            const dataObject = data.call(this.#bindingInstance, {
-                state: this.#setState,
-            });
-            this.#data = ObjectUtil.copy(dataObject);
-            Object.keys(this.#data).forEach(key => this.#bindDataAndBindingInstance(this.#data, key));
+            this.#initComponentData(data);
         }
 
         if (typeof mounted === 'function') {
@@ -159,15 +150,96 @@ class Component {
         }
     }
 
-    #setState(key, value) {
+    #initBindStore(bindStore) {
+
+        const _initBindStore = () => {
+            const bindStoreData = bindStore.call(this.#bindingInstance);
+
+            Object.entries(bindStoreData).forEach(([key, value]) => {
+                const [ getterName, watch ] = value;
+
+                this.#bindStore[key] = {
+                    getterName,
+                    watch: watch.bind(this.#bindingInstance),
+                };
+                this.#storeData[key] = undefined;
+            });
+        };
+
+        const subscribeStore = () => {
+            Object.entries(this.#bindStore).forEach(([key, props]) => {
+                const { getterName, watch } = props;
+
+                store._subscribe(getterName, (value) => {
+                    this.#storeData[key] = value;
+                    watch(value);
+                });
+            });
+        };
+
+        const bindStoreDataAndBindingInstance = () => {
+            Object.entries(this.#storeData).forEach(([key, value]) => {
+                this.#bindingInstance[key] = value;
+
+                Object.defineProperty(this.#bindingInstance, key, {
+                    get: () => {
+                        return this.#storeData[key];
+                    },
+                });
+            });
+        };
+
+        _initBindStore();
+        subscribeStore();
+        bindStoreDataAndBindingInstance();
+    }
+
+    #initProps(propsTarget, props) {
+        const parentComponentDataName = propsTarget.split('.');
+
+        if (propsTarget && (!parentComponentDataName || parentComponentDataName.length < 2)) {
+            console.error(`unknown parent component id or data name. 'propsTarget' expression is '{parentComponentId}.{dataName}'. current: '${propsTarget}'`);
+        }
+
+        const [ parentComponentId, dataName ] = parentComponentDataName;
+
+        this.#bindProps.parentComponentId = parentComponentId;
+        this.#bindProps.name = dataName;
+
+        const propsObject = props.call(this.#bindingInstance);
+
+        Object.entries(propsObject).forEach(([name, prop]) => {
+            this.#bindProps.props[name] = this.#makeBindProp(name, prop);
+            this.#bindProps.data[name] = null;
+        });
+    }
+
+    #initMethods(methods) {
+        Object.entries(methods)
+            .filter(([, method]) => typeof method === 'function')
+            .forEach(([methodName, method]) => {
+                this.#methods[methodName] = method.bind(this.#bindingInstance);
+                this.#bindingInstance[methodName] = method.bind(this.#bindingInstance);
+            });
+    }
+
+    #initComponentData(data) {
+        const dataObject = data.call(this.#bindingInstance, {
+            state: this.#setState,
+        });
+        this.#data = ObjectUtil.copy(dataObject);
+        Object.keys(this.#data).forEach(key => this.#bindStateAndBindingInstance(this.#data, key));
+    }
+
+    #setState(key, o) {
         return {
-            [key]: value,
+            [key]: o,
         };
     }
 
     #makeBindProp(name, prop) {
         const {
-            type = 'String',
+            type,
             required = false,
             showIf = [],
             onInit = () => {},
@@ -175,9 +247,7 @@ class Component {
             watch = () => {},
         } = prop ?? {};
 
-
-        const _type = type.toLowerCase();
-        if (prop.default != null && _type === 'array' && _type === 'object' && typeof prop.default !== 'function') {
+        if (prop.default != null && typeof prop.default !== 'function' && (type === Array || type === Object)) {
             console.warn(`${name}.default must be a function.`);
         }
 
@@ -200,13 +270,13 @@ class Component {
         };
     }
 
-    #bindDataAndBindingInstance(_data, key) {
+    #bindStateAndBindingInstance(data, key) {
         Object.defineProperty(this.#bindingInstance, key, {
             get() {
-                return _data[key];
+                return data[key];
             },
             set(v) {
-                _data[key] = v;
+                data[key] = v;
             },
         });
     }
@@ -219,24 +289,32 @@ class Component {
         });
     }
 
+    #initBoundedStoreData() {
+        Object.entries(this.#bindStore).forEach(([key, value]) => {
+            const { getterName, watch } = value;
+
+            this.#storeData[key] = store.get(getterName);
+            watch(value);
+        });
+    }
+
     #setValueToChildProps() {
         const baseData = this.#data;
 
         this.#children.forEach(child => {
-            const { name, props } = child.#bindData;
+            const { name, props } = child.#bindProps;
             const { data} = ObjectUtil.findFirstByKey(baseData, name);
 
             if (!data) {
                 return;
             }
 
-            child.#propsData = data;
-            this.#initializeProps(data, props);
+            child.#bindProps.data = data;
+            this.#initChildProps(data, props);
         });
     }
 
-    #initializeProps(data, props) {
-
+    #initChildProps(data, props) {
         Object.entries(props).forEach(([name, prop]) => {
             const { type, onInit, watch } = prop;
 
@@ -255,12 +333,11 @@ class Component {
 
     #setDefaultDataToData(data, prop, propName) {
         const { type } = prop;
-        const _type = type.toLowerCase();
 
         if (Object.hasOwn(data, propName)) {
             return;
         }
-        if (_type === 'array' || _type === 'object') {
+        if (type === Array || type === Object) {
             data[propName] = typeof prop.default === 'function' ? prop.default() : prop.default;
             return;
         }
@@ -271,7 +348,7 @@ class Component {
         const rootData = this.#data;
 
         this.#children.forEach(child => {
-            const { name, props: childProps } = child.#bindData;
+            const { name, props: childProps } = child.#bindProps;
             const { data: parentData, path: parentDataPath } = ObjectUtil.findFirstByKey(rootData, name);
 
             if (!parentData) {
@@ -287,7 +364,7 @@ class Component {
         const _this = this;
 
         function _createReactiveProxy(obj) {
-            if (typeof obj !== 'object' || obj === null) {
+            if (!ObjectUtil.isObject(obj)) {
                 return obj;
             }
             if (proxyCache.has(obj)) {
@@ -301,23 +378,28 @@ class Component {
             });
 
             const proxy = new Proxy(obj, {
-                get(o, prop) {
-                    const value = o[prop];
+                get(o, key) {
+                    const value = o[key];
 
-                    if (typeof value === 'object' && value !== null) {
+                    if (ObjectUtil.isObject(value)) {
                         return _createReactiveProxy(value);
                     }
                     return value;
                 },
 
-                set(o, prop, newValue) {
+                set(o, key, newValue) {
+                    const oldValue = o[key];
+
+                    if (oldValue === newValue) {
+                        return true;
+                    }
+
                     if (typeof newValue === 'function') {
                         newValue = newValue.bind(obj);
                     }
 
                     if (o === baseData) {
-                        _this.#updateData(o, prop, newValue);
-                        _this.#processPropAfterUpdateData(baseData, targetProps, prop);
+                        _this.#updateDataAndProcessProps(o, key, newValue, baseData, targetProps);
                         return true;
                     }
 
@@ -336,8 +418,7 @@ class Component {
                         return true;
                     }
 
-                    _this.#updateData(o, prop, newValue);
-                    _this.#processPropAfterUpdateData(baseData, targetProps, propName);
+                    _this.#updateDataAndProcessProps(o, key, newValue, baseData, targetProps);
                     return true;
                 },
             });
@@ -349,11 +430,16 @@ class Component {
         return _createReactiveProxy(baseData);
     }
 
+    #updateDataAndProcessProps(updateData, updatePropName, newValue, baseData, props) {
+        this.#updateData(updateData, updatePropName, newValue);
+        this.#processPropAfterUpdatedData(baseData, props, updatePropName);
+    }
+
     #updateData(updateData, updateName, newValue) {
         updateData[updateName] = newValue;
     }
 
-    #processPropAfterUpdateData(baseData, props, propName) {
+    #processPropAfterUpdatedData(baseData, props, propName) {
         if (!Object.hasOwn(props, propName)) {
             return;
         }
@@ -371,6 +457,31 @@ class Component {
         }
     }
 
+    #validateType(name, type, value) {
+        if (value == null) {
+            return;
+        }
+        if (type === Array && Array.isArray(value)) {
+            return;
+        }
+        if (type === Object && ObjectUtil.isObject(value)) {
+            return;
+        }
+        if (type === String && typeof value === 'string') {
+            return;
+        }
+        if (type === Number && typeof value === 'number' && !isNaN(value)) {
+            return;
+        }
+        if (type === Boolean && typeof value === 'boolean') {
+            return;
+        }
+        if (type === Function && typeof value === 'function') {
+            return;
+        }
+        console.warn(`'${name}' prop is invalid type. expected '${type.name}', but got '${typeof value}'. value: ${value}`);
+    }
+
     #showIfElement(showIf, value) {
         if (!showIf || showIf.length === 0) {
             return;
@@ -384,30 +495,8 @@ class Component {
         });
     }
 
-    #validateType(name, type, value) {
-        if (!type) {
-            return;
-        }
-        if (value == null) {
-            return;
-        }
-
-        const _type = type.toLowerCase();
-        const actualType = (typeof value).toLowerCase();
-
-        if (_type === 'array') {
-            if (!Array.isArray(value)) {
-                console.warn(`'${name}' prop is invalid type. expected 'array', but got '${actualType}'. value: ${value}`);
-            }
-            return;
-        }
-
-        if (actualType !== _type) {
-            console.warn(`'${name}' prop is invalid type. expected '${_type}', but got '${actualType}'. value: ${value}`);
-        }
-    }
-
     _bindingComponents() {
+        this.#initBoundedStoreData();
         this.#setValueToChildProps();
         this.#bindingDataToChildrenProps();
     }
@@ -417,7 +506,7 @@ class Component {
     }
 
     _getParentComponentElement() {
-        return document.querySelector(`[component-id="${this.#bindData.parentComponentId}"]`);
+        return document.querySelector(`[component-id="${this.#bindProps.parentComponentId}"]`);
     }
 
     _addChildInstance(childComponentInstance) {

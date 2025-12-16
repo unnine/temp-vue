@@ -2,7 +2,7 @@
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+<%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 <%@ attribute name="header" fragment="true" required="false" %>
 
 
@@ -10,14 +10,14 @@
     <div class="modal-container">
         <div e-id="close-button" class="modal-container--close"></div>
 
-        <_:Card _data="${cid}.card">
+        <_:Card _bind="${cid}.card">
             <jsp:attribute name="header">
                 <jsp:invoke fragment="header" />
             </jsp:attribute>
 
             <jsp:attribute name="footer">
-                <_:Button _data="${cid}.okButton">확인</_:Button>
-                <_:Button _data="${cid}.cancelButton">취소</_:Button>
+                <_:Button _bind="${cid}.okButton">확인</_:Button>
+                <_:Button _bind="${cid}.cancelButton">취소</_:Button>
             </jsp:attribute>
 
             <jsp:body>
@@ -28,16 +28,16 @@
 </div>
 
 <script type="module">
-    import { newComponent } from 'dom';
+    import { newComponent } from 'component';
     import { resizeAllGrids } from 'grid';
 
     const component = newComponent({
         id: '${cid}',
-        bindData: {
-            target: `${_data}`,
-            props: {
+        propsTarget: `${_bind}`,
+        props() {
+            return {
                 show: {
-                    type: 'Boolean',
+                    type: Boolean,
                     default: false,
                     onInit(value) {
                         if (value) {
@@ -57,17 +57,17 @@
                     },
                 },
                 title: {
-                    type: 'String',
+                    type: String,
                 },
                 onOk: {
-                    type: 'Function',
+                    type: Function,
                     default: () => {},
                 },
                 onClose: {
-                    type: 'Function',
+                    type: Function,
                     default: () => {},
                 },
-            },
+            };
         },
         mounted() {
             this.refreshTitle();
@@ -75,6 +75,7 @@
         },
         data({ state }) {
             return {
+
                 ...state('card', {
                     title: null,
                 }),
@@ -99,7 +100,6 @@
                 component.addClass('hide');
             },
             ok() {
-                console.log(this.$props.onOk);
                 this.$props.onOk();
                 this.close();
             },

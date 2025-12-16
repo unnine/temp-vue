@@ -2,7 +2,7 @@
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+<%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 <%@ attribute name="header" fragment="true" required="false" %>
 <%@ attribute name="footer" fragment="true" required="false" %>
 
@@ -30,21 +30,21 @@
 </div>
 
 <script type="module">
-    import {newComponent} from 'dom';
+    import {newComponent} from 'component';
 
     const component = newComponent({
         id: '${cid}',
-        bindData: {
-            target: `${_data}`,
-            props: {
+        propsTarget: `${_bind}`,
+        props() {
+            return {
                 title: {
-                    type: 'String',
+                    type: String,
                     watch(value) {
                         this.$find('title').innerText(value);
                         this.toggleHeader();
                     },
                 },
-            },
+            };
         },
         mounted() {
             this.toggleFooter();

@@ -2,55 +2,55 @@
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+<%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 
 
-<div component-id="${cid}" class="grid-component">
+<div component-id="${cid}" class="aui-grid-component">
     <div e-id="grid-container"></div>
 </div>
 
 <script type="module">
-    import { newComponent } from 'dom';
+    import { newComponent } from 'component';
     import { AUIGrid } from 'grid';
-    import { StringUtil } from 'util';
+    import { StringUtil, DateUtil } from 'util';
 
     const Math = window.Math;
 
     const component = newComponent({
         id: '${cid}',
-        bindData: {
-            target: `${_data}`,
-            props: {
+        propsTarget: `${_bind}`,
+        props() {
+            return {
                 title: {
-                    type: 'String',
+                    type: String,
                 },
                 columns: {
-                    type: 'Array',
+                    type: Array,
                     default: () => [],
                     desc: `https://www.auisoft.net/documentation/auigrid/ColumnLayout/Column.html`,
                 },
                 props: {
-                    type: 'Object',
+                    type: Object,
                     default: () => ({}),
                     desc: `https://www.auisoft.net/documentation/auigrid/DataGrid/Properties.html`,
                 },
                 defaultData: {
-                    type: 'Array',
+                    type: Array,
                     default: () => [],
                 },
                 event: {
-                    type: 'Object',
+                    type: Object,
                     default: () => ({}),
                 },
                 width: {
-                    type: 'String',
+                    type: String,
                     default: '100%',
                 },
                 height: {
-                    type: 'String',
+                    type: String,
                     default: '100%',
                 },
-            },
+            }
         },
         mounted() {
             this.setIdToContainer();
@@ -241,7 +241,7 @@
                 AUIGrid.refresh(this.pid);
             },
             exportToExcel() {
-                const fileName = this.$date.now();
+                const fileName = DateUtil.now();
 
                 AUIGrid.exportToXlsx(this.pid, { fileName });
             },

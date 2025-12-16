@@ -2,7 +2,7 @@
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<%@ attribute name="_data" fragment="false" required="false" type="java.lang.String" %>
+<%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 
 <div component-id="${cid}" class="base-sidebar-component">
     <div class="base-sidebar-component__content">
@@ -11,7 +11,7 @@ Sidebar
 </div>
 
 <script type="module">
-    import {newComponent} from 'dom';
+    import {newComponent} from 'component';
 
     const component = newComponent({
         id: '${cid}',
