@@ -1,4 +1,5 @@
 import FormBuilder from './formBuilder.js';
+import FormUtil from './formUtil.js';
 
 class FormRenderer {
 
@@ -65,7 +66,13 @@ class FormRenderer {
         },
     };
 
+    #clear($el) {
+        $el.replaceChildren();
+    }
+
     render($target, props) {
+        this.#clear($target);
+
         if (!props) {
             props = {};
         }
@@ -81,7 +88,8 @@ class FormRenderer {
 
         const nodes = this.#valuesToNodes(props.forms, props.event);
 
-        props.forms.validate = () => this.#validateFormValues(nodes);
+        this.#addFormValidator(props.forms, nodes);
+        this.#addFormDataProperty(props.forms);
 
         nodes.forEach(({ $node, onRendered }) => {
             $target.append($node);
@@ -89,6 +97,30 @@ class FormRenderer {
             if (onRendered) {
                 onRendered();
             }
+        });
+    }
+
+    #addFormValidator(forms, nodes) {
+        forms.validate = () => {
+            const isValid = this.#validateFormValues(nodes);
+
+            if (!isValid) {
+                return;
+            }
+
+            return Promise.resolve(forms.data);
+        };
+    }
+
+    #addFormDataProperty(forms) {
+        if (Object.hasOwn(forms, 'data')) {
+            console.error(`already rendered forms.`, forms);
+        }
+
+        Object.defineProperty(forms, 'data', {
+            get() {
+                return FormUtil.getData(forms);
+            },
         });
     }
 
@@ -119,8 +151,7 @@ class FormRenderer {
 
     #validateFormValues(nodes) {
         const invalidNodes = this.#findNodesWithInvalidValues(nodes);
-        const invalidNodeNames = invalidNodes.map(({ item }) => item.name);
-        return invalidNodes.length > 0 ? Promise.reject(invalidNodeNames) : Promise.resolve();
+        return invalidNodes.length > 0;
     }
 
     #findNodesWithInvalidValues(nodes) {

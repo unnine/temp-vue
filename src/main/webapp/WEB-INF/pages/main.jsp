@@ -4,61 +4,62 @@
 
 <body component-id="${cid}">
     <_:Layout>
-        <_:Vertical>
-            <_:Card _bind="${cid}.card1">
-                <jsp:attribute name="header">
-                    <_:Button _bind="${cid}.card1OkButton">확인</_:Button>
-                    <_:Button _bind="${cid}.card1CancelButton">취소</_:Button>
-                    <_:Button _bind="${cid}.card1ErrorButton">에러</_:Button>
-                    <_:Button _bind="${cid}.card1DisabledButton">사용불가</_:Button>
-                </jsp:attribute>
+        <_:SearchGridCard _bind="${cid}.listGrid" />
 
-                <jsp:body>
-                    <_:Form _bind="${cid}.searchForm"/>
-                    <_:AUIGrid _bind="${cid}.grid"/>
-                </jsp:body>
-            </_:Card>
+<%--        <_:Modal _bind="${cid}.modal">--%>
+<%--            <jsp:attribute name="header">--%>
+<%--                header--%>
+<%--            </jsp:attribute>--%>
 
-            <_:Modal _bind="${cid}.modal">
-                <jsp:attribute name="header">
-                    header
-                </jsp:attribute>
-
-                <jsp:body>
-                    <_:Card _bind="${cid}.card1">
-                        <jsp:attribute name="header">
-                            <_:Button _bind="${cid}.card1OkButton">확인</_:Button>
-                            <_:Button _bind="${cid}.card1CancelButton">취소</_:Button>
-                            <_:Button _bind="${cid}.card1ErrorButton">에러</_:Button>
-                            <_:Button _bind="${cid}.card1DisabledButton">사용불가</_:Button>
-                        </jsp:attribute>
-
-                        <jsp:body>
-                            <_:AUIGridSearch _bind="${cid}.grid" />
-                            <_:Form _bind="${cid}.searchForm"/>
-                            <_:AUIGrid _bind="${cid}.grid2"/>
-                        </jsp:body>
-                    </_:Card>
-                </jsp:body>
-            </_:Modal>
-        </_:Vertical>
+<%--            <jsp:body>--%>
+<%--                <_:Card _bind="${cid}.card1">--%>
+<%--                    <jsp:attribute name="header">--%>
+<%--                        <_:Button _bind="${cid}.card1OkButton">확인</_:Button>--%>
+<%--                        <_:Button _bind="${cid}.card1CancelButton">취소</_:Button>--%>
+<%--                        <_:Button _bind="${cid}.card1ErrorButton">에러</_:Button>--%>
+<%--                        <_:Button _bind="${cid}.card1DisabledButton">사용불가</_:Button>--%>
+<%--                    </jsp:attribute>--%>
+<%--                </_:Card>--%>
+<%--            </jsp:body>--%>
+<%--        </_:Modal>--%>
     </_:Layout>
 </body>
 
 <script type="module">
-    import {newComponent} from 'component';
-    import {FormUtil} from 'form';
-    import {searchForm, columns} from '/values/main.js';
+    import { newComponent } from 'component';
+    import { searchForm, columns } from '/values/main.js';
 
     const component = newComponent({
         id: '${cid}',
         mounted() {
             this.$request()
                 .get('https://jsonplaceholder.typicode.com/albums')
-                .then(({data}) => this.grid.$grid.setGridData(data));
+                .then(({data}) => this.listGrid.$grid.setGridData(data));
         },
         data({ state }) {
             return {
+
+                ...state('listGrid', {
+                    title: 'Test Grid',
+
+                    countPerRow: 3,
+                    forms: searchForm,
+
+                    $grid: null,
+                    columns,
+                    defaultData: [],
+                    event: {
+                        onCreated: (proxy) => {
+                            this.listGrid.$grid = proxy;
+                        },
+                        onClickButton: (e) => {
+                            this.listGrid.forms.validate().then(data => {
+                                console.log(data);
+                            });
+                        },
+                        cellClick: e => console.log(e),
+                    },
+                }),
 
                 ...state('modal', {
                     show: false,
@@ -68,106 +69,9 @@
                         console.log(this);
                     },
                 }),
-
-                ...state('grid', {
-                    $grid: null,
-                    columns,
-                    defaultData: [],
-                    event: {
-                        onCreated: (proxy) => {
-                            this.grid.$grid = proxy;
-                        },
-                        onClickButton: (e) => {
-                            this.searchForm.content.validate().then(e => console.log('then', e))
-                                .catch(e => console.log('catch', e));
-                            const { $grid } = this.grid;
-                            const data = $grid.getGridData();
-                            // console.log(e, data);
-                        },
-                        cellClick: e => console.log(e),
-                    },
-                }),
-
-                ...state('grid2', {
-                    $grid: null,
-                    columns,
-                    defaultData: [],
-                    event: {
-                        onCreated: (proxy) => {
-                            this.grid.$grid = proxy;
-                        },
-                        onClickButton: (e) => {
-                            this.searchForm.content.validate().then(e => console.log('then', e))
-                                .catch(e => console.log('catch', e));
-                            const { $grid } = this.grid;
-                            const data = $grid.getGridData();
-                            // console.log(e, data);
-                        },
-                        cellClick: e => console.log(e),
-                    },
-                }),
-
-                ...state('card1', {
-                    title: 'Card - 1',
-                }),
-
-                ...state('card1OkButton', {
-                    onClick(e) {
-                        console.log('ok');
-                    },
-                }),
-
-                ...state('card1CancelButton', {
-                    type: 'warn',
-                    onClick(e) {
-                        console.log('cancel');
-                    },
-                }),
-
-                ...state('card1ErrorButton', {
-                    type: 'danger',
-                    onClick(e) {
-                        console.log('error');
-                    },
-                }),
-
-                ...state('card1DisabledButton', {
-                    disabled: true,
-                    onClick(e) {
-                        console.log('never');
-                    },
-                }),
-
-                ...state('searchForm', {
-                    countPerRow: 3,
-                    title: '',
-                    onInput: () => {
-                        const formData = FormUtil.getData(this.searchForm.forms);
-                        console.log(formData);
-                        this.$info('123');
-                    },
-                    list: [],
-                    forms: searchForm,
-                }),
-
-                ...state('grid', {
-
-                }),
             };
         },
         methods: {
-            onClickHandler1(e) {
-                console.log(`handler1: ${e}`, this);
-            },
-            onClickHandler2(e) {
-                console.log(`handler2: ${e}`, this);
-            },
-            clicker1(e) {
-                console.log(e);
-            },
-            clicker2(e) {
-                console.log(`name2: ${e}`);
-            }
         },
     });
 

@@ -76,8 +76,10 @@ class Component {
 
     #id;
     #$el;
-    #bindStore = {};
-    #storeData = {};
+    #bindStore = {
+        props: {},
+        data: {},
+    };
     #bindProps = {
         parentComponentId: null,
         name: null,
@@ -129,16 +131,16 @@ class Component {
             throw new Error(`component with id '${id}' not found in DOM. make sure the component is rendered before initializing.`);
         }
 
+        if (methods) {
+            this.#initMethods(methods)
+        }
+
         if (bindStore) {
             this.#initBindStore(bindStore);
         }
 
         if (props) {
             this.#initProps(propsTarget, props);
-        }
-
-        if (methods) {
-            this.#initMethods(methods)
         }
 
         if (typeof data === 'function') {
@@ -158,32 +160,32 @@ class Component {
             Object.entries(bindStoreData).forEach(([key, value]) => {
                 const [ getterName, watch ] = value;
 
-                this.#bindStore[key] = {
+                this.#bindStore.props[key] = {
                     getterName,
                     watch: watch.bind(this.#bindingInstance),
                 };
-                this.#storeData[key] = undefined;
+                this.#bindStore.data[key] = undefined;
             });
         };
 
         const subscribeStore = () => {
-            Object.entries(this.#bindStore).forEach(([key, props]) => {
-                const { getterName, watch } = props;
+            Object.entries(this.#bindStore.props).forEach(([key, prop]) => {
+                const { getterName, watch } = prop;
 
                 store._subscribe(getterName, (value) => {
-                    this.#storeData[key] = value;
+                    this.#bindStore.data[key] = value;
                     watch(value);
                 });
             });
         };
 
         const bindStoreDataAndBindingInstance = () => {
-            Object.entries(this.#storeData).forEach(([key, value]) => {
+            Object.entries(this.#bindStore.data).forEach(([key, value]) => {
                 this.#bindingInstance[key] = value;
 
                 Object.defineProperty(this.#bindingInstance, key, {
                     get: () => {
-                        return this.#storeData[key];
+                        return this.#bindStore.data[key];
                     },
                 });
             });
@@ -290,10 +292,11 @@ class Component {
     }
 
     #initBoundedStoreData() {
-        Object.entries(this.#bindStore).forEach(([key, value]) => {
-            const { getterName, watch } = value;
+        Object.entries(this.#bindStore.props).forEach(([key, prop]) => {
+            const { getterName, watch } = prop;
 
-            this.#storeData[key] = store.get(getterName);
+            const value = store.get(getterName);
+            this.#bindStore.data[key] = value;
             watch(value);
         });
     }

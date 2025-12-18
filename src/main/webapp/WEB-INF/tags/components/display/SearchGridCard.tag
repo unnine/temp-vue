@@ -5,27 +5,40 @@
 <%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 
 
-<div component-id="${cid}" class="aui-grid-search-component">
-    <_:Form _bind="${cid}.form" />
-    <_:AUIGrid _bind="${cid}.grid" />
+<div component-id="${cid}" class="search-grid-card-component">
+    <_:Card _bind="${cid}.card">
+        <jsp:attribute name="header">
+            <!-- TODO dynamic buttons -->
+        </jsp:attribute>
+
+        <jsp:body>
+            <_:SearchGrid _bind="${cid}.grid" />
+        </jsp:body>
+    </_:Card>
 </div>
 
 <script type="module">
-    import {newComponent} from 'component';
+    import { newComponent } from 'component';
 
     const component = newComponent({
         id: '${cid}',
-        propsTarget: '${_bind}',
+        propsTarget: `${_bind}`,
         props() {
             return {
+                // card
+                title: {
+                    type: String,
+                    watch: v => this.card.title = v,
+                },
+
                 //  form
                 countPerRow: {
                     type: Number,
-                    watch: (v) => this.form.countPerRow = v,
+                    watch: v => this.grid.countPerRow = v,
                 },
                 forms: {
                     type: Array,
-                    watch: v => this.form.form = v,
+                    watch: v => this.grid.forms = v,
                 },
 
                 // grid
@@ -53,13 +66,17 @@
                     type: Array,
                     watch: v => this.grid.defaultData = v,
                 },
+                onCreated: {
+                    type: Function,
+                    watch: v => this.grid.onCreated = v,
+                },
             }
         },
-        data({state}) {
+        mounted() {
+        },
+        data({ state }) {
             return {
-
-                ...state('form', {}),
-
+                ...state('card', {}),
                 ...state('grid', {}),
             };
         },

@@ -26,14 +26,14 @@
                 countPerRow: {
                     type: Number,
                     default: 3,
-                    onInit(value) {
+                    watch(value) {
                         this.$find('form').setStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
                     },
                 },
                 title: {
                     type: String,
                     showIf: ['header'],
-                    onInit(value) {
+                    watch(value) {
                         this.$find('title').append(value);
                     },
                 },
@@ -41,7 +41,7 @@
                     type: Array,
                     required: true,
                     default: () => [],
-                    onInit(value) {
+                    watch(value) {
                         this.$find('form').render({
                             forms: value,
                             event: {
