@@ -17,7 +17,7 @@
 
     const component = newComponent({
         id: '${cid}',
-        propsTarget: `${_bind}`,
+        propsState: `${_bind}`,
         props() {
             return {
                 list: {
@@ -45,13 +45,17 @@
                         this.$find('form').render({
                             forms: value,
                             event: {
-                                onInput: e => this.$props.onInput(e),
+                                onInput: e => {
+                                    console.log(this);
+                                    this.$props.onInput(e)
+                                },
                             },
                         });
                     },
                 },
                 onInput: {
                     type: Function,
+                    default: () => {},
                 },
             };
         },

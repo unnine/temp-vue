@@ -72,6 +72,16 @@
         <name>SearchGridCard</name>
         <path>/WEB-INF/tags/components/display/SearchGridCard.tag</path>
     </tag-file>
+
+    <tag-file>
+        <name>Tabs</name>
+        <path>/WEB-INF/tags/components/display/Tabs.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Tab</name>
+        <path>/WEB-INF/tags/components/display/Tab.tag</path>
+    </tag-file>
     <!--/ display /-->
 
 

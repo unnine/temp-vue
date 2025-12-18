@@ -1,12 +1,6 @@
 export default {
     isEmpty(s) {
-        if (s == null) {
-            return true;
-        }
-        if (s.trim().length === 0) {
-            return true;
-        }
-        return false;
+        return !s || !s.trim();
     },
     isNotEmpty(s) {
         return !this.isEmpty(s);

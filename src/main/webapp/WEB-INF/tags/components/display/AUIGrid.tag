@@ -18,7 +18,7 @@
 
     const component = newComponent({
         id: '${cid}',
-        propsTarget: `${_bind}`,
+        propsState: `${_bind}`,
         props() {
             return {
                 title: {
@@ -41,6 +41,9 @@
                 event: {
                     type: Object,
                     default: () => ({}),
+                    watch(v) {
+                        console.log(v);
+                    }
                 },
                 width: {
                     type: String,

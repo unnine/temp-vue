@@ -1,4 +1,5 @@
-import {FormRenderer} from '../form/index.js';
+import { FormRenderer } from '../form/index.js';
+import { XSSUtil } from '../util/index.js';
 
 export default class Element {
 
@@ -6,6 +7,7 @@ export default class Element {
     _$component;
     _id;
     _$el;
+    #eventHandlers = new Map();
 
 
     constructor(componentId, id) {
@@ -72,6 +74,7 @@ export default class Element {
             });
         };
         this._$el.addEventListener(eventName, eventListener);
+        this.#eventHandlers.set(eventListener, eventName);
         return this;
     }
 
@@ -103,7 +106,7 @@ export default class Element {
     }
 
     innerHtml($html) {
-        this._$el.innerHtml = $html;
+        this._$el.innerHTML = XSSUtil.escape($html);
         return this;
     }
 
@@ -198,6 +201,10 @@ export default class Element {
     }
 
     clear() {
+        this.#eventHandlers.forEach((eventName, handler) => {
+            this._$el.removeEventListener(eventName, handler);
+        });
+        this.#eventHandlers.clear();
         this._$el.replaceChildren();
         return this;
     }

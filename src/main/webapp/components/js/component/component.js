@@ -1,76 +1,20 @@
 import Element from "./element.js";
+import ComponentsConnector from "./componentsConnector.js";
 import { ObjectUtil } from '../util/index.js';
 import { request } from '../http/index.js';
 import { store } from '../store/index.js';
 import consts from '../consts/index.js';
 
+
 const { SHOW_ALERT } = consts.store;
 
-const componentsConnector = new class ComponentsConnector {
-
-    #$components = [];
-    #instances = new WeakMap();
-
-
-    add($component, instance) {
-        this.#$components.push($component)
-        this.#instances.set($component, instance);
-    }
-
-    connect() {
-        this.#connectChildrenToParent();
-        this.#bindingParentAndChildrenComponents();
-        this.#mount();
-    }
-
-    #connectChildrenToParent() {
-        this.#$components.forEach($component => {
-            if (!this.#instances.has($component)) {
-                return;
-            }
-
-            const componentInstance = this.#instances.get($component);
-            const $parentComponent = componentInstance._getParentComponentElement();
-
-            if (!$parentComponent) {
-                return;
-            }
-
-            const parentComponentInstance = this.#instances.get($parentComponent);
-            parentComponentInstance._addChildInstance(componentInstance);
-        });
-    }
-
-    #bindingParentAndChildrenComponents() {
-        this.#$components.forEach($component => {
-            if (!this.#instances.has($component)) {
-                return;
-            }
-            const instance = this.#instances.get($component);
-            instance._bindingComponents();
-        });
-    }
-
-    #mount() {
-        this.#$components.forEach($component => {
-            if (!this.#instances.has($component)) {
-                return;
-            }
-            const instance = this.#instances.get($component);
-            instance._mount();
-        });
-    }
-
-    clear() {
-        this.#$components.forEach($component => this.#instances.delete($component));
-        this.#$components = [];
-    }
-};
+const componentsConnector = new ComponentsConnector();
 
 window.addEventListener('load', e => {
     componentsConnector.connect();
     componentsConnector.clear();
-});
+}, { once: true });
+
 
 class Component {
 
@@ -87,12 +31,16 @@ class Component {
         data: {},
     };
     #data = {};
+    #dataProxyCache = new WeakMap();
+    #dataPathCache = new WeakMap();
     #children = [];
     #methods = {};
     #bindingInstance = {};
     #lifeCycle = {
         mounted() {},
     };
+
+    #pendingUpdates = new Map();
 
 
     constructor(options) {
@@ -106,6 +54,7 @@ class Component {
     #initBindingInstance() {
         const o = this.#bindingInstance;
 
+        this.#defineGetter(o, '$store', () => store);
         this.#defineGetter(o, '$self', () => this.#find(this.#id));
         this.#defineGetter(o, '$props', () => this.#bindProps.data);
         this.#defineGetter(o, '$find', () => this.#find);
@@ -118,7 +67,7 @@ class Component {
     }
 
     #initComponent(options) {
-        const { id, propsTarget, props, bindStore, data, methods, mounted } = options;
+        const { id, propsState, props, bindStore, data, methods, mounted } = options;
 
         if (!id) {
             throw new Error('id is required.');
@@ -140,7 +89,7 @@ class Component {
         }
 
         if (props) {
-            this.#initProps(propsTarget, props);
+            this.#initProps(propsState, props);
         }
 
         if (typeof data === 'function') {
@@ -196,11 +145,11 @@ class Component {
         bindStoreDataAndBindingInstance();
     }
 
-    #initProps(propsTarget, props) {
-        const parentComponentDataName = propsTarget.split('.');
+    #initProps(propsState, props) {
+        const parentComponentDataName = propsState.split('.');
 
-        if (propsTarget && (!parentComponentDataName || parentComponentDataName.length < 2)) {
-            console.error(`unknown parent component id or data name. 'propsTarget' expression is '{parentComponentId}.{dataName}'. current: '${propsTarget}'`);
+        if (propsState && (!parentComponentDataName || parentComponentDataName.length < 2)) {
+            console.error(`unknown parent component id or data name. 'propsState' expression is '{parentComponentId}.{dataName}'. current: '${propsState}'`);
         }
 
         const [ parentComponentId, dataName ] = parentComponentDataName;
@@ -306,14 +255,14 @@ class Component {
 
         this.#children.forEach(child => {
             const { name, props } = child.#bindProps;
-            const { data} = ObjectUtil.findFirstByKey(baseData, name);
+            const { value } = ObjectUtil.findFirstByKey(baseData, name);
 
-            if (!data) {
+            if (!value) {
                 return;
             }
 
-            child.#bindProps.data = data;
-            this.#initChildProps(data, props);
+            child.#bindProps.data = value;
+            this.#initChildProps(value, props);
         });
     }
 
@@ -321,7 +270,7 @@ class Component {
         Object.entries(props).forEach(([name, prop]) => {
             const { type, onInit, watch } = prop;
 
-            this.#setDefaultDataToData(data, prop, name);
+            this.#setDefaultData(data, prop, name);
             const value = data[name];
             this.#validateType(name, type, value);
 
@@ -334,7 +283,7 @@ class Component {
         });
     }
 
-    #setDefaultDataToData(data, prop, propName) {
+    #setDefaultData(data, prop, propName) {
         const { type } = prop;
 
         if (Object.hasOwn(data, propName)) {
@@ -352,101 +301,91 @@ class Component {
 
         this.#children.forEach(child => {
             const { name, props: childProps } = child.#bindProps;
-            const { data: parentData, path: parentDataPath } = ObjectUtil.findFirstByKey(rootData, name);
+            const { value: parentData, path: parentDataPath } = ObjectUtil.findFirstByKey(rootData, name);
 
             if (!parentData) {
                 return;
             }
+
             const parentDataProxy = this.#createReactiveProxy(parentData, childProps);
             ObjectUtil.setValue(rootData, parentDataPath, parentDataProxy);
         });
     }
 
-    #createReactiveProxy(baseData = {}, targetProps = {}) {
-        const proxyCache = new WeakMap();
+    #createReactiveProxy(baseData = {}, childProps = {}) {
         const _this = this;
 
-        function _createReactiveProxy(obj) {
+        const _createReactiveProxy = (obj, currentPath = []) => {
             if (!ObjectUtil.isObject(obj)) {
                 return obj;
             }
-            if (proxyCache.has(obj)) {
-                return proxyCache.get(obj);
+            if (_this.#dataProxyCache.has(obj)) {
+                return _this.#dataProxyCache.get(obj);
             }
 
-            Object.entries(obj).forEach(([key, value]) => {
-                if (typeof value === 'function') {
-                    obj[key] = value.bind(obj);
-                }
-            });
-
             const proxy = new Proxy(obj, {
-                get(o, key) {
-                    const value = o[key];
+                get(o, key, receiver) {
+                    const value = Reflect.get(o, key, receiver);
 
                     if (ObjectUtil.isObject(value)) {
-                        return _createReactiveProxy(value);
+                        return _createReactiveProxy(value, [...currentPath, key]);
                     }
                     return value;
                 },
 
-                set(o, key, newValue) {
-                    const oldValue = o[key];
-
-                    if (oldValue === newValue) {
-                        return true;
-                    }
-
-                    if (typeof newValue === 'function') {
-                        newValue = newValue.bind(obj);
-                    }
-
+                set(o, key, newValue, receiver) {
                     if (o === baseData) {
-                        _this.#updateDataAndProcessProps(o, key, newValue, baseData, targetProps);
+                        Reflect.set(o, key, newValue, receiver);
+                        _this.#processPropAfterUpdatedData(baseData, childProps, key);
                         return true;
                     }
 
-                    const target = ObjectUtil.findFirst(baseData, o);
-                    if (!target) {
+                    const cachedPath = _this.#dataPathCache.get(o);
+                    if (!cachedPath || cachedPath.length === 0) {
                         return true;
                     }
 
-                    const { path } = target;
-                    if (!path || path?.length === 0) {
+                    const [ propName ] = cachedPath;
+                    if (!Object.hasOwn(childProps, propName)) {
                         return true;
                     }
 
-                    const [ propName ] = path;
-                    if (!Object.hasOwn(targetProps, propName)) {
-                        return true;
-                    }
-
-                    _this.#updateDataAndProcessProps(o, key, newValue, baseData, targetProps);
+                    Reflect.set(o, key, newValue, receiver);
+                    _this.#batchProcessPropAfterUpdatedData(baseData, childProps, propName);
                     return true;
                 },
             });
 
-            proxyCache.set(obj, proxy);
+            _this.#dataPathCache.set(obj, currentPath);
+            _this.#dataProxyCache.set(obj, proxy);
             return proxy;
-        }
+        };
 
         return _createReactiveProxy(baseData);
     }
 
-    #updateDataAndProcessProps(updateData, updatePropName, newValue, baseData, props) {
-        this.#updateData(updateData, updatePropName, newValue);
-        this.#processPropAfterUpdatedData(baseData, props, updatePropName);
-    }
+    #batchProcessPropAfterUpdatedData(baseData, childProps, propName) {
+        this.#pendingUpdates.set(propName, { baseData, childProps });
 
-    #updateData(updateData, updateName, newValue) {
-        updateData[updateName] = newValue;
-    }
-
-    #processPropAfterUpdatedData(baseData, props, propName) {
-        if (!Object.hasOwn(props, propName)) {
+        if (this.#pendingUpdates.has(propName)) {
             return;
         }
-        const { type, onUpdate, watch, showIf } = props[propName];
+
+        queueMicrotask(() => {
+            const updates = new Map(this.#pendingUpdates);
+            this.#pendingUpdates.clear();
+
+            updates.forEach((v, _propName) => {
+                this.#processPropAfterUpdatedData(v.baseData, v.childProps, _propName);
+            });
+        });
+    }
+
+    #processPropAfterUpdatedData(baseData, childProps, propName) {
+        if (!Object.hasOwn(childProps, propName)) {
+            return;
+        }
+        const { type, onUpdate, watch, showIf } = childProps[propName];
         const propData = baseData[propName];
 
         this.#validateType(propName, type, propData);

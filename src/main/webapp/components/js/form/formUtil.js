@@ -6,8 +6,7 @@ export default {
 
             if (item.type === 'multiple' && children) {
                 const childrenData = this.getData(children);
-                Object.assign(acc, childrenData);
-                return acc;
+                return { ...acc, ...childrenData };
             }
 
             if (!name) {

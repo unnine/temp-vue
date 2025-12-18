@@ -9,6 +9,7 @@ export default class FluxStore {
     #pendingPublications = new Set();
 
     #statePaths = null;
+    #proxyCache = new WeakMap();
 
 
     constructor({ state, getters, mutations }) {
@@ -35,36 +36,43 @@ export default class FluxStore {
             return state;
         }
 
+        if (this.#proxyCache.has(state)) {
+            return this.#proxyCache.get(state);
+        }
+
         const _this = this;
 
-        return new Proxy(state, {
-            get(o, key) {
+        const proxy = new Proxy(state, {
+            get(o, key, receiver) {
                 if (_this.#statePaths) {
-                    _this.#statePaths.add([ ...path, key ].join('.'));
+                    _this.#statePaths.add([...path, key].join('.'));
                 }
 
-                const value = o[key];
+                const value = Reflect.get(o, key, receiver);
 
-                if (value != null && typeof value === 'object') {
+                if (value != null && ObjectUtil.isObject(value)) {
                     return _this.#createReactiveState(value, [...path, key]);
                 }
 
                 return value;
             },
-            set(o, key, newValue) {
+            set(o, key, newValue, receiver) {
                 const oldValue = o[key];
 
                 if (oldValue === newValue) {
                     return true;
                 }
 
-                o[key] = newValue;
+                const updated = Reflect.set(o, key, newValue, receiver);
 
                 const fullPath = [...path, key].join('.');
                 _this.#publish(fullPath, newValue);
-                return true;
+                return updated;
             }
         });
+
+        this.#proxyCache.set(state, proxy);
+        return proxy;
     }
 
     _subscribe(getterName, subscriber) {
@@ -110,7 +118,7 @@ export default class FluxStore {
         this.#pendPublication(keyChain);
 
         window.queueMicrotask(() => {
-            this.#pendingPublications.delete(keyChain);
+            this.#pendingPublications.clear();
             this.#executePublish(keyChain, value);
         });
     };
@@ -165,7 +173,7 @@ export default class FluxStore {
             if (path.trim() === '') {
                 continue;
             }
-            result.push(paths.join('.'));
+            result.push(path);
         }
         return result;
     }

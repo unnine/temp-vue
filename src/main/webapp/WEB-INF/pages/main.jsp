@@ -23,6 +23,12 @@
 <%--            </jsp:body>--%>
 <%--        </_:Modal>--%>
     </_:Layout>
+
+    <_:Tabs>
+        <_:Tab>
+            Tab1
+        </_:Tab>
+    </_:Tabs>
 </body>
 
 <script type="module">
@@ -35,6 +41,11 @@
             this.$request()
                 .get('https://jsonplaceholder.typicode.com/albums')
                 .then(({data}) => this.listGrid.$grid.setGridData(data));
+
+            setTimeout(() => {
+                this.listGrid.gridEvent.onClickButton = e => console.log('re: ' + e);
+                this.listGrid.gridEvent.cellClick = e => console.log('re: ' + e);
+            }, 1000);
         },
         data({ state }) {
             return {
@@ -44,11 +55,13 @@
 
                     countPerRow: 3,
                     forms: searchForm,
+                    onInputForm(e) {
+                        console.log(e);
+                    },
 
                     $grid: null,
                     columns,
-                    defaultData: [],
-                    event: {
+                    gridEvent: {
                         onCreated: (proxy) => {
                             this.listGrid.$grid = proxy;
                         },

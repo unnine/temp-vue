@@ -4,12 +4,10 @@ const convertToQueryString = (param) => {
     if (!param) {
         return '';
     }
-    return encodeURI(
-        `?${Object.entries(param)
-            .filter(([key, value]) => value != null)
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&')}`,
-    );
+    const searchParam = new window.URLSearchParams();
+    Object.entries(param).forEach(([key, value]) => searchParam.append(key, value));
+    const queryString = searchParam.toString();
+    return queryString ? `?${queryString}` : '';
 };
 
 class Ajax {
@@ -38,7 +36,7 @@ class Ajax {
     }
 
     delete(url, data) {
-        return axios.get(`${url}${convertToQueryString(data)}`, this.#config);
+        return axios.delete(`${url}${convertToQueryString(data)}`, this.#config);
     }
 }
 

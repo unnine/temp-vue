@@ -15,7 +15,7 @@
 
     const component = newComponent({
         id: '${cid}',
-        propsTarget: '${_bind}',
+        propsState: '${_bind}',
         props() {
             return {
                 //  form
@@ -27,6 +27,10 @@
                     type: Array,
                     watch: v => this.form.forms = v,
                 },
+                onInputForm: {
+                    type: Function,
+                    watch: v => this.form.onInput = v,
+                },
 
                 // grid
                 columns: {
@@ -37,7 +41,7 @@
                     type: Object,
                     watch: v => this.grid.props = v,
                 },
-                event: {
+                gridEvent: {
                     type: Object,
                     watch: v => this.grid.event = v,
                 },

@@ -29,7 +29,7 @@
 
     const component = newComponent({
         id: '${cid}',
-        propsTarget: '${_bind}',
+        propsState: '${_bind}',
         props() {
             return {
                 onOk: {

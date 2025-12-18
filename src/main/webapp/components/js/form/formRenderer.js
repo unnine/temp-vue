@@ -1,7 +1,11 @@
 import FormBuilder from './formBuilder.js';
 import FormUtil from './formUtil.js';
+import { XSSUtil } from "../util/index.js";
 
-class FormRenderer {
+export default new class FormRenderer {
+
+    #inputEventHandlers = new Map();
+
 
     #generators = {
         text: (item, event) => {
@@ -67,6 +71,10 @@ class FormRenderer {
     };
 
     #clear($el) {
+        this.#inputEventHandlers.forEach(($node, handler) => {
+            $node.removeEventListener('input', handler);
+        });
+        this.#inputEventHandlers.clear();
         $el.replaceChildren();
     }
 
@@ -161,10 +169,7 @@ class FormRenderer {
 
             if (item?.type === 'multiple' && node.children) {
                 const childrenInvalidNodes = this.#findNodesWithInvalidValues(node.children);
-                if (childrenInvalidNodes.length > 0) {
-                    invalidNodes.concat(childrenInvalidNodes);
-                }
-                return invalidNodes;
+                return invalidNodes.concat(childrenInvalidNodes);
             }
 
             if (!props?.required) {
@@ -279,7 +284,7 @@ class FormRenderer {
         const $input = document.createElement(type);
         $input.classList.add(`form-element__${type}`);
         $input.name = name;
-        $input.innerHTML = value;
+        $input.innerHTML = XSSUtil.escape(value);
 
         this.#onInputEventHandler(item, $input, event);
         return $input;
@@ -288,13 +293,7 @@ class FormRenderer {
     #onInputEventHandler(item, $node, event) {
         const { onInput } = event ?? {};
 
-        let eventName = 'input';
-
-        if (item.type === 'button') {
-            eventName = 'click';
-        }
-
-        $node.addEventListener(eventName, e => {
+        const eventHandlers = e => {
             const value = e.target.value;
             item._$value = value;
             onInput({
@@ -303,7 +302,10 @@ class FormRenderer {
                 value,
                 target: e.target,
             });
-        });
+        }
+
+        this.#inputEventHandlers.set(eventHandlers, $node);
+        $node.addEventListener('input', eventHandlers);
     }
 
     #applyFormItemAttributes($node, item) {
@@ -835,7 +837,7 @@ class FormRenderer {
         const $node = document.createElement('div');
         $node.classList.add('form-element__text-view');
         $node.name = name;
-        $node.innerHTML = props?.value ?? '';
+        $node.innerHTML = XSSUtil.escape(props?.value ?? '');
 
         return {
             $node,
@@ -847,7 +849,7 @@ class FormRenderer {
         const $node = document.createElement('div');
         $node.classList.add('form-element__label');
         $node.name = name;
-        $node.innerHTML = label;
+        $node.innerHTML = XSSUtil.escape(label);
 
         return {
             $node,
@@ -864,5 +866,3 @@ class FormRenderer {
     }
 
 }
-
-export default new FormRenderer();

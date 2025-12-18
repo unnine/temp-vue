@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/components/plugin/auigrid/AUIGrid_modern_style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/components/js/date/simple-datepicker.css">
 
+    <script src="${pageContext.request.contextPath}/components/js/util/xss/dompurify.js"></script>
     <script src="${pageContext.request.contextPath}/components/plugin/axios/axios.min.js"></script>
     <script src="${pageContext.request.contextPath}/components/plugin/auigrid/AUIGridLicense.js"></script>
     <script src="${pageContext.request.contextPath}/components/plugin/auigrid/AUIGrid.js"></script>

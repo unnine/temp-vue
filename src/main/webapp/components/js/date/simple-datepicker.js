@@ -15,6 +15,7 @@
 
 
         class Datepicker {
+
             #$container;
             #$input;
 
@@ -95,36 +96,38 @@
             }
 
             #bindContainerEvents() {
-                document.addEventListener('pointerdown', e => {
-                    const isMe = this.#$container === e.target;
-                    const isChild = this.#$container.contains(e.target);
-
-                    if (!isMe && !isChild) {
-                        return;
-                    }
-                    if (__calendar.isOpen()) {
-                        return;
-                    }
-
-                    const { width, height, top, right, bottom, left }= this.#$container.getBoundingClientRect();
-
-                    __calendar.toggle({
-                        rect: { width, height, top, right, bottom, left },
-                        value: { ...this.#state.value },
-                        limit: {
-                            before: {
-                                ...this.#state.limit.before,
-                            },
-                            after: {
-                                ...this.#state.limit.after,
-                            },
-                        },
-                        onSelectedYear: this.#onSelectedYear,
-                        onSelectedMonth: this.#onSelectedMonth,
-                        onSelectedDate: this.#onSelectedDate,
-                    });
-                });
+                document.addEventListener('pointerdown', this.#openCalendar);
             }
+
+            #openCalendar = function(e) {
+                const isMe = this.#$container === e.target;
+                const isChild = this.#$container.contains(e.target);
+
+                if (!isMe && !isChild) {
+                    return;
+                }
+                if (__calendar.isOpen()) {
+                    return;
+                }
+
+                const { width, height, top, right, bottom, left }= this.#$container.getBoundingClientRect();
+
+                __calendar.toggle({
+                    rect: { width, height, top, right, bottom, left },
+                    value: { ...this.#state.value },
+                    limit: {
+                        before: {
+                            ...this.#state.limit.before,
+                        },
+                        after: {
+                            ...this.#state.limit.after,
+                        },
+                    },
+                    onSelectedYear: this.#onSelectedYear,
+                    onSelectedMonth: this.#onSelectedMonth,
+                    onSelectedDate: this.#onSelectedDate,
+                });
+            }.bind(this);
 
             #onSelectedYear = (selectedYear) => {
                 this.#state.value.year = selectedYear;
@@ -413,6 +416,9 @@
 
     }(
 
+        /*
+         * Util Factory
+         */
         (function Util() {
 
             return {
@@ -450,6 +456,10 @@
             };
         }()),
 
+
+        /*
+         * Calendar Factory
+         */
         (function createCalendar(Util) {
 
             const __util = Util;
@@ -526,11 +536,30 @@
                 #selectType = null;
                 #displayValue = {};
                 #state = {};
+                #calendarEventHandlers = new Map();
+                #tableEventHandlers = new Map();
 
 
                 constructor() {
                     this.#initState();
                     this.#renderCalendar();
+                }
+
+
+                #addCalendarEventHandlers(handler, eventName, $node) {
+                    this.#calendarEventHandlers.set(handler, { eventName, $node });
+                }
+
+                #addTableEventHandlers(handler, eventName, $node) {
+                    this.#tableEventHandlers.set(handler, { eventName, $node });
+                }
+
+                #releaseEventHandlers(store) {
+                    store.forEach((value, handler) => {
+                        const { eventName, $node } = value;
+                        $node.removeEventListener(eventName, handler);
+                    });
+                    store.clear();
                 }
 
 
@@ -595,7 +624,7 @@
                         document.body.insertAdjacentElement("beforeend", $calendar);
                         document.removeEventListener('DOMContentLoaded', onLoaded);
                     }
-                    document.addEventListener('DOMContentLoaded', onLoaded);
+                    document.addEventListener('DOMContentLoaded', onLoaded, { once: true });
                 }
 
                 #createHeader() {
@@ -764,16 +793,22 @@
                 #renderDaysOfWeek() {
                     const daysOfWeek = this.#getLanguage().daysOfWeek.names;
                     const $tr = document.createElement('tr');
+                    const fragment = new DocumentFragment();
+
                     daysOfWeek.forEach(dayOfWeek => {
                         const $th = document.createElement('th');
                         $th.classList.add('simple-datepicker-calendar__body__day-of-week');
-                        $th.innerHTML = dayOfWeek;
-                        $tr.append($th);
+                        $th.innerText = dayOfWeek;
+                        fragment.append($th);
                     });
+
+                    $tr.append(fragment);
                     this.#elements.body.$table.append($tr);
                 }
 
                 #clearTable() {
+                    this.#releaseEventHandlers(this.#tableEventHandlers);
+
                     const $table = this.#elements.body.$table;
                     if (!$table) {
                         return;
@@ -805,19 +840,29 @@
                         return weeks;
                     }
 
-                    const addRow = (week) => {
-                        const $row = document.createElement('tr');
+                    const addRows = (weeks) => {
+                        const tableFragment = new DocumentFragment();
 
-                        week.forEach(date => {
-                            const $cell = this.#createDateCell(date);
-                            $row.append($cell);
+                        weeks.forEach(week => {
+                            const $row = document.createElement('tr');
+                            const rowFragment = new DocumentFragment();
+
+                            week.forEach(date => {
+                                const $cell = this.#createDateCell(date);
+                                rowFragment.append($cell);
+                            });
+
+                            $row.append(rowFragment);
+                            tableFragment.append($row)
                         });
-                        this.#elements.body.$table.append($row);
+
+                        this.#elements.body.$table.append(tableFragment);
+
                     }
 
                     const dates = getDatesByMonth();
-                    const weeks = toWeeks(dates);
-                    weeks.forEach(week => addRow(week));
+                    const weeks = toWeeks([...dates]);
+                    addRows(weeks);
                 }
 
                 #isPastThanBeforeLimit(year, month, date) {
@@ -886,19 +931,28 @@
 
                     let monthValue = 0;
 
-                    const addRow = (row) => {
-                        const $row = document.createElement('tr');
+                    const addRows = (rows) => {
+                        const tableFragment = new DocumentFragment();
 
-                        row.forEach((monthName) => {
-                            monthValue += 1;
-                            const $cell = this.#createMonthCell(monthName, monthValue);
-                            $row.append($cell);
+                        rows.forEach(row => {
+                            const $row = document.createElement('tr');
+                            const rowFragment = new DocumentFragment();
+
+                            row.forEach((monthName) => {
+                                monthValue += 1;
+                                const $cell = this.#createMonthCell(monthName, monthValue);
+                                rowFragment.append($cell);
+                            });
+
+                            $row.append(rowFragment);
+                            tableFragment.append($row);
                         });
-                        this.#elements.body.$table.append($row);
+
+                        this.#elements.body.$table.append(tableFragment);
                     }
 
-                    const rows = toRows(monthNames);
-                    rows.forEach(row => addRow(row));
+                    const rows = toRows([...monthNames]);
+                    addRows(rows);
                 }
 
                 #createMonthCell(monthName, monthValue) {
@@ -928,8 +982,6 @@
                 }
 
                 #renderYears() {
-                    const { year } = this.#displayValue;
-
                     const toRows = (years) => {
                         const rows = [];
 
@@ -939,23 +991,29 @@
                         return rows;
                     }
 
-                    const addRow = (row) => {
-                        const $row = document.createElement('tr');
+                    const addRows = (rows) => {
+                        const tableFragment = new DocumentFragment();
 
-                        row.forEach((year) => {
-                            const $cell = this.#createYearCell(year);
-                            $row.append($cell);
+                        rows.forEach(row => {
+                            const $row = document.createElement('tr');
+                            const rowFragment = new DocumentFragment();
+
+                            row.forEach((year) => {
+                                const $cell = this.#createYearCell(year);
+                                rowFragment.append($cell);
+                            });
+
+                            $row.append(rowFragment);
+                            tableFragment.append($row);
                         });
-                        this.#elements.body.$table.append($row);
+
+                        this.#elements.body.$table.append(tableFragment);
                     }
 
                     const { min, max } = this.#getYearsRange();
-                    const years = new Array(max - min)
-                        .fill(min)
-                        .map((v, i) => v + i);
-
-                    const rows = toRows(years);
-                    rows.forEach(row => addRow(row));
+                    const years = new Array(max - min).fill(min).map((v, i) => v + i);
+                    const rows = toRows([...years]);
+                    addRows(rows);
                 }
 
                 #createYearCell(year) {
@@ -980,33 +1038,49 @@
                 }
 
                 #bindCalendarCloseEvent($calendar) {
-                    $calendar.addEventListener('pointerdown', e => e.stopPropagation());
-                    document.addEventListener('pointerdown', () => this.#close());
+                    const onClickCalendar = e => e.stopPropagation();
+                    const onClickDocument = () => this.#close();
+
+
+                    this.#addCalendarEventHandlers(onClickCalendar, 'pointerdown', $calendar);
+                    this.#addCalendarEventHandlers(onClickDocument, 'pointerdown', document);
+
+                    $calendar.addEventListener('pointerdown', onClickCalendar);
+                    document.addEventListener('pointerdown', onClickDocument);
                 }
 
                 #bindSelectDateEvent($date) {
-                    $date.addEventListener('pointerdown', e => {
+                    const onSelectDate = e => {
                         e.stopPropagation();
                         const { year, month }  = this.#displayValue;
                         this.#selectValue(year, month, e.target.innerText);
                         this.#close();
-                    });
+                    }
+
+                    this.#addTableEventHandlers(onSelectDate, 'pointerdown', $date);
+                    $date.addEventListener('pointerdown', onSelectDate);
                 }
 
                 #bindSelectMonthEvent($month) {
-                    $month.addEventListener('pointerdown', e => {
+                    const onSelectMonth = e => {
                         e.stopPropagation();
                         this.#setDisplayMonth(e.target.dataset.value);
                         this.#renderDatePicker();
-                    });
+                    };
+
+                    this.#addTableEventHandlers(onSelectMonth, 'pointerdown', $month);
+                    $month.addEventListener('pointerdown', onSelectMonth);
                 }
 
                 #bindSelectYearEvent($year) {
-                    $year.addEventListener('pointerdown', e => {
+                    const onSelectYear = e => {
                         e.stopPropagation();
                         this.#setDisplayYear(e.target.dataset.value);
                         this.#renderMonthPicker();
-                    });
+                    };
+
+                    this.#addTableEventHandlers(onSelectYear, 'pointerdown', $year);
+                    $year.addEventListener('pointerdown', onSelectYear);
                 }
 
                 #bindPrevMonthButtonEvent($button) {
@@ -1034,7 +1108,7 @@
                         this.#renderYearPicker();
                     }
 
-                    $button.addEventListener('pointerdown', e => {
+                    const onClickPrevMonthButton = () => {
                         const currentSelectType = this.#currentSelectType();
 
                         if (currentSelectType.isDate) {
@@ -1048,7 +1122,10 @@
                         if (currentSelectType.isYear) {
                             onYearPicker();
                         }
-                    });
+                    };
+
+                    this.#addCalendarEventHandlers(onClickPrevMonthButton, 'pointerdown', $button);
+                    $button.addEventListener('pointerdown', onClickPrevMonthButton);
                 }
 
                 #bindNextMonthButtonEvent($button) {
@@ -1076,7 +1153,7 @@
                         this.#renderYearPicker();
                     }
 
-                    $button.addEventListener('pointerdown', e => {
+                    const onClickNextMonthButton = () => {
                         const currentSelectType = this.#currentSelectType();
 
                         if (currentSelectType.isDate) {
@@ -1090,11 +1167,14 @@
                         if (currentSelectType.isYear) {
                             onYearPicker();
                         }
-                    });
+                    };
+
+                    this.#addCalendarEventHandlers(onClickNextMonthButton, 'pointerdown', $button);
+                    $button.addEventListener('pointerdown', onClickNextMonthButton);
                 }
 
                 #bindTitleButtonEvent($title) {
-                    $title.addEventListener('pointerdown', () => {
+                    const onClickTitle = () => {
                         const currentSelectType = this.#currentSelectType();
 
                         if (currentSelectType.isDate) {
@@ -1105,25 +1185,34 @@
                             this.#renderYearPicker();
                             return;
                         }
-                    });
+                    };
+
+                    this.#addCalendarEventHandlers(onClickTitle, 'pointerdown', $title);
+                    $title.addEventListener('pointerdown', onClickTitle);
                 }
 
                 #bindHeaderInfoPrevButtonEvent($info) {
-                    $info.addEventListener('pointerdown', () => {
+                    const onClickPrevButton = () => {
                         const { year } = this.#displayValue;
 
                         this.#setDisplayYear(year - 1);
                         this.#renderDatePicker();
-                    });
+                    };
+
+                    this.#addCalendarEventHandlers(onClickPrevButton, 'pointerdown', $info);
+                    $info.addEventListener('pointerdown', onClickPrevButton);
                 }
 
                 #bindHeaderInfoNextButtonEvent($info) {
-                    $info.addEventListener('pointerdown', () => {
+                    const onClickNextButton = () => {
                         const { year } = this.#displayValue;
 
                         this.#setDisplayYear(year + 1);
                         this.#renderDatePicker();
-                    });
+                    }
+
+                    this.#addCalendarEventHandlers(onClickNextButton, 'pointerdown', $info);
+                    $info.addEventListener('pointerdown', onClickNextButton);
                 }
 
                 #setDisplayYear(year) {
@@ -1220,8 +1309,52 @@
                     this.#state = state;
                     this.#open();
                 }
+
+                destroy() {
+                    this.#releaseEventHandlers(this.#tableEventHandlers);
+                    this.#releaseEventHandlers(this.#calendarEventHandlers);
+                    this.#elements.$calendar.replaceChildren();
+                    this.#elements.$calendar.remove();
+                    this.#id = null;
+                    this.#locale = null;
+                    this.#isOpen = null;
+                    this.#elements = null;
+                    this.#selectType = null;
+                    this.#displayValue = null;
+                    this.#state = null;
+                }
             }
         }),
+
+
+        /*
+         * DateTableRenderer Factory
+         */
+        (function() { // TODO
+            return class DateTableRenderer {
+
+            }
+        }()),
+
+
+        /*
+         * MonthTableRenderer Factory
+         */
+        (function() { // TODO
+            return class MonthTableRenderer {
+
+            }
+        }()),
+
+
+        /*
+         * YearTableRenderer Factory
+         */
+        (function() { // TODO
+            return class YearTableRenderer {
+
+            }
+        }()),
 
     ))
 ));

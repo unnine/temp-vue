@@ -22,7 +22,7 @@
 
     const component = newComponent({
         id: '${cid}',
-        propsTarget: `${_bind}`,
+        propsState: `${_bind}`,
         props() {
             return {
                 // card
@@ -31,7 +31,7 @@
                     watch: v => this.card.title = v,
                 },
 
-                //  form
+                // search grid
                 countPerRow: {
                     type: Number,
                     watch: v => this.grid.countPerRow = v,
@@ -40,8 +40,10 @@
                     type: Array,
                     watch: v => this.grid.forms = v,
                 },
-
-                // grid
+                onInputForm: {
+                    type: Function,
+                    watch: v => this.grid.onInputForm = v,
+                },
                 columns: {
                     type: Array,
                     watch: v => this.grid.columns = v,
@@ -50,9 +52,9 @@
                     type: Object,
                     watch: v => this.grid.props = v,
                 },
-                event: {
+                gridEvent: {
                     type: Object,
-                    watch: v => this.grid.event = v,
+                    watch: v => this.grid.gridEvent = v,
                 },
                 width: {
                     type: String,

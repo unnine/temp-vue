@@ -127,7 +127,19 @@ class ColumnBuilder {
         const comboRenderer = this.#createComboRenderer(option);
 
         if (Object.hasOwn(option, 'async')) {
-            option.async().then(({ data }) => (comboRenderer.editRenderer.list = data));
+            option.async()
+                .then(({ data }) => {
+                    if (!Array.isArray(data)) {
+                        console.warn('async response combo data is not array.', data);
+                        comboRenderer.editRenderer.list = [];
+                        return;
+                    }
+                    comboRenderer.editRenderer.list = data;
+                })
+                .catch(e => {
+                    console.error('failed to fetch combo list.', e);
+                    comboRenderer.editRenderer.list = [];
+                });
         }
 
         const makeColumnHeader = this.#make(...args);
@@ -144,7 +156,7 @@ class ColumnBuilder {
             return this.#createAncestorCombo(option);
         }
         if (this.#isDescendantCombo(option)) {
-            return this.#isDescendantCombo(option);
+            return this.#createDescendantCombo(option);
         }
         return {};
     }
