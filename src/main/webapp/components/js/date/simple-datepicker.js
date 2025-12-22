@@ -96,7 +96,7 @@
             }
 
             #bindContainerEvents() {
-                document.addEventListener('pointerdown', this.#openCalendar);
+                document.addEventListener('pointerup', this.#openCalendar);
             }
 
             #openCalendar = function(e) {
@@ -1042,11 +1042,11 @@
                     const onClickDocument = () => this.#close();
 
 
-                    this.#addCalendarEventHandlers(onClickCalendar, 'pointerdown', $calendar);
-                    this.#addCalendarEventHandlers(onClickDocument, 'pointerdown', document);
+                    this.#addCalendarEventHandlers(onClickCalendar, 'pointerup', $calendar);
+                    this.#addCalendarEventHandlers(onClickDocument, 'pointerup', document);
 
-                    $calendar.addEventListener('pointerdown', onClickCalendar);
-                    document.addEventListener('pointerdown', onClickDocument);
+                    $calendar.addEventListener('pointerup', onClickCalendar);
+                    document.addEventListener('pointerup', onClickDocument);
                 }
 
                 #bindSelectDateEvent($date) {
@@ -1057,8 +1057,8 @@
                         this.#close();
                     }
 
-                    this.#addTableEventHandlers(onSelectDate, 'pointerdown', $date);
-                    $date.addEventListener('pointerdown', onSelectDate);
+                    this.#addTableEventHandlers(onSelectDate, 'pointerup', $date);
+                    $date.addEventListener('pointerup', onSelectDate);
                 }
 
                 #bindSelectMonthEvent($month) {
@@ -1068,8 +1068,8 @@
                         this.#renderDatePicker();
                     };
 
-                    this.#addTableEventHandlers(onSelectMonth, 'pointerdown', $month);
-                    $month.addEventListener('pointerdown', onSelectMonth);
+                    this.#addTableEventHandlers(onSelectMonth, 'pointerup', $month);
+                    $month.addEventListener('pointerup', onSelectMonth);
                 }
 
                 #bindSelectYearEvent($year) {
@@ -1079,8 +1079,8 @@
                         this.#renderMonthPicker();
                     };
 
-                    this.#addTableEventHandlers(onSelectYear, 'pointerdown', $year);
-                    $year.addEventListener('pointerdown', onSelectYear);
+                    this.#addTableEventHandlers(onSelectYear, 'pointerup', $year);
+                    $year.addEventListener('pointerup', onSelectYear);
                 }
 
                 #bindPrevMonthButtonEvent($button) {
@@ -1124,8 +1124,8 @@
                         }
                     };
 
-                    this.#addCalendarEventHandlers(onClickPrevMonthButton, 'pointerdown', $button);
-                    $button.addEventListener('pointerdown', onClickPrevMonthButton);
+                    this.#addCalendarEventHandlers(onClickPrevMonthButton, 'pointerup', $button);
+                    $button.addEventListener('pointerup', onClickPrevMonthButton);
                 }
 
                 #bindNextMonthButtonEvent($button) {
@@ -1169,8 +1169,8 @@
                         }
                     };
 
-                    this.#addCalendarEventHandlers(onClickNextMonthButton, 'pointerdown', $button);
-                    $button.addEventListener('pointerdown', onClickNextMonthButton);
+                    this.#addCalendarEventHandlers(onClickNextMonthButton, 'pointerup', $button);
+                    $button.addEventListener('pointerup', onClickNextMonthButton);
                 }
 
                 #bindTitleButtonEvent($title) {
@@ -1187,8 +1187,8 @@
                         }
                     };
 
-                    this.#addCalendarEventHandlers(onClickTitle, 'pointerdown', $title);
-                    $title.addEventListener('pointerdown', onClickTitle);
+                    this.#addCalendarEventHandlers(onClickTitle, 'pointerup', $title);
+                    $title.addEventListener('pointerup', onClickTitle);
                 }
 
                 #bindHeaderInfoPrevButtonEvent($info) {
@@ -1199,8 +1199,8 @@
                         this.#renderDatePicker();
                     };
 
-                    this.#addCalendarEventHandlers(onClickPrevButton, 'pointerdown', $info);
-                    $info.addEventListener('pointerdown', onClickPrevButton);
+                    this.#addCalendarEventHandlers(onClickPrevButton, 'pointerup', $info);
+                    $info.addEventListener('pointerup', onClickPrevButton);
                 }
 
                 #bindHeaderInfoNextButtonEvent($info) {
@@ -1211,8 +1211,8 @@
                         this.#renderDatePicker();
                     }
 
-                    this.#addCalendarEventHandlers(onClickNextButton, 'pointerdown', $info);
-                    $info.addEventListener('pointerdown', onClickNextButton);
+                    this.#addCalendarEventHandlers(onClickNextButton, 'pointerup', $info);
+                    $info.addEventListener('pointerup', onClickNextButton);
                 }
 
                 #setDisplayYear(year) {

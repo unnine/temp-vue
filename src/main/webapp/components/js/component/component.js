@@ -1,5 +1,5 @@
 import Element from "./element.js";
-import ComponentsConnector from "./componentsConnector.js";
+import ComponentConnector from "./componentConnector.js";
 import { ObjectUtil } from '../util/index.js';
 import { request } from '../http/index.js';
 import { store } from '../store/index.js';
@@ -8,11 +8,8 @@ import consts from '../consts/index.js';
 
 const { SHOW_ALERT } = consts.store;
 
-const componentsConnector = new ComponentsConnector();
-
 window.addEventListener('load', e => {
-    componentsConnector.connect();
-    componentsConnector.clear();
+    ComponentConnector.connectAll();
 }, { once: true });
 
 
@@ -38,6 +35,7 @@ class Component {
     #bindingInstance = {};
     #lifeCycle = {
         mounted() {},
+        destroy() {},
     };
 
     #pendingUpdates = new Map();
@@ -46,7 +44,7 @@ class Component {
     constructor(options) {
         this.#initBindingInstance();
         this.#initComponent(options);
-        componentsConnector.add(this.#$el, this);
+        ComponentConnector.add(this.#$el, this);
         Object.freeze(this.#bindingInstance);
         return this.#bindingInstance;
     }
@@ -67,7 +65,9 @@ class Component {
     }
 
     #initComponent(options) {
-        const { id, propsState, props, bindStore, data, methods, mounted } = options;
+        const { id, propsState, props, bindStore,
+                data, methods, mounted, destroy,
+        } = options;
 
         if (!id) {
             throw new Error('id is required.');
@@ -98,6 +98,10 @@ class Component {
 
         if (typeof mounted === 'function') {
             this.#lifeCycle.mounted = mounted.bind(this.#bindingInstance);
+        }
+
+        if (typeof destroy === 'function') {
+            this.#lifeCycle.destroy = mounted.bind(this.#bindingInstance);
         }
     }
 
@@ -445,6 +449,10 @@ class Component {
 
     _mount() {
         this.#lifeCycle.mounted();
+    }
+
+    _destroy() {
+        this.#lifeCycle.destroy();
     }
 
     _getParentComponentElement() {

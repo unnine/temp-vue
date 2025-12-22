@@ -70,7 +70,7 @@ export default class Element {
         const eventListener = event => {
             handler({
                 eventName,
-                event,
+                originEvent: event,
             });
         };
         this._$el.addEventListener(eventName, eventListener);
@@ -82,7 +82,7 @@ export default class Element {
         const onceHandler = event => {
             handler({
                 eventName,
-                event,
+                originEvent: event,
             });
             this._$el.removeEventListener(eventName, onceHandler);
         }
@@ -96,16 +96,12 @@ export default class Element {
         return this;
     }
 
-    append($html) {
-        if (Array.isArray($html)) {
-            this._$el.append(...$html);
-            return this;
-        }
-        this._$el.append($html);
+    append(...$html) {
+        this._$el.append(...$html);
         return this;
     }
 
-    innerHtml($html) {
+    innerHTML($html) {
         this._$el.innerHTML = XSSUtil.escape($html);
         return this;
     }
@@ -133,8 +129,10 @@ export default class Element {
         return this;
     }
 
-    setStyle(key, value) {
-        this._$el.style[key] = value;
+    setStyle(o) {
+        Object.entries(o).forEach(([key, value]) => {
+            this._$el.style[key] = value;
+        });
         return this;
     }
 
@@ -207,6 +205,10 @@ export default class Element {
         this.#eventHandlers.clear();
         this._$el.replaceChildren();
         return this;
+    }
+
+    call(handler) {
+        return handler(this._$el);
     }
 
 }

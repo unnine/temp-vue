@@ -27,7 +27,9 @@
                     type: Number,
                     default: 3,
                     watch(value) {
-                        this.$find('form').setStyle('grid-template-columns', 'repeat(' + value + ', 1fr)');
+                        this.$find('form').setStyle({
+                            gridTemplateColumns: 'repeat(' + value + ', 1fr)',
+                        });
                     },
                 },
                 title: {

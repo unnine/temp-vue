@@ -71,5 +71,6 @@
     position: relative;
     width: calc(100vw - var(---side-bar-width));
     overflow: scroll;
+    padding: 12px;
 }
 </style>

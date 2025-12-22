@@ -10,4 +10,7 @@
     ---side-bar-width: 120px;
     ---box-shadow-base: 0 0 3px 0 rgb(230, 230, 230);
 
+    ---color-button-primary: rgb(50, 120, 220);
+    ---color-button-primary--hover: rgb(44, 114, 214);
+    ---color-button-primary--active: rgb(38, 108, 208);
 }

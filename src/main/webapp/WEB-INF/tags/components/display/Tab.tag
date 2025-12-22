@@ -3,9 +3,10 @@
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
 <%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
+<%@ attribute name="name" fragment="false" required="false" type="java.lang.String" %>
 
 
-<div component-id="${cid}" class="tab-component">
+<div component-id="${cid}" data-name="${name}" class="tab-component">
     <jsp:doBody />
 </div>
 
@@ -15,21 +16,9 @@
     const component = newComponent({
         id: '${cid}',
         propsState: `${_bind}`,
-        props() {
-            return {};
-        },
-        mounted() {
-        },
-        data({ state }) {
-            return {};
-        },
-        methods: {},
     });
 
 </script>
 
 <style>
-.tab-component {
-
-}
 </style>

@@ -6,6 +6,17 @@
     <_:Layout>
         <_:SearchGridCard _bind="${cid}.listGrid" />
 
+        <_:Tabs _bind="${cid}.tabs">
+            <_:Tab name="tab1">
+                Tab1
+            </_:Tab>
+            <_:Tab name="tab2">
+                Tab2
+            </_:Tab>
+            <_:Tab name="tab3">
+                Tab3
+            </_:Tab>
+        </_:Tabs>
 <%--        <_:Modal _bind="${cid}.modal">--%>
 <%--            <jsp:attribute name="header">--%>
 <%--                header--%>
@@ -23,12 +34,6 @@
 <%--            </jsp:body>--%>
 <%--        </_:Modal>--%>
     </_:Layout>
-
-    <_:Tabs>
-        <_:Tab>
-            Tab1
-        </_:Tab>
-    </_:Tabs>
 </body>
 
 <script type="module">
@@ -49,6 +54,19 @@
         },
         data({ state }) {
             return {
+
+                ...state('tabs', {
+                    closeable: true,
+                    tabs: [
+                        { name: 'tab1', label: '시험 접수' },
+                        { name: 'tab2', label: '결과 입력' },
+                        { name: 'tab3', label: '일정 별 시헝 진행도 현황 파악 통계' },
+                    ],
+                    onChange: (value) => {
+                        console.log(value);
+                        console.log(this.tabs.tabs);
+                    },
+                }),
 
                 ...state('listGrid', {
                     title: 'Test Grid',
