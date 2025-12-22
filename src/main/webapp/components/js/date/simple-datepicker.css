@@ -67,6 +67,7 @@
 .simple-range-datepicker-container {
     position: relative;
     display: flex;
+    width: fit-content;
     gap: 12px;
 }
 
@@ -81,7 +82,7 @@
 .simple-range-datepicker-container:after {
     position: absolute;
     content: '~';
-    left: 102px;
+    left: 48%;
     top: 20%;
 }
 

@@ -88,15 +88,15 @@
 }
 
 .button-component__button.primary {
-    background-color: rgb(50, 120, 210);
+    background-color: var(---color-button-primary);
 }
 
 .button-component__button.primary:hover {
-    background-color: rgb(44, 114, 204);
+    background-color: var(---color-button-primary--hover);
 }
 
 .button-component__button.primary:active {
-    background-color: rgb(38, 108, 198);
+    background-color: var(---color-button-primary--active);
 }
 
 .button-component__button.normal {

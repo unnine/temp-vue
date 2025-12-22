@@ -73,13 +73,13 @@
 
 <style>
 .card-component {
-    --padding: 8px 12px;
+    --padding: 6px 12px;
 
     position: relative;
     background: #fff;
     box-shadow: var(---box-shadow-base);
     border-radius: 2px;
-    margin: 12px;
+    margin-bottom: 12px;
 }
 
 .card-component__header {
