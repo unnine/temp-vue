@@ -54,8 +54,8 @@
     </tag-file>
 
     <tag-file>
-        <name>Button</name>
-        <path>/WEB-INF/tags/components/display/Button.tag</path>
+        <name>ButtonGroup</name>
+        <path>/WEB-INF/tags/components/display/ButtonGroup.tag</path>
     </tag-file>
 
     <tag-file>

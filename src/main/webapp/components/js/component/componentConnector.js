@@ -4,19 +4,21 @@ export default new class ComponentsConnector {
 
 
     #connectChildrenToParent() {
-        this.#instances.values().forEach(instance => {
-            const $parentComponent = instance._getParentComponentElement();
-
-            if (!$parentComponent) {
-                return;
-            }
-
-            const parentComponentInstance = this.#instances.get($parentComponent);
-            parentComponentInstance._addChildInstance(instance);
-        });
+        this.#instances.values().forEach(instance => this.#connectToParent(instance));
     }
 
-    #bindingParentAndChildrenComponents() {
+    #connectToParent(instance) {
+        const $parentComponent = instance._getParentComponentElement();
+
+        if (!$parentComponent) {
+            return;
+        }
+
+        const parentComponentInstance = this.#instances.get($parentComponent);
+        parentComponentInstance._addChildInstance(instance);
+    }
+
+    #bindingChildrenByParent() {
         this.#instances.values().forEach(instance => instance._bindingComponents());
     }
 
@@ -40,9 +42,18 @@ export default new class ComponentsConnector {
         this.#instances.set($component, instance);
     }
 
+    connectWithNonBindingState($component) {
+        if (!this.#instances.has($component)) {
+            return;
+        }
+        const instance = this.#instances.get($component);
+        instance._initBoundedStoreData();
+        instance._mount();
+    }
+
     connectAll() {
         this.#connectChildrenToParent();
-        this.#bindingParentAndChildrenComponents();
+        this.#bindingChildrenByParent();
         this.#mount();
     }
 

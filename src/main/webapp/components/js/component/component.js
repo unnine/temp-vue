@@ -5,13 +5,7 @@ import { request } from '../http/index.js';
 import { store } from '../store/index.js';
 import consts from '../consts/index.js';
 
-
 const { SHOW_ALERT } = consts.store;
-
-window.addEventListener('load', e => {
-    ComponentConnector.connectAll();
-}, { once: true });
-
 
 class Component {
 
@@ -101,7 +95,7 @@ class Component {
         }
 
         if (typeof destroy === 'function') {
-            this.#lifeCycle.destroy = mounted.bind(this.#bindingInstance);
+            this.#lifeCycle.destroy = destroy.bind(this.#bindingInstance);
         }
     }
 
@@ -244,7 +238,7 @@ class Component {
         });
     }
 
-    #initBoundedStoreData() {
+    _initBoundedStoreData() {
         Object.entries(this.#bindStore.props).forEach(([key, prop]) => {
             const { getterName, watch } = prop;
 
@@ -442,7 +436,7 @@ class Component {
     }
 
     _bindingComponents() {
-        this.#initBoundedStoreData();
+        this._initBoundedStoreData();
         this.#setValueToChildProps();
         this.#bindingDataToChildrenProps();
     }

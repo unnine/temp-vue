@@ -41,6 +41,10 @@
                     type: Boolean,
                     default: false,
                 },
+                stretch: {
+                    type: Boolean,
+                    default: false,
+                },
             };
         },
         mounted() {

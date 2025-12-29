@@ -2,20 +2,12 @@
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
-
-
 <div component-id="${cid}" class="alert-component hide info">
     <div e-id="alert" class="alert-container">
         <div e-id="message" class="alert-container__body"></div>
 
         <div class="alert-container__footer">
-            <_:Button _bind="${cid}.okButton">
-                확인
-            </_:Button>
-            <_:Button _bind="${cid}.cancelButton">
-                취소
-            </_:Button>
+            <_:ButtonGroup _bind="${cid}.buttonGroup" />
         </div>
     </div>
 </div>
@@ -29,19 +21,6 @@
 
     const component = newComponent({
         id: '${cid}',
-        propsState: '${_bind}',
-        props() {
-            return {
-                onOk: {
-                    type: Function,
-                    default: () => {},
-                },
-                onCancel: {
-                    type: Function,
-                    default: () => {},
-                },
-            };
-        },
         bindStore() {
             return {
                 state: [GLOBAL_ALERT, ({ show }) => {
@@ -54,16 +33,25 @@
             };
         },
         data({ state }) {
-            return {
-
-                ...state('okButton', {
+            const okButton = {
+                name: 'ok',
+                    label: '확인',
                     onClick: () => this.ok(),
-                }),
+            };
 
-                ...state('cancelButton', {
-                    show: false,
-                    type: 'normal',
+            const cancelButton = {
+                name: 'cancel',
+                    label: '취소',
                     onClick: () => this.cancel(),
+                    type: 'normal',
+            };
+
+            return {
+                okButton,
+                cancelButton,
+
+                ...state('buttonGroup', {
+                    buttons: [ okButton ],
                 }),
             };
         },
@@ -89,20 +77,20 @@
                 this.hideCancelButton();
             },
             ok() {
+                this.state.onOk();
                 this.close();
                 store.commit(consts.store.HIDE_ALERT);
-                this.$props.onOk();
             },
             cancel() {
+                this.state.onCancel();
                 this.close();
                 store.commit(consts.store.HIDE_ALERT);
-                this.$props.onCancel();
             },
             showCancelButton() {
-                this.cancelButton.show = true;
+                this.buttonGroup.buttons = [ this.okButton, this.cancelButton ];
             },
             hideCancelButton() {
-                this.cancelButton.show = false;
+                this.buttonGroup.buttons = [ this.okButton ];
             },
         },
     });

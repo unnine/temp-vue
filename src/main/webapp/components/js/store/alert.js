@@ -1,12 +1,18 @@
 import constants from "../consts/index.js";
 
+const defaultValue = () => ({
+    show: false,
+    type: 'info',
+    message: null,
+    isConfirm: false,
+    onOk: () => {},
+    onCancel: () => {},
+});
+
 export default {
     state: {
         alert: {
-            show: false,
-            type: 'info',
-            message: null,
-            isConfirm: false,
+            ...defaultValue(),
         },
     },
     getters: {
@@ -15,20 +21,16 @@ export default {
         },
     },
     mutations: {
-        [constants.store.SHOW_ALERT](state, { type, message, isConfirm = false }) {
+        [constants.store.SHOW_ALERT](state, props) {
             state.alert = {
+                ...defaultValue(),
+                ...props,
                 show: true,
-                type,
-                message,
-                isConfirm,
             };
         },
         [constants.store.HIDE_ALERT](state) {
             state.alert = {
-                show: false,
-                type: 'info',
-                message: null,
-                isConfirm: false,
+                ...defaultValue(),
             };
         },
     },

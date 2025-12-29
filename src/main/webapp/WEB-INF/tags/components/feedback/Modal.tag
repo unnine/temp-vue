@@ -16,8 +16,7 @@
             </jsp:attribute>
 
             <jsp:attribute name="footer">
-                <_:Button _bind="${cid}.okButton">확인</_:Button>
-                <_:Button _bind="${cid}.cancelButton">취소</_:Button>
+                <_:ButtonGroup _bind="${cid}.buttonGroup" />
             </jsp:attribute>
 
             <jsp:body>
@@ -80,24 +79,20 @@
                     title: null,
                 }),
 
-                ...state('okButton', {
-                    onClick: (e) => this.ok(),
-                }),
-
-                ...state('cancelButton', {
-                    type: 'normal',
-                    onClick: (e) => this.close(),
+                ...state('buttonGroup', {
+                    buttons: [
+                        { name: 'ok', label: '확인', onClick: () => this.ok() },
+                        { name: 'cancel', label: '취소', onClick: () => this.cancel(), type:' normal' },
+                    ],
                 }),
             };
         },
         methods: {
             show() {
-                const component = this.$find('${cid}');
-                component.removeClass('hide');
+                this.$self.show();
             },
             hide() {
-                const component = this.$find('${cid}');
-                component.addClass('hide');
+                this.$self.hide();
             },
             ok() {
                 this.$props.onOk();

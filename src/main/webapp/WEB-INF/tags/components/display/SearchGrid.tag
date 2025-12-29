@@ -27,9 +27,9 @@
                     type: Array,
                     watch: v => this.form.forms = v,
                 },
-                onInputForm: {
-                    type: Function,
-                    watch: v => this.form.onInput = v,
+                formEvent: {
+                    type: Object,
+                    watch: v => this.form.event = v,
                 },
 
                 // grid

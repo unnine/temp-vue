@@ -10,35 +10,22 @@
             <_:Tab name="tab1">
                 Tab1
             </_:Tab>
+
             <_:Tab name="tab2">
                 Tab2
             </_:Tab>
+
             <_:Tab name="tab3">
                 Tab3
             </_:Tab>
         </_:Tabs>
-<%--        <_:Modal _bind="${cid}.modal">--%>
-<%--            <jsp:attribute name="header">--%>
-<%--                header--%>
-<%--            </jsp:attribute>--%>
-
-<%--            <jsp:body>--%>
-<%--                <_:Card _bind="${cid}.card1">--%>
-<%--                    <jsp:attribute name="header">--%>
-<%--                        <_:Button _bind="${cid}.card1OkButton">확인</_:Button>--%>
-<%--                        <_:Button _bind="${cid}.card1CancelButton">취소</_:Button>--%>
-<%--                        <_:Button _bind="${cid}.card1ErrorButton">에러</_:Button>--%>
-<%--                        <_:Button _bind="${cid}.card1DisabledButton">사용불가</_:Button>--%>
-<%--                    </jsp:attribute>--%>
-<%--                </_:Card>--%>
-<%--            </jsp:body>--%>
-<%--        </_:Modal>--%>
     </_:Layout>
 </body>
 
 <script type="module">
     import { newComponent } from 'component';
     import { searchForm, columns } from '/values/main.js';
+    import { FormUtil } from 'form';
 
     const component = newComponent({
         id: '${cid}',
@@ -62,10 +49,6 @@
                         { name: 'tab2', label: '결과 입력' },
                         { name: 'tab3', label: '일정 별 시헝 진행도 현황 파악 통계' },
                     ],
-                    onChange: (value) => {
-                        console.log(value);
-                        console.log(this.tabs.tabs);
-                    },
                 }),
 
                 ...state('listGrid', {
@@ -73,8 +56,14 @@
 
                     countPerRow: 3,
                     forms: searchForm,
-                    onInputForm(e) {
-                        console.log(e);
+                    formEvent: {
+                        onInput: (e) => {
+                            console.log(e);
+                        },
+                        onClickButton: (e) => {
+                            // this.$danger('qwd');
+                            this.$confirm('qwd');
+                        },
                     },
 
                     $grid: null,
@@ -89,15 +78,6 @@
                             });
                         },
                         cellClick: e => console.log(e),
-                    },
-                }),
-
-                ...state('modal', {
-                    show: false,
-                    title: '123',
-                    useFooter: true,
-                    onClose() {
-                        console.log(this);
                     },
                 }),
             };

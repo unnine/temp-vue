@@ -41,9 +41,6 @@
                 event: {
                     type: Object,
                     default: () => ({}),
-                    watch(v) {
-                        console.log(v);
-                    }
                 },
                 width: {
                     type: String,

@@ -48,18 +48,36 @@
                             forms: value,
                             event: {
                                 onInput: e => {
-                                    console.log(this);
-                                    this.$props.onInput(e)
+                                    this.onInput(e);
+                                },
+                                onClickButton: e => {
+                                    this.onClickButton(e);
                                 },
                             },
                         });
                     },
                 },
-                onInput: {
-                    type: Function,
-                    default: () => {},
+                event: {
+                    type: Object,
+                    default: () => ({}),
                 },
             };
+        },
+        methods: {
+            onInput(e) {
+                const { onInput } = this.$props.event;
+
+                if (onInput) {
+                    onInput(e);
+                }
+            },
+            onClickButton(e) {
+                const { onClickButton } = this.$props.event;
+
+                if (onClickButton) {
+                    onClickButton(e);
+                }
+            }
         },
     });
 

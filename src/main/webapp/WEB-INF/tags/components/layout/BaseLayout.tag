@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <_:Alert _bind="${cid}.alert" />
+    <_:Alert />
 </div>
 
 <script type="module">
@@ -28,14 +28,6 @@
 
     const component = newComponent({
         id: '${cid}',
-        data({ state }) {
-            return {
-
-                ...state('alert', {
-                   show: false,
-                }),
-            }
-        },
     });
 
 </script>

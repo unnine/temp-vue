@@ -46,7 +46,7 @@ const searchForm = FormBuilder.builder('form')
     })
     .Textarea('sample4', 'Textarea', { value: '234' })
     .InputFile('sample5', 'InputFile')
-    .Button('sample9', 'Button', { value: '등록' })
+    .Button('sample9', 'Button')
     .Blank('sample10', 'Blank')
     .Radio('radio', 'Radio', {
         label: '체크박스aaa'

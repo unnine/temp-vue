@@ -1,4 +1,5 @@
 import FormBuilder from './formBuilder.js';
+import ButtonRenderer from './buttonRenderer.js';
 import FormUtil from './formUtil.js';
 import { XSSUtil } from "../util/index.js";
 
@@ -301,6 +302,7 @@ export default new class FormRenderer {
                 item,
                 value,
                 target: e.target,
+                originEvent: e,
             });
         }
 
@@ -596,18 +598,28 @@ export default new class FormRenderer {
 
     #button(item, event) {
         const { name, label, props } = item;
+        const { onClickButton } = event;
 
-        if (!label) {
-            item.label = name;
-        }
+        const _label = label ?? name;
+
+        const [ node ] = ButtonRenderer.createComponents([{
+            ...props,
+            name,
+            label: _label,
+            onClick: onClickButton,
+        }]);
+
+        const { $component: $node, onRendered } = node;
+
+        item.label = _label;
+
         if (!props?.value) {
-            props.value = label;
+            props.value = _label;
         }
 
-        const $node = this.#createInput('button', item, event)
-        this.#applyInputAttributes($node, props);
         return {
             $node,
+            onRendered,
         };
     }
 

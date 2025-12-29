@@ -40,9 +40,9 @@
                     type: Array,
                     watch: v => this.grid.forms = v,
                 },
-                onInputForm: {
-                    type: Function,
-                    watch: v => this.grid.onInputForm = v,
+                formEvent: {
+                    type: Object,
+                    watch: v => this.grid.formEvent = v,
                 },
                 columns: {
                     type: Array,

@@ -1,13 +1,37 @@
 import { FormRenderer } from '../form/index.js';
 import { XSSUtil } from '../util/index.js';
 
+const __eventHandlers = new class {
+
+    #eventHandlers = new Map();
+
+
+    set(componentId, elementId, props) {
+        const key = this.#getKey(elementId, elementId);
+        this.#eventHandlers.set(key, props);
+    }
+
+    release(componentId, elementId) {
+        const key = this.#getKey(elementId, elementId);
+        if (!this.#eventHandlers.has(key)) {
+            return;
+        }
+        const { $node, eventName, eventListener } = this.#eventHandlers.get(key);
+        $node.removeEventListener(eventName, eventListener);
+        this.#eventHandlers.delete(key);
+    }
+
+    #getKey(componentId, elementId) {
+        return `_${componentId}${elementId}`;
+    }
+}
+
 export default class Element {
 
     _componentId;
     _$component;
     _id;
     _$el;
-    #eventHandlers = new Map();
 
 
     constructor(componentId, id) {
@@ -73,8 +97,15 @@ export default class Element {
                 originEvent: event,
             });
         };
+
         this._$el.addEventListener(eventName, eventListener);
-        this.#eventHandlers.set(eventListener, eventName);
+
+        __eventHandlers.set(this._componentId, this._id, {
+            $node: this._$el,
+            eventName,
+            eventListener
+        });
+
         return this;
     }
 
@@ -199,10 +230,7 @@ export default class Element {
     }
 
     clear() {
-        this.#eventHandlers.forEach((eventName, handler) => {
-            this._$el.removeEventListener(eventName, handler);
-        });
-        this.#eventHandlers.clear();
+        __eventHandlers.release(this._componentId, this._id);
         this._$el.replaceChildren();
         return this;
     }
