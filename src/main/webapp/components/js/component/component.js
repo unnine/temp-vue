@@ -149,6 +149,10 @@ class Component {
     }
 
     #initProps(propsState, props) {
+        if (!propsState) {
+            console.warn(`unknown parent component state. check component '_bind' property value.`, this.#$el);
+        }
+
         const parentComponentDataName = propsState.split('.');
 
         if (propsState && (!parentComponentDataName || parentComponentDataName.length < 2)) {

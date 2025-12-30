@@ -157,7 +157,7 @@
     cursor: pointer;
 }
 
-.modal-container--close:after {
+.modal-container--close::after {
     position: absolute;
     content: '';
     width: 20px;

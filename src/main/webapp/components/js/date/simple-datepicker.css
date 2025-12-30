@@ -79,7 +79,7 @@
     pointer-events: none;
 }
 
-.simple-range-datepicker-container:after {
+.simple-range-datepicker-container::after {
     position: absolute;
     content: '~';
     left: 48%;
@@ -149,7 +149,7 @@
     cursor: pointer;
 }
 
-.simple-datepicker-calendar__header-interaction__button:after {
+.simple-datepicker-calendar__header-interaction__button::after {
     position: absolute;
     display: block;
     content: '';
@@ -161,12 +161,12 @@
     top: 21px;
 }
 
-.simple-datepicker-calendar__header-interaction__button.prev:after {
+.simple-datepicker-calendar__header-interaction__button.prev::after {
     left: 50%;
     transform: rotate(-45deg);
 }
 
-.simple-datepicker-calendar__header-interaction__button.next:after {
+.simple-datepicker-calendar__header-interaction__button.next::after {
     right: 50%;
     transform: rotate(135deg);
 }

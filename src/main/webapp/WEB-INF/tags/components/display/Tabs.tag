@@ -316,7 +316,7 @@
     cursor: pointer;
 }
 
-.tabs-component__close:after {
+.tabs-component__close::after {
     position: absolute;
     content: '';
     width: 8px;
