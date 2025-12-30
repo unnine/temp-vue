@@ -8,8 +8,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HelloServlet {
 
     @RequestMapping("/main")
-    public String index(){
+    public String main(){
         return "main";
+    }
+
+    @RequestMapping("/test-request")
+    public String request(){
+        return "request";
+    }
+
+    @RequestMapping("/test-receipt")
+    public String receipt(){
+        return "receipt";
     }
 
 }

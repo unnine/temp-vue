@@ -6,15 +6,39 @@
 
 <div component-id="${cid}" class="base-sidebar-component">
     <div class="base-sidebar-component__content">
-Sidebar
+        <_:Menu _bind="${cid}.menu" />
     </div>
 </div>
 
 <script type="module">
-    import {newComponent} from 'component';
+    import { newComponent } from 'component';
 
     const component = newComponent({
         id: '${cid}',
+        data({ state }) {
+            return {
+
+                ...state('menu', {
+                    items: [
+                        {
+                            name: '1',
+                            label: '시험',
+                            children: [
+                                {
+                                    name: '2',
+                                    label: '시험 의뢰',
+                                    href: '/test-request',
+                                }, {
+                                    name: '3',
+                                    label: '시험 접수',
+                                    href: '/test-receipt',
+                                },
+                            ],
+                        },
+                    ],
+                }),
+            };
+        },
     });
 
 </script>
