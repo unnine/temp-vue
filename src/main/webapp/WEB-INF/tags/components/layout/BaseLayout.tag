@@ -6,7 +6,7 @@
 
 <div component-id="${cid}" class="base-layout-component">
     <div class="base-layout-component__header-wrap">
-        <_:Header />
+        <_:Header _bind="header" />
     </div>
 
     <div class="base-layout-component__content">
@@ -28,6 +28,14 @@
 
     const component = newComponent({
         id: '${cid}',
+        data({ state }) {
+            return {
+
+                ...state('header', {
+                    logo: '/assets/images/fixed_logo.png',
+                }),
+            };
+        },
     });
 
 </script>

@@ -9,44 +9,6 @@
     <uri>http://components</uri>
 
 
-    <!-- layout -->
-    <tag-file>
-        <name>Layout</name>
-        <path>/WEB-INF/tags/components/layout/BaseLayout.tag</path>
-    </tag-file>
-
-    <tag-file>
-        <name>Sidebar</name>
-        <path>/WEB-INF/tags/components/layout/BaseSidebar.tag</path>
-    </tag-file>
-
-    <tag-file>
-        <name>Header</name>
-        <path>/WEB-INF/tags/components/layout/BaseHeader.tag</path>
-    </tag-file>
-
-    <tag-file>
-        <name>Toolbar</name>
-        <path>/WEB-INF/tags/components/layout/BaseToolbar.tag</path>
-    </tag-file>
-
-    <tag-file>
-        <name>Footer</name>
-        <path>/WEB-INF/tags/components/layout/BaseFooter.tag</path>
-    </tag-file>
-
-    <tag-file>
-        <name>Horizontal</name>
-        <path>/WEB-INF/tags/components/layout/Horizontal.tag</path>
-    </tag-file>
-
-    <tag-file>
-        <name>Vertical</name>
-        <path>/WEB-INF/tags/components/layout/Vertical.tag</path>
-    </tag-file>
-    <!--/ layout /-->
-
-
     <!--/ action /-->
     <tag-file>
         <name>ButtonGroup</name>
@@ -112,5 +74,51 @@
         <path>/WEB-INF/tags/components/feedback/Alert.tag</path>
     </tag-file>
     <!--/ feedback /-->
+
+
+    <!-- layout -->
+    <tag-file>
+        <name>Layout</name>
+        <path>/WEB-INF/tags/components/layout/BaseLayout.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Sidebar</name>
+        <path>/WEB-INF/tags/components/layout/BaseSidebar.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Header</name>
+        <path>/WEB-INF/tags/components/layout/BaseHeader.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Toolbar</name>
+        <path>/WEB-INF/tags/components/layout/BaseToolbar.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Footer</name>
+        <path>/WEB-INF/tags/components/layout/BaseFooter.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Horizontal</name>
+        <path>/WEB-INF/tags/components/layout/Horizontal.tag</path>
+    </tag-file>
+
+    <tag-file>
+        <name>Vertical</name>
+        <path>/WEB-INF/tags/components/layout/Vertical.tag</path>
+    </tag-file>
+    <!--/ layout /-->
+
+
+    <!--/ navigation /-->
+    <tag-file>
+        <name>Menu</name>
+        <path>/WEB-INF/tags/components/navigation/Menu.tag</path>
+    </tag-file>
+    <!--/ navigation /-->
 
 </taglib>

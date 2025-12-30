@@ -372,13 +372,12 @@ class Component {
     }
 
     #batchProcessPropAfterUpdatedData(baseData, childProps, propName) {
-        this.#pendingUpdates.set(propName, { baseData, childProps });
-
         if (this.#pendingUpdates.has(propName)) {
             return;
         }
+        this.#pendingUpdates.set(propName, { baseData, childProps });
 
-        queueMicrotask(() => {
+        window.queueMicrotask(() => {
             const updates = new Map(this.#pendingUpdates);
             this.#pendingUpdates.clear();
 

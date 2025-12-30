@@ -6,7 +6,7 @@
 
 <div component-id="${cid}" class="base-header-component">
     <div class="base-header-component__logo-box">
-        <div class="base-header-component__logo"></div>
+        <div e-id="logo" class="base-header-component__logo"></div>
     </div>
 
     <div class="base-header-component__toolbar">
@@ -15,10 +15,23 @@
 </div>
 
 <script type="module">
-    import { newComponent } from 'component';
+    import {newComponent} from 'component';
 
     const component = newComponent({
         id: '${cid}',
+        propsState: '${_bind}',
+        props() {
+          return {
+              logo: {
+                  type: String,
+                  onInit(v) {
+                      this.$find('logo').setStyle({
+                          backgroundImage: 'url(' + v + ')',
+                      });
+                  },
+              },
+          };
+        },
     });
 
 </script>
@@ -43,7 +56,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    background-image: url('/assets/images/fixed_logo.png');
     background-size: contain;
     background-repeat: no-repeat;
 }
