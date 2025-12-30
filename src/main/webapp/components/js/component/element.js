@@ -16,8 +16,8 @@ const __eventHandlers = new class {
         if (!this.#eventHandlers.has(key)) {
             return;
         }
-        const { $node, eventName, eventListener } = this.#eventHandlers.get(key);
-        $node.removeEventListener(eventName, eventListener);
+        const { $node, eventName, handler } = this.#eventHandlers.get(key);
+        $node.removeEventListener(eventName, handler);
         this.#eventHandlers.delete(key);
     }
 
@@ -103,7 +103,7 @@ export default class Element {
         __eventHandlers.set(this._componentId, this._id, {
             $node: this._$el,
             eventName,
-            eventListener
+            handler: eventListener
         });
 
         return this;
@@ -118,6 +118,13 @@ export default class Element {
             this._$el.removeEventListener(eventName, onceHandler);
         }
         this._$el.addEventListener(eventName, onceHandler);
+
+        __eventHandlers.set(this._componentId, this._id, {
+            $node: this._$el,
+            eventName,
+            handler: onceHandler
+        });
+
         return this;
     }
     
@@ -128,7 +135,13 @@ export default class Element {
     }
 
     append(...$html) {
-        this._$el.append(...$html);
+        const $escaped = $html.map($node => {
+            if (typeof $node === 'string') {
+                return XSSUtil.escape($node);
+            }
+            return $node;
+        });
+        this._$el.append(...$escaped);
         return this;
     }
 

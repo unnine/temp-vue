@@ -81,6 +81,8 @@ export default class FluxStore {
             return;
         }
 
+        const subscriberWrappers = new Set();
+
         const loadStatsPathsByGetter = () => {
             /**
              * call proxy getter for tracking path of state.
@@ -91,7 +93,8 @@ export default class FluxStore {
 
         const registerSubscriber = () => {
             this.#statePaths.forEach(keyChain => {
-                this.#addGetterSubscriber(getterName, keyChain, subscriber);
+                const wrapper = this.#addGetterSubscriber(getterName, keyChain, subscriber);
+                subscriberWrappers.add({ keyChain, wrapper });
             });
         }
 
@@ -99,16 +102,35 @@ export default class FluxStore {
         loadStatsPathsByGetter();
         registerSubscriber();
         this.#statePaths = null;
+
+        return () => {
+            subscriberWrappers.forEach(({ keyChain, wrapper }) => {
+                const subscribers = this.#subscribers.get(keyChain);
+
+                if (subscribers) {
+                    subscribers.delete(wrapper);
+                    if (subscribers.size === 0) {
+                        this.#subscribers.delete(keyChain);
+                    }
+                }
+            });
+            subscriberWrappers.clear();
+        };
+
     }
 
     #addGetterSubscriber(getterName, keyChain, subscriber) {
         if (!this.#subscribers.has(keyChain)) {
             this.#subscribers.set(keyChain, new Set());
         }
-        this.#subscribers.get(keyChain).add(() => {
+
+        const wrapper = () => {
             const value = this.get(getterName);
             subscriber(value);
-        });
+        };
+
+        this.#subscribers.get(keyChain).add(wrapper);
+        return wrapper;
     }
 
     #publish(keyChain, value) {

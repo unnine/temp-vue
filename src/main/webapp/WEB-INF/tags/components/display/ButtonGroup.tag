@@ -28,9 +28,9 @@
                         onClick: 'on click event listener',
                     }, ...]`,
                     default: () => [],
-                    watch: (v) => {
+                    onUpdate(newButtons) {
                         this.destroy();
-                        this.render(v);
+                        this.render(newButtons);
                     },
                 },
                 disabled: {

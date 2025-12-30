@@ -33,6 +33,7 @@ class Component {
     };
 
     #pendingUpdates = new Map();
+    #storeUnsubscribers = [];
 
 
     constructor(options) {
@@ -119,10 +120,14 @@ class Component {
             Object.entries(this.#bindStore.props).forEach(([key, prop]) => {
                 const { getterName, watch } = prop;
 
-                store._subscribe(getterName, (value) => {
+                const unsubscribers = store._subscribe(getterName, (value) => {
                     this.#bindStore.data[key] = value;
                     watch(value);
                 });
+
+                if (typeof unsubscribers === 'function') {
+                    this.#storeUnsubscribers.push(unsubscribers);
+                }
             });
         };
 
@@ -447,6 +452,23 @@ class Component {
 
     _destroy() {
         this.#lifeCycle.destroy();
+        this.#storeUnsubscribers.forEach(unsubscriber => unsubscriber());
+        this.#storeUnsubscribers.length = 0
+        this.#children.length = 0;
+        this.#pendingUpdates.clear();
+        this.#bindProps.data = {};
+        this.#bindProps.props = {};
+        this.#bindStore.data = {};
+        this.#bindStore.props = {};
+        this.#data = {};
+        this.#methods = {};
+        this.#id = null;
+
+        if (this.#$el) {
+            this.#$el.replaceChildren();
+            this.#$el.remove();
+            this.#$el = null;
+        }
     }
 
     _getParentComponentElement() {
@@ -457,9 +479,9 @@ class Component {
         this.#children.push(childComponentInstance);
     }
 
-    #find = function(elementId) {
+    #find = (elementId) => {
         return new Element(this.#id, elementId);
-    }.bind(this);
+    };
 
 }
 

@@ -34,8 +34,6 @@ export default new class ComponentsConnector {
         instance._destroy();
 
         this.#instances.delete($component);
-        $component.replaceChildren();
-        $component.remove();
     }
 
     add($component, instance) {
