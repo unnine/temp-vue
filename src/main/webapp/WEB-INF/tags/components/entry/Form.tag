@@ -1,4 +1,4 @@
-O<%@ tag pageEncoding="UTF-8" %>
+<%@ tag pageEncoding="UTF-8" %>
 <%@ include file="../tag-imports.tag" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 

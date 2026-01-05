@@ -109,6 +109,12 @@
                 this.toggle($label);
             },
             select($label) {
+                this.$self.call($el => {
+                    const $selectedMenu = $el.querySelector('.menu-component__label.selected');
+                    if ($selectedMenu) {
+                        $selectedMenu.classList.remove('selected');
+                    }
+                })
                 $label.classList.add('selected');
             },
             toggle($label) {

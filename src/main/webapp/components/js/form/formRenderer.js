@@ -339,9 +339,11 @@ export default new class FormRenderer {
         const { props } = item;
 
         if (props?.disabled) {
+            console.log(item);
             datepicker.disable();
         }
         else if (props?.readonly) {
+            console.log(item);
             datepicker.readonly();
         }
     }
@@ -605,7 +607,7 @@ export default new class FormRenderer {
         const [ node ] = ButtonRenderer.createComponents([{
             ...props,
             name,
-            label: _label,
+            label: props?.label ?? _label,
             onClick: onClickButton,
         }]);
 
@@ -624,8 +626,10 @@ export default new class FormRenderer {
     }
 
     #textarea(item, event) {
+        const { props } = item;
+
         const $node = this.#createEtcInput('textarea', item, event);
-        $node.rows = 1;
+        $node.rows = props?.rows ?? 1;
         this.#applyInputAttributes($node, item);
         return {
             $node,
@@ -791,9 +795,6 @@ export default new class FormRenderer {
         }, {
             onInput: e => {
                 if (!datepicker) {
-                    return;
-                }
-                if (datepicker.isDeactivated()) {
                     return;
                 }
                 if (e.target.checked) {
