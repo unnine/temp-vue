@@ -6,7 +6,7 @@
 
 <div component-id="${cid}" class="base-layout-component">
     <div class="base-layout-component__header-wrap">
-        <_:Header _bind="header" />
+        <_:Header _bind="${cid}.header" />
     </div>
 
     <div class="base-layout-component__content">

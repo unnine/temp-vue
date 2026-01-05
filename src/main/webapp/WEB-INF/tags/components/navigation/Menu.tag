@@ -178,9 +178,9 @@
 .menu-component__label.selected::after {
     position: absolute;
     content: '';
-    width: 5px;
+    width: 3px;
     height: 100%;
     right: 0;
-    background-color: rgb(60, 100, 240);
+    background-color: rgb(80, 120, 240);
 }
 </style>

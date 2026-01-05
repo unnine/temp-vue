@@ -21,60 +21,18 @@
                 ...state('menu', {
                     items: [
                         {
-                            name: '1',
-                            label: '시험',
+                            name: 'samplePage',
+                            label: '샘플 페이지',
                             children: [
                                 {
-                                    name: '2',
-                                    label: '시험 의뢰',
-                                    href: '/test-request',
-                                    children: [
-                                        {
-                                            name: '2-1',
-                                            label: '의뢰 시작',
-                                            href: '/main',
-                                        }
-                                    ],
-                                }, {
-                                    name: '3',
-                                    label: '시험 접수',
-                                    href: '/test-receipt',
-                                    children: [
-                                        {
-                                            name: '3-1',
-                                            label: '접수 시작',
-                                            href: '/main2',
-                                        }
-                                    ],
+                                    name: 'gridSample',
+                                    label: '그리드',
+                                    href: '/grid-sample',
                                 },
-                            ],
-                        },
-                        {
-                            name: '11',
-                            label: '시험',
-                            children: [
                                 {
-                                    name: '22',
-                                    label: '시험 의뢰',
-                                    href: '/test-request',
-                                    children: [
-                                        {
-                                            name: '2-1',
-                                            label: '의뢰 시작',
-                                            href: '/main3',
-                                        }
-                                    ],
-                                }, {
-                                    name: '33',
-                                    label: '시험 접수',
-                                    href: '/test-receipt',
-                                    children: [
-                                        {
-                                            name: '33-1',
-                                            label: '접수 시작',
-                                            href: '/test-request/begin',
-                                        }
-                                    ],
+                                    name: 'formSample',
+                                    label: '폼',
+                                    href: '/form-sample',
                                 },
                             ],
                         },

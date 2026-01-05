@@ -1,7 +1,7 @@
 import { FormBuilder } from 'form';
 import { ColumnBuilder } from 'grid';
 
-const searchForm = FormBuilder.builder('form')
+const searchForm = FormBuilder.builder()
     .Hidden('sample8', 'Hidden')
     .multiple('multiple', '멀티', {
         countPerRow: 2,

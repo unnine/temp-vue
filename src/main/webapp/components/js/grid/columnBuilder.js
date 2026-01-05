@@ -6,11 +6,6 @@ class ColumnBuilder {
 
 
     #make(dataField, ...args) {
-        const [
-            labelOrOptionOrVisible,
-
-        ] = args;
-
         let headerText = null;
         let visible = true;
         let option = {};
@@ -93,7 +88,7 @@ class ColumnBuilder {
         const buttonRenderer = {
             renderer: {
                 type: 'ButtonRenderer',
-                labelText: header.buttonLabel ?? header.headerText,
+                labelText: header.label ?? header.headerText,
             },
         };
 
@@ -109,12 +104,13 @@ class ColumnBuilder {
     }
 
     checkbox(...args) {
+        const [ , , option = {} ] = args;
         const makeColumnHeader = this.#make(...args);
         const checkboxRenderer = {
             width: 100,
             renderer: {
                 type: 'CheckBoxEditRenderer',
-                editable: true,
+                editable: Object.hasOwn(option, 'editable') ? option.editable : true,
             },
         };
 
@@ -124,26 +120,26 @@ class ColumnBuilder {
 
     combo(...args) {
         const [ , , option = {} ] = args;
+        const makeColumnHeader = this.#make(...args);
         const comboRenderer = this.#createComboRenderer(option);
+        const makeColumn = { ...makeColumnHeader, ...comboRenderer };
 
-        if (Object.hasOwn(option, 'async')) {
+        if (option.async && typeof option.async === 'function') {
             option.async()
-                .then(({ data }) => {
-                    if (!Array.isArray(data)) {
-                        console.warn('async response combo data is not array.', data);
-                        comboRenderer.editRenderer.list = [];
+                .then((data) => {
+                    if (Array.isArray(data)) {
+                        makeColumn.editRenderer.list = data;
                         return;
                     }
-                    comboRenderer.editRenderer.list = data;
+                    console.warn('async combo data is not array.', data);
+                    makeColumn.editRenderer.list = [];
                 })
                 .catch(e => {
                     console.error('failed to fetch combo list.', e);
-                    comboRenderer.editRenderer.list = [];
+                    makeColumn.editRenderer.list = [];
                 });
         }
 
-        const makeColumnHeader = this.#make(...args);
-        const makeColumn = { ...makeColumnHeader, ...comboRenderer };
         this.#columns.push(makeColumn);
         return this;
     }
@@ -235,10 +231,6 @@ class ColumnBuilder {
                 ...renderer.editRenderer,
             },
             labelFunction(rowIndex, columnIndex, value, headerText, item = {}) {
-                /**
-                 ** AUIGrid labelFunction 권장사항에 따라 다음 로직은 최대한 메서드를 사용하지 않고 처리합니다.
-                 * @see https://www.auisoft.net/documentation/auigrid/ColumnLayout/Column.html#labelFunction
-                 */
                 //* 그리드에 처음 데이터가 삽입될 때(초기화, 행 추가 등) 부모 값을 캐싱합니다.
                 if (this._ancestor.value === -1) {
                     this._ancestor.value = item[this._ancestor.target];
