@@ -1,4 +1,4 @@
-import { registerNonBindingComponent, ComponentConnector } from '../component/index.js';
+import { newComponent, ComponentConnector } from '../component/index.js';
 import { StringUtil } from '../util/index.js';
 
 const preventDefaultEventHandler = (e) => {
@@ -60,7 +60,7 @@ export default new class ButtonRenderer {
     }
 
     #registerButtonInstance(id, button) {
-        registerNonBindingComponent({
+        newComponent({
             id,
             data() {
                 return {

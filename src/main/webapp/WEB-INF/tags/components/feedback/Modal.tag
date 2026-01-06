@@ -11,10 +11,6 @@
         <div e-id="close-button" class="modal-container--close"></div>
 
         <_:Card _bind="${cid}.card">
-            <jsp:attribute name="header">
-                <jsp:invoke fragment="header" />
-            </jsp:attribute>
-
             <jsp:attribute name="footer">
                 <_:ButtonGroup _bind="${cid}.buttonGroup" />
             </jsp:attribute>
@@ -65,6 +61,13 @@
                 onClose: {
                     type: Function,
                     default: () => {},
+                },
+
+                // card
+                buttons: {
+                    type: Array,
+                    default: () => [],
+                    onInit: (v) => this.card.buttons = v,
                 },
             };
         },

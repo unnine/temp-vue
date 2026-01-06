@@ -3,7 +3,6 @@
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
 <%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
-<%@ attribute name="header" fragment="true" required="false" %>
 <%@ attribute name="footer" fragment="true" required="false" %>
 
 
@@ -13,9 +12,7 @@
             <h3 e-id="title"></h3>
         </div>
 
-        <div e-id="headerActions" class="card-component__header-actions">
-            <jsp:invoke fragment="header" />
-        </div>
+        <div e-id="headerActions" class="card-component__header-actions"></div>
     </div>
 
     <div class="card-component__body">
@@ -30,7 +27,8 @@
 </div>
 
 <script type="module">
-    import {newComponent} from 'component';
+    import { newComponent } from 'component';
+    import { ButtonRenderer } from 'form';
 
     const component = newComponent({
         id: '${cid}',
@@ -39,14 +37,21 @@
             return {
                 title: {
                     type: String,
-                    watch(value) {
-                        this.$find('title').innerText(value);
-                        this.toggleHeader();
+                    onInit(value) {
+                        this.$find('title').innerText(value ?? '');
+                    },
+                },
+                buttons: {
+                    type: Array,
+                    default: () => [],
+                    onInit(v) {
+                        ButtonRenderer.render(this.$find('headerActions')._$el, v);
                     },
                 },
             };
         },
         mounted() {
+            this.toggleHeader();
             this.toggleFooter();
         },
         methods: {

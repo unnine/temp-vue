@@ -7,10 +7,6 @@
 
 <div component-id="${cid}" class="search-grid-card-component">
     <_:Card _bind="${cid}.card">
-        <jsp:attribute name="header">
-            <!-- TODO dynamic buttons -->
-        </jsp:attribute>
-
         <jsp:body>
             <_:SearchGrid _bind="${cid}.grid" />
         </jsp:body>
@@ -29,6 +25,10 @@
                 title: {
                     type: String,
                     watch: v => this.card.title = v,
+                },
+                buttons: {
+                    type: Array,
+                    watch: v => this.card.buttons = v,
                 },
 
                 // search grid

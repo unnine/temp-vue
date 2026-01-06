@@ -4,7 +4,9 @@
 <html>
 <body component-id="${cid}">
     <_:Layout>
-        <_:Form _bind="${cid}.form" />
+        <_:Card _bind="${cid}.card">
+            <_:Form _bind="${cid}.form" />
+        </_:Card>
     </_:Layout>
 </body>
 
@@ -18,23 +20,43 @@
 
             return {
 
+                ...state('card', {
+                    buttons: [
+                        { name: 'getData', label: '데이터 가져오기', onClick: e => this.showFormData(e) },
+                        { name: 'getDataWithValidate', label: '유효성 체크하면서 데이터 가져오기', onClick: e => this.showFormDataWithValidate(e) },
+                    ],
+                }),
+
                 ...state('form', {
                     countPerRow: 3,
                     forms: createForms(),
                     event: {
-
+                        onClickButton(e) {
+                            alert('클릭');
+                        },
                     },
                 }),
             };
+        },
+        methods: {
+            showFormData(e) {
+                const formData = this.form.forms.data;
+                alert(JSON.stringify(formData, null, 2));
+            },
+            showFormDataWithValidate(e) {
+                this.form.forms.validate().then(formData => {
+                    alert(JSON.stringify(formData, null, 2));
+                });
+            },
         },
     });
 
 
     function createForms() {
         return FormBuilder.builder()
-            .Input('title', '제목')
-            .InputNumber('age', '나이')
-            .InputPassword('password', '비밀번호')
+            .Input('title', '제목').required()
+            .InputNumber('age', '나이').readonly()
+            .InputPassword('password', '비밀번호').disabled()
             .InputFile('file', '파일')
             .Textarea('etc', '비고', { rows: 3 })
             .Select('type', '분류', {
@@ -75,7 +97,9 @@
             })
             .Label('a', '단순 제목')
             .TextView('text', '단순 텍스트', { value: 'readonly text' })
-            .Datepicker('apprDate', '결재일')
+            .Datepicker('apprDate', '결재일', {
+                value: '2023-01-01',
+            })
             .DatepickerRange('testPeriod', '시험 기간')
             .DatepickerToggle('reqDate', '의뢰일자', {
                 value: '2024-02-02',

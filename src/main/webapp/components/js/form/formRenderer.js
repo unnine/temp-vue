@@ -111,10 +111,11 @@ export default new class FormRenderer {
 
     #addFormValidator(forms, nodes) {
         forms.validate = () => {
-            const isValid = this.#validateFormValues(nodes);
+            const invalidFormValues = this.#getInvalidFormValues(nodes);
+            const isInvalid = invalidFormValues.length > 0;
 
-            if (!isValid) {
-                return;
+            if (isInvalid) {
+                return Promise.reject(invalidFormValues);
             }
 
             return Promise.resolve(forms.data);
@@ -158,9 +159,12 @@ export default new class FormRenderer {
         item._$value = '';
     }
 
-    #validateFormValues(nodes) {
+    #getInvalidFormValues(nodes) {
         const invalidNodes = this.#findNodesWithInvalidValues(nodes);
-        return invalidNodes.length > 0;
+        return invalidNodes.map(node => {
+            const { name, label, type, _$value: value } = node.item;
+            return { name, label, type, value };
+        });
     }
 
     #findNodesWithInvalidValues(nodes) {
@@ -170,7 +174,7 @@ export default new class FormRenderer {
 
             if (item?.type === 'multiple' && node.children) {
                 const childrenInvalidNodes = this.#findNodesWithInvalidValues(node.children);
-                return invalidNodes.concat(childrenInvalidNodes);
+                return invalidNodes.push(...childrenInvalidNodes);
             }
 
             if (!props?.required) {
@@ -339,11 +343,9 @@ export default new class FormRenderer {
         const { props } = item;
 
         if (props?.disabled) {
-            console.log(item);
             datepicker.disable();
         }
         else if (props?.readonly) {
-            console.log(item);
             datepicker.readonly();
         }
     }
@@ -715,7 +717,10 @@ export default new class FormRenderer {
             });
 
             if (props?.value) {
+                item._$value = props.value;
                 datepicker.setValue(props.value);
+            } else {
+                item._$value = datepicker.value();
             }
 
             this.#applyDatepickerAttributes(datepicker, props);
@@ -731,7 +736,7 @@ export default new class FormRenderer {
 
     #datepickerToggle(item, event) {
         const datepicker = this.#datepicker(item, event);
-        return this.#toTogglable(datepicker, item.props);
+        return this.#toTogglable(datepicker, item);
     }
 
     #datepickerRange(item, event) {
@@ -754,7 +759,10 @@ export default new class FormRenderer {
             });
 
             if (props?.value) {
+                item._$value = props.value;
                 datepicker.setValue(props.value);
+            } else {
+                item._$value = datepicker.value();
             }
 
             this.#applyDatepickerAttributes(datepicker, props);
@@ -770,19 +778,32 @@ export default new class FormRenderer {
 
     #datepickerRangeToggle(item, event) {
         const datepickerRange = this.#datepickerRange(item, event);
-        return this.#toTogglable(datepickerRange, item.props);
+        return this.#toTogglable(datepickerRange, item);
     }
 
-    #toTogglable({ $node, onRendered }, props) {
-        const initialChecked = props?.checked ?? false;
+    #toTogglable({ $node, onRendered }, item) {
+        const { props = {} } = item;
+        const initialChecked = props?.checked === true;
 
         let datepicker = null;
+
+        const enableDatepicker = () => {
+            datepicker.enable();
+            props.disabled = false;
+        }
+
+        const disableDatepicker = () => {
+            datepicker.disable();
+            props.disabled = true;
+        }
 
         const onRenderedDatepicker = () => {
             datepicker = onRendered();
 
-            if (!initialChecked) {
-                datepicker.disable();
+            if (initialChecked) {
+                enableDatepicker();
+            } else {
+                disableDatepicker();
             }
         }
 
@@ -798,10 +819,10 @@ export default new class FormRenderer {
                     return;
                 }
                 if (e.target.checked) {
-                    datepicker.enable();
+                    enableDatepicker();
                     return;
                 }
-                datepicker.disable();
+                disableDatepicker();
             },
         });
 
@@ -847,6 +868,8 @@ export default new class FormRenderer {
 
     #textView(item) {
         const { name, props } = item;
+        item._$value = props?.value ?? '';
+
         const $node = document.createElement('div');
         $node.classList.add('form-element__text-view');
         $node.name = name;

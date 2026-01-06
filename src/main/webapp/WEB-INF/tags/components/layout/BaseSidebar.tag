@@ -22,17 +22,29 @@
                     items: [
                         {
                             name: 'samplePage',
-                            label: '샘플 페이지',
+                            label: 'Sample Page',
                             children: [
                                 {
-                                    name: 'gridSample',
-                                    label: '그리드',
-                                    href: '/grid-sample',
+                                    name: 'displayComponent',
+                                    label: 'Display',
+                                    children: [
+                                        {
+                                            name: 'gridSample',
+                                            label: '그리드',
+                                            href: '/grid-sample',
+                                        },
+                                    ],
                                 },
                                 {
-                                    name: 'formSample',
-                                    label: '폼',
-                                    href: '/form-sample',
+                                    name: 'entryComponent',
+                                    label: 'Entry',
+                                    children: [
+                                        {
+                                            name: 'formSample',
+                                            label: '폼',
+                                            href: '/form-sample',
+                                        },
+                                    ],
                                 },
                             ],
                         },

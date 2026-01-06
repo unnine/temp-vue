@@ -40,15 +40,6 @@ export default new class ComponentsConnector {
         this.#instances.set($component, instance);
     }
 
-    connectWithNonBindingState($component) {
-        if (!this.#instances.has($component)) {
-            return;
-        }
-        const instance = this.#instances.get($component);
-        instance._initBoundedStoreData();
-        instance._mount();
-    }
-
     connectAll() {
         this.#connectChildrenToParent();
         this.#bindingChildrenByParent();

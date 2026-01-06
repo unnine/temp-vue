@@ -59,6 +59,10 @@
                 },
                 event: {
                     type: Object,
+                    desc: `{
+                        onInput: e => {},
+                        onClickButton e => {},
+                    }`,
                     default: () => ({}),
                 },
             };

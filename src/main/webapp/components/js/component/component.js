@@ -153,13 +153,13 @@ class Component {
             console.warn(`unknown parent component state. check component '_bind' property value.`, this.#$el);
         }
 
-        const parentComponentDataName = propsState.split('.');
+        const parentComponentDataNames = propsState.split('.');
 
-        if (propsState && (!parentComponentDataName || parentComponentDataName.length < 2)) {
+        if (propsState && (!parentComponentDataNames || parentComponentDataNames.length < 2)) {
             console.error(`unknown parent component id or data name. 'propsState' expression is '{parentComponentId}.{dataName}'. current: '${propsState}'`);
         }
 
-        const [ parentComponentId, dataName ] = parentComponentDataName;
+        const [ parentComponentId, dataName ] = parentComponentDataNames;
 
         this.#bindProps.parentComponentId = parentComponentId;
         this.#bindProps.name = dataName;
@@ -247,7 +247,7 @@ class Component {
         });
     }
 
-    _initBoundedStoreData() {
+    #initBoundedStoreData() {
         Object.entries(this.#bindStore.props).forEach(([key, prop]) => {
             const { getterName, watch } = prop;
 
@@ -281,10 +281,10 @@ class Component {
             const value = data[name];
             this.#validateType(name, type, value);
 
-            if (onInit) {
+            if (onInit && value !== undefined) {
                 onInit(value);
             }
-            if (watch) {
+            if (watch && value !== undefined) {
                 watch(value);
             }
         });
@@ -444,7 +444,7 @@ class Component {
     }
 
     _bindingComponents() {
-        this._initBoundedStoreData();
+        this.#initBoundedStoreData();
         this.#setValueToChildProps();
         this.#bindingDataToChildrenProps();
     }
