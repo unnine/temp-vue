@@ -33,6 +33,16 @@
                                             label: '그리드',
                                             href: '/grid-sample',
                                         },
+                                        {
+                                            name: 'searchGridSample',
+                                            label: '검색 그리드',
+                                            href: '/search-grid-sample',
+                                        },
+                                        {
+                                            name: 'searchGridCardSample',
+                                            label: '검색 그리드 카드',
+                                            href: '/search-grid-card-sample',
+                                        },
                                     ],
                                 },
                                 {

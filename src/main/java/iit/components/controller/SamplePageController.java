@@ -18,6 +18,16 @@ public class SamplePageController {
         return "gridSample";
     }
 
+    @RequestMapping(value = "/search-grid-sample", method = RequestMethod.GET)
+    public String searchGridSample(){
+        return "searchGridSample";
+    }
+
+    @RequestMapping(value = "/search-grid-card-sample", method = RequestMethod.GET)
+    public String searchGridCardSample(){
+        return "searchGridCardSample";
+    }
+
     @RequestMapping(value = "/form-sample", method = RequestMethod.GET)
     public String formSample(){
         return "formSample";

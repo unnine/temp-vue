@@ -37,14 +37,14 @@
             return {
                 title: {
                     type: String,
-                    onInit(value) {
+                    watch(value) {
                         this.$find('title').innerText(value ?? '');
                     },
                 },
                 buttons: {
                     type: Array,
                     default: () => [],
-                    onInit(v) {
+                    watch(v) {
                         ButtonRenderer.render(this.$find('headerActions')._$el, v);
                     },
                 },
@@ -99,6 +99,7 @@
 .card-component__header-actions {
     position: relative;
     display: flex;
+    gap: 2px;
 }
 
 .card-component__body {

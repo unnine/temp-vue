@@ -301,9 +301,11 @@ export default new class FormRenderer {
         const eventHandlers = e => {
             const value = e.target.value;
             item._$value = value;
+
             onInput({
                 name: item.name,
-                item,
+                type: item.type,
+                label: item.label,
                 value,
                 target: e.target,
                 originEvent: e,
@@ -712,7 +714,8 @@ export default new class FormRenderer {
                 onInput({
                     ...e,
                     name,
-                    item,
+                    type: item.type,
+                    label: item.label,
                 });
             });
 
@@ -754,7 +757,8 @@ export default new class FormRenderer {
                 onInput({
                     ...e,
                     name,
-                    item,
+                    type: item.type,
+                    label: item.label,
                 });
             });
 
