@@ -24,6 +24,7 @@
         bindStore() {
             return {
                 state: [GLOBAL_ALERT, ({ show }) => {
+                    console.log(show);
                     if (show) {
                         this.open();
                         return;
@@ -35,15 +36,15 @@
         data({ state }) {
             const okButton = {
                 name: 'ok',
-                    label: '확인',
-                    onClick: this.ok,
+                label: '확인',
+                onClick: this.ok,
             };
 
             const cancelButton = {
                 name: 'cancel',
-                    label: '취소',
-                    onClick: this.cancel,
-                    type: 'normal',
+                label: '취소',
+                onClick: this.cancel,
+                type: 'normal',
             };
 
             return {
@@ -77,20 +78,25 @@
                 this.hideCancelButton();
             },
             ok() {
+                console.log(this);
                 this.state.onOk();
                 this.close();
                 store.commit(consts.store.HIDE_ALERT);
             },
             cancel() {
+                console.log(this);
                 this.state.onCancel();
                 this.close();
                 store.commit(consts.store.HIDE_ALERT);
             },
             showCancelButton() {
-                this.buttons.buttons = [ this.okButton, this.cancelButton ];
+                this.buttons.buttons = this.buttons.buttons.concat(this.cancelButton);
             },
             hideCancelButton() {
-                this.buttons.buttons = [ this.okButton ];
+                if (this.buttons.buttons.length === 1) {
+                    return;
+                }
+                this.buttons.buttons.pop();
             },
         },
     });

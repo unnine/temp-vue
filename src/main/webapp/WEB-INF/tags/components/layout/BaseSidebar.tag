@@ -98,6 +98,22 @@
                                         },
                                     ],
                                 },
+                                {
+                                    name: 'feedbackComponent',
+                                    label: 'Feedback',
+                                    children: [
+                                        {
+                                            name: 'alert',
+                                            label: '알림',
+                                            href: '/alert-sample',
+                                        },
+                                        {
+                                            name: 'modalSample',
+                                            label: '모달',
+                                            href: '/modal-sample',
+                                        },
+                                    ],
+                                },
                             ],
                         },
                     ],

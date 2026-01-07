@@ -63,4 +63,14 @@ public class SamplePageController {
         return "verticalSample";
     }
 
+    @RequestMapping(value = "/alert-sample", method = RequestMethod.GET)
+    public String alertSample(){
+        return "alertSample";
+    }
+
+    @RequestMapping(value = "/modal-sample", method = RequestMethod.GET)
+    public String modalSample(){
+        return "modalSample";
+    }
+
 }
