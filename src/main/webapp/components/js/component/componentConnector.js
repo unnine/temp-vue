@@ -1,11 +1,7 @@
-export default new class ComponentsConnector {
+export default new class ComponentConnector {
 
-    #instances = new Map();
+    #store = new Map();
 
-
-    #connectChildrenToParent() {
-        this.#instances.values().forEach(instance => this.#connectToParent(instance));
-    }
 
     #connectToParent(instance) {
         const $parentComponent = instance._getParentComponentElement();
@@ -14,40 +10,54 @@ export default new class ComponentsConnector {
             return;
         }
 
-        const parentComponentInstance = this.#instances.get($parentComponent);
-        parentComponentInstance._addChildInstance(instance);
-    }
-
-    #bindingChildrenByParent() {
-        this.#instances.values().forEach(instance => instance._bindingComponents());
-    }
-
-    #mount() {
-        this.#instances.values().forEach(instance => instance._mount());
+        const parentComponent = this.#store.get($parentComponent);
+        parentComponent.instance._addChildInstance(instance);
     }
 
     #destroy($component) {
-        if (!this.#instances.has($component)) {
+        if (!this.#store.has($component)) {
             return;
         }
-        const instance = this.#instances.get($component);
-        instance._destroy();
+        const component = this.#store.get($component);
+        component.instance._destroy();
 
-        this.#instances.delete($component);
+        this.#store.delete($component);
     }
 
     add($component, instance) {
-        this.#instances.set($component, instance);
+        this.#store.set($component, {
+            instance,
+            mounted: false,
+        });
+    }
+
+    connect($component) {
+        if (!this.#store.has($component)) {
+            return;
+        }
+        const component = this.#store.get($component);
+
+        if (component.mounted) {
+            return;
+        }
+
+        this.#connectToParent(component.instance);
+        component.instance._bindingComponents();
+        component.instance._mount();
+        component.mounted = true;
     }
 
     connectAll() {
-        this.#connectChildrenToParent();
-        this.#bindingChildrenByParent();
-        this.#mount();
+        this.#store.values().forEach(({ instance }) => this.#connectToParent(instance));
+        this.#store.values().forEach(({ instance }) => instance._bindingComponents());
+        this.#store.values().forEach(component => {
+            component.instance._mount();
+            component.mounted = true;
+        });
     }
 
     release($component) {
-        if (!this.#instances.has($component)) {
+        if (!this.#store.has($component)) {
             return;
         }
         this.releaseAllByContainer($component);

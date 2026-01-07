@@ -214,6 +214,6 @@ export default class FluxStore {
             return;
         }
         const mutationHandler = this.#mutations[mutationKey];
-        mutationHandler(this.#state, value, this);
+        return mutationHandler(this.#state, value, this);
     }
 }

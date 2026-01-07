@@ -53,10 +53,10 @@ class Component {
         this.#defineGetter(o, '$find', () => this.#find);
 
         o.$request = request;
-        o.$confirm = (message) => store.commit(SHOW_ALERT, { type: 'info', message, isConfirm: true });
-        o.$info = (message) => store.commit(SHOW_ALERT, { type: 'info', message });
-        o.$warn = (message) => store.commit(SHOW_ALERT, { type: 'warn', message });
-        o.$danger = (message) => store.commit(SHOW_ALERT, { type: 'danger', message });
+        o.$confirm = (message, props) => store.commit(SHOW_ALERT, { ...props, type: 'info', message, isConfirm: true });
+        o.$info = (message, props) => store.commit(SHOW_ALERT, { ...props, type: 'info', message });
+        o.$warn = (message, props) => store.commit(SHOW_ALERT, { ...props, type: 'warn', message });
+        o.$danger = (message, props) => store.commit(SHOW_ALERT, { ...props, type: 'danger', message });
     }
 
     #initComponent(options) {

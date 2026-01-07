@@ -6,7 +6,6 @@ const defaultValue = () => ({
     message: null,
     isConfirm: false,
     onOk: () => {},
-    onCancel: () => {},
 });
 
 export default {
@@ -27,6 +26,10 @@ export default {
                 ...props,
                 show: true,
             };
+
+            return new Promise((resolve) => {
+                state.alert.onOk = () => resolve();
+            });
         },
         [constants.store.HIDE_ALERT](state) {
             state.alert = {

@@ -33,16 +33,16 @@
         },
         methods: {
             info() {
-                this.$info('클릭');
+                this.$info('클릭').then(() => alert('확인'));
             },
             warn() {
-                this.$warn('클릭');
+                this.$warn('클릭').then(() => alert('확인'));
             },
             danger() {
-                this.$danger('클릭');
+                this.$danger('클릭').then(() => alert('확인'));
             },
             confirm() {
-                this.$confirm('Yes?');
+                this.$confirm('Yes?').then(() => alert('확인'));
             },
         },
     });
