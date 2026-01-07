@@ -4,24 +4,26 @@
 
 <%@ attribute name="_bind" fragment="false" required="false" type="java.lang.String" %>
 
-<div component-id="${cid}" class="base-layout-component">
-    <div class="base-layout-component__header-wrap">
-        <_:Header _bind="${cid}.header" />
-    </div>
-
-    <div class="base-layout-component__content">
-
-        <div class="base-layout-component__side-bar">
-            <_:Sidebar />
+<body>
+    <div component-id="${cid}" class="base-layout-component">
+        <div class="base-layout-component__header-wrap">
+            <_:Header _bind="${cid}.header" />
         </div>
 
-        <div class="base-layout-component__body-wrap">
-            <jsp:doBody />
-        </div>
-    </div>
+        <div class="base-layout-component__content">
 
-    <_:Alert />
-</div>
+            <div class="base-layout-component__side-bar">
+                <_:Sidebar />
+            </div>
+
+            <div class="base-layout-component__body-wrap">
+                <jsp:doBody />
+            </div>
+        </div>
+
+        <_:Alert />
+    </div>
+</body>
 
 <script type="module">
     import { newComponent } from 'component';

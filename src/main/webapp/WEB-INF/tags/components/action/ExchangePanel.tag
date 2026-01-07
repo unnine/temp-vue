@@ -8,13 +8,13 @@
 <div component-id="${cid}" class="exchange-panel-component">
     <div e-id="panel" class="exchange-panel-component__wrapper">
         <div class="exchange-panel-component__item">
-            <div class="exchange-panel-component__button-wrap">
+            <div e-id="firstButtonWrap" class="exchange-panel-component__button-wrap">
                 <div e-id="firstButton" class="exchange-panel-component__button down"></div>
             </div>
         </div>
 
         <div class="exchange-panel-component__item">
-            <div class="exchange-panel-component__button-wrap">
+            <div e-id="secondButtonWrap" class="exchange-panel-component__button-wrap">
                 <div e-id="secondButton" class="exchange-panel-component__button up"></div>
             </div>
         </div>
@@ -49,12 +49,12 @@
             };
         },
         mounted() {
-            this.$find('firstButton').on('click', this.$props.onClickDownRight);
-            this.$find('secondButton').on('click', this.$props.onClickUpLeft);
+            this.$find('firstButtonWrap').on('click', this.$props.onClickDownRight);
+            this.$find('secondButtonWrap').on('click', this.$props.onClickUpLeft);
         },
         destroy() {
-            this.$find('firstButton').clear();
-            this.$find('secondButton').clear();
+            this.$find('firstButtonWrap').clear();
+            this.$find('secondButtonWrap').clear();
         },
         methods: {
             initVertical() {

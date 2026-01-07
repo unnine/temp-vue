@@ -53,4 +53,14 @@ public class SamplePageController {
         return "buttonSample";
     }
 
+    @RequestMapping(value = "/horizontal-sample", method = RequestMethod.GET)
+    public String horizontalSample(){
+        return "horizontalSample";
+    }
+
+    @RequestMapping(value = "/vertical-sample", method = RequestMethod.GET)
+    public String verticalSample(){
+        return "verticalSample";
+    }
+
 }

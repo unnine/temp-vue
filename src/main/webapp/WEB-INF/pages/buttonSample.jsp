@@ -1,8 +1,6 @@
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <c:set var="cid" value="${UUID.randomUUID().toString()}"/>
 
-<html>
-<body>
 <_:Layout>
     <div component-id="${cid}">
 
@@ -17,7 +15,6 @@
         <_:Buttons _bind="${cid}.buttons" />
     </div>
 </_:Layout>
-</body>
 
 <script type="module">
     import { newComponent } from 'component';
@@ -46,7 +43,6 @@
     });
 
 </script>
-</html>
 
 <style>
 </style>

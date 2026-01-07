@@ -82,6 +82,22 @@
                                         },
                                     ],
                                 },
+                                {
+                                    name: 'layoutComponent',
+                                    label: 'Layout',
+                                    children: [
+                                        {
+                                            name: 'horizontalSample',
+                                            label: '수평 정렬',
+                                            href: '/horizontal-sample',
+                                        },
+                                        {
+                                            name: 'verticalSample',
+                                            label: '수직 정렬',
+                                            href: '/vertical-sample',
+                                        },
+                                    ],
+                                },
                             ],
                         },
                     ],
