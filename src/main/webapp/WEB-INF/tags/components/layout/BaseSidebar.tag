@@ -43,6 +43,11 @@
                                             label: '검색 그리드 카드',
                                             href: '/search-grid-card-sample',
                                         },
+                                        {
+                                            name: 'tabSample',
+                                            label: '탭',
+                                            href: '/tab-sample',
+                                        },
                                     ],
                                 },
                                 {

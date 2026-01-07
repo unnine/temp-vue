@@ -12,7 +12,7 @@
 
         <_:Card _bind="${cid}.card">
             <jsp:attribute name="footer">
-                <_:ButtonGroup _bind="${cid}.buttonGroup" />
+                <_:Buttons _bind="${cid}.buttons" />
             </jsp:attribute>
 
             <jsp:body>
@@ -82,7 +82,7 @@
                     title: null,
                 }),
 
-                ...state('buttonGroup', {
+                ...state('buttons', {
                     buttons: [
                         { name: 'ok', label: '확인', onClick: () => this.ok() },
                         { name: 'cancel', label: '취소', onClick: () => this.cancel(), type:' normal' },

@@ -175,13 +175,19 @@
                 }
                 const { $content, $tab } = this.tabNodes.get(name);
 
-                ComponentConnector.releaseAllByContainer($content);
                 this.releasePointerUpEvent(name);
+                this.removeTabElement($tab, $content);
+                this.removeTabNode(name);
+                this.removeTabProp(name);
+            },
+            removeTabElement($tab, $content) {
+                ComponentConnector.releaseAllByContainer($content);
                 $content.replaceChildren();
                 $content.remove();
                 $tab.replaceChildren();
                 $tab.remove();
-
+            },
+            removeTabNode(name) {
                 const currentTabName = this.currentTabName;
 
                 if (name !== currentTabName) {
@@ -199,6 +205,11 @@
 
                 this.selectTab(tabName);
                 this.tabNodes.delete(name);
+            },
+            removeTabProp(name) {
+                const tabs = this.$props.tabs;
+                const index = tabs.findIndex(tab => tab.name === name);
+                tabs.splice(index, 1);
             },
             initDefaultTabName() {
                 const { tabs } = this.$props;

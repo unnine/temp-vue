@@ -7,7 +7,7 @@
         <div e-id="message" class="alert-container__body"></div>
 
         <div class="alert-container__footer">
-            <_:ButtonGroup _bind="${cid}.buttonGroup" />
+            <_:Buttons _bind="${cid}.buttons" />
         </div>
     </div>
 </div>
@@ -50,7 +50,7 @@
                 okButton,
                 cancelButton,
 
-                ...state('buttonGroup', {
+                ...state('buttons', {
                     buttons: [ okButton ],
                 }),
             };
@@ -87,10 +87,10 @@
                 store.commit(consts.store.HIDE_ALERT);
             },
             showCancelButton() {
-                this.buttonGroup.buttons = [ this.okButton, this.cancelButton ];
+                this.buttons.buttons = [ this.okButton, this.cancelButton ];
             },
             hideCancelButton() {
-                this.buttonGroup.buttons = [ this.okButton ];
+                this.buttons.buttons = [ this.okButton ];
             },
         },
     });

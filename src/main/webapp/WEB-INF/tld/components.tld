@@ -11,8 +11,8 @@
 
     <!--/ action /-->
     <tag-file>
-        <name>ButtonGroup</name>
-        <path>/WEB-INF/tags/components/action/ButtonGroup.tag</path>
+        <name>Buttons</name>
+        <path>/WEB-INF/tags/components/action/Buttons.tag</path>
     </tag-file>
 
     <tag-file>

@@ -33,4 +33,9 @@ public class SamplePageController {
         return "formSample";
     }
 
+    @RequestMapping(value = "/tab-sample", method = RequestMethod.GET)
+    public String tabSample(){
+        return "tabSample";
+    }
+
 }
