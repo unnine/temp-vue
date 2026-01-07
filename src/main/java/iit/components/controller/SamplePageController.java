@@ -38,4 +38,19 @@ public class SamplePageController {
         return "tabSample";
     }
 
+    @RequestMapping(value = "/card-sample", method = RequestMethod.GET)
+    public String cardSample(){
+        return "cardSample";
+    }
+
+    @RequestMapping(value = "/exchange-panel-sample", method = RequestMethod.GET)
+    public String exchangePanelSample(){
+        return "exchangePanelSample";
+    }
+
+    @RequestMapping(value = "/button-sample", method = RequestMethod.GET)
+    public String buttonSample(){
+        return "buttonSample";
+    }
+
 }

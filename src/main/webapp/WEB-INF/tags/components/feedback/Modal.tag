@@ -84,8 +84,8 @@
 
                 ...state('buttons', {
                     buttons: [
-                        { name: 'ok', label: '확인', onClick: () => this.ok() },
-                        { name: 'cancel', label: '취소', onClick: () => this.cancel(), type:' normal' },
+                        { name: 'ok', label: '확인', onClick: this.ok },
+                        { name: 'cancel', label: '취소', onClick: this.cancel, type:' normal' },
                     ],
                 }),
             };

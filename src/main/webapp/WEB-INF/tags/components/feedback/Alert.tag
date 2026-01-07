@@ -36,13 +36,13 @@
             const okButton = {
                 name: 'ok',
                     label: '확인',
-                    onClick: () => this.ok(),
+                    onClick: this.ok,
             };
 
             const cancelButton = {
                 name: 'cancel',
                     label: '취소',
-                    onClick: () => this.cancel(),
+                    onClick: this.cancel,
                     type: 'normal',
             };
 

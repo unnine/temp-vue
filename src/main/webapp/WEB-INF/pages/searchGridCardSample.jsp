@@ -21,8 +21,8 @@
                 ...state('grid', {
                     title: '제목',
                     buttons: [
-                        { name: 'search', label: '검색', onClick: () => this.search() },
-                        { name: 'save', label: '저장', onClick: () => this.save() },
+                        { name: 'search', label: '검색', onClick: this.search },
+                        { name: 'save', label: '저장', onClick: this.save },
                     ],
 
                     countPerRow: 3,

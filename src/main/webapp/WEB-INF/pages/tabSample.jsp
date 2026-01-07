@@ -96,7 +96,7 @@
 
                 ...state('dynamicTabButtons', {
                     buttons: [
-                        { name: 'addTab', label: '탭 추가', onClick: () =>  this.addTab() },
+                        { name: 'addTab', label: '탭 추가', onClick: this.addTab },
                     ],
                 })
             };

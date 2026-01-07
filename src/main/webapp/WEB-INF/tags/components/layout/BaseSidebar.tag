@@ -29,6 +29,11 @@
                                     label: 'Display',
                                     children: [
                                         {
+                                            name: 'cardSample',
+                                            label: '카드',
+                                            href: '/card-sample',
+                                        },
+                                        {
                                             name: 'gridSample',
                                             label: '그리드',
                                             href: '/grid-sample',
@@ -58,6 +63,22 @@
                                             name: 'formSample',
                                             label: '폼',
                                             href: '/form-sample',
+                                        },
+                                    ],
+                                },
+                                {
+                                    name: 'actionComponent',
+                                    label: 'Action',
+                                    children: [
+                                        {
+                                            name: 'buttonSample',
+                                            label: '버튼',
+                                            href: '/button-sample',
+                                        },
+                                        {
+                                            name: 'exchangePanelSample',
+                                            label: '교환 패널',
+                                            href: '/exchange-panel-sample',
                                         },
                                     ],
                                 },
