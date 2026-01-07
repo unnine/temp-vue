@@ -8,7 +8,7 @@ const preventDefaultEventHandler = (e) => {
 export default new class ButtonRenderer {
 
     render(container, buttons) {
-        const $buttons = this.createComponents(buttons);
+        const $buttons = this.createComponents(buttons ?? []);
         const $components = $buttons.map(({ $component }) => $component);
         container.append(...$components);
         $buttons.forEach(({ onRendered }) => onRendered());
