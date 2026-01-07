@@ -3,17 +3,6 @@ export default new class ComponentConnector {
     #store = new Map();
 
 
-    #connectToParent(instance) {
-        const $parentComponent = instance._getParentComponentElement();
-
-        if (!$parentComponent) {
-            return;
-        }
-
-        const parentComponent = this.#store.get($parentComponent);
-        parentComponent.instance._addChildInstance(instance);
-    }
-
     #destroy($component) {
         if (!this.#store.has($component)) {
             return;
@@ -24,11 +13,15 @@ export default new class ComponentConnector {
         this.#store.delete($component);
     }
 
-    add($component, instance) {
-        this.#store.set($component, {
-            instance,
-            mounted: false,
-        });
+    #connectToParent(instance) {
+        const $parentComponent = instance._getParentComponentElement();
+
+        if (!$parentComponent) {
+            return;
+        }
+
+        const parentComponent = this.#store.get($parentComponent);
+        parentComponent.instance._addChildInstance(instance);
     }
 
     connect($component) {
@@ -42,17 +35,22 @@ export default new class ComponentConnector {
         }
 
         this.#connectToParent(component.instance);
-        component.instance._bindingComponents();
         component.instance._mount();
         component.mounted = true;
     }
 
     connectAll() {
         this.#store.values().forEach(({ instance }) => this.#connectToParent(instance));
-        this.#store.values().forEach(({ instance }) => instance._bindingComponents());
         this.#store.values().forEach(component => {
             component.instance._mount();
             component.mounted = true;
+        });
+    }
+
+    add($component, instance) {
+        this.#store.set($component, {
+            instance,
+            mounted: false,
         });
     }
 

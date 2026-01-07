@@ -109,7 +109,7 @@
 .card-component__footer {
     position: relative;
     border-top: 1px solid var(---color-border--light);
-    padding: var(--padding);
+    padding: 6px;
 }
 
 .card-component__footer-actions {

@@ -443,13 +443,10 @@ class Component {
         });
     }
 
-    _bindingComponents() {
+    _mount() {
         this.#initBoundedStoreData();
         this.#setValueToChildProps();
         this.#bindingDataToChildrenProps();
-    }
-
-    _mount() {
         this.#lifeCycle.mounted();
     }
 
@@ -459,10 +456,14 @@ class Component {
         this.#storeUnsubscribers.length = 0
         this.#children.length = 0;
         this.#pendingUpdates.clear();
-        this.#bindProps.data = {};
-        this.#bindProps.props = {};
-        this.#bindStore.data = {};
-        this.#bindStore.props = {};
+        this.#bindProps = {
+            data: {},
+            props: {},
+        };
+        this.#bindStore = {
+            data: {},
+            props: {},
+        };
         this.#data = {};
         this.#methods = {};
         this.#id = null;

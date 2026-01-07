@@ -11,13 +11,7 @@
         <div e-id="close-button" class="modal-container--close"></div>
 
         <_:Card _bind="${cid}.card">
-            <jsp:attribute name="footer">
-                <_:Buttons _bind="${cid}.buttons" />
-            </jsp:attribute>
-
-            <jsp:body>
-                <jsp:doBody />
-            </jsp:body>
+            <jsp:doBody />
         </_:Card>
     </div>
 </div>
@@ -39,6 +33,7 @@
                             this.show();
                             return;
                         }
+                        console.log(this.$props);
                         this.close();
                     },
                     onUpdate(value) {
@@ -62,13 +57,6 @@
                     type: Function,
                     default: () => {},
                 },
-
-                // card
-                buttons: {
-                    type: Array,
-                    default: () => [],
-                    onInit: (v) => this.card.buttons = v,
-                },
             };
         },
         mounted() {
@@ -80,13 +68,6 @@
 
                 ...state('card', {
                     title: null,
-                }),
-
-                ...state('buttons', {
-                    buttons: [
-                        { name: 'ok', label: '확인', onClick: this.ok },
-                        { name: 'cancel', label: '취소', onClick: this.cancel, type:' normal' },
-                    ],
                 }),
             };
         },
@@ -144,8 +125,8 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    top: -8px;
-    right: 12px;
+    top: -20px;
+    right: 0;
 }
 
 .modal-container--close:before {
