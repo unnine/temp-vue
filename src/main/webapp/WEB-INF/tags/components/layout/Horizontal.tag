@@ -25,8 +25,9 @@
                 const gap = '${gap}';
 
                 if (StringUtil.isNotEmpty(gap)) {
-                    const self = this.$find('${cid}');
-                    self.setStyle('gap', gap + 'px');
+                    this.$find('${cid}').setStyle({
+                        gap: gap + 'px',
+                    });
                 }
             },
             getChildren() {
