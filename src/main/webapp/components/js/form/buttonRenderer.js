@@ -45,7 +45,6 @@ export default new class ButtonRenderer {
         $button.addEventListener('click', preventDefaultEventHandler);
 
         const $wrap = document.createElement('div');
-        console.log($wrap.classList, type);
         $wrap.classList.add('button-component__button', type);
         $wrap.setAttribute('e-id', 'button');
         $wrap.append($button);

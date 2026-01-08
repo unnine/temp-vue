@@ -48,6 +48,7 @@
             };
         },
         mounted() {
+            console.log('tabs', this.$props);
             this.initTabs();
         },
         data() {

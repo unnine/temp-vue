@@ -99,6 +99,9 @@
                 })
             };
         },
+        mounted() {
+            console.log('tabSample', this.basicTabs);
+        },
         methods: {
             addTab() {
                 const nextNum = this.dynamicTabs.tabs.length + 1;

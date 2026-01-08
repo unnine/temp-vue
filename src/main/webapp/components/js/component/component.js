@@ -17,7 +17,7 @@ class Component {
     };
     #bindProps = {
         parentComponentId: null,
-        name: null,
+        stateName: null,
         props: {},
         data: {},
     };
@@ -87,21 +87,20 @@ class Component {
             this.#initProps(propsState, props);
         }
 
-        if (typeof data === 'function') {
+        if (ObjectUtil.isFunction(data)) {
             this.#initComponentData(data);
         }
 
-        if (typeof mounted === 'function') {
+        if (ObjectUtil.isFunction(mounted)) {
             this.#lifeCycle.mounted = mounted.bind(this.#bindingInstance);
         }
 
-        if (typeof destroy === 'function') {
+        if (ObjectUtil.isFunction(destroy)) {
             this.#lifeCycle.destroy = destroy.bind(this.#bindingInstance);
         }
     }
 
     #initBindStore(bindStore) {
-
         const _initBindStore = () => {
             const bindStoreData = bindStore.call(this.#bindingInstance);
 
@@ -125,7 +124,7 @@ class Component {
                     watch(value);
                 });
 
-                if (typeof unsubscribers === 'function') {
+                if (ObjectUtil.isFunction(unsubscribers)) {
                     this.#storeUnsubscribers.push(unsubscribers);
                 }
             });
@@ -162,19 +161,19 @@ class Component {
         const [ parentComponentId, dataName ] = parentComponentDataNames;
 
         this.#bindProps.parentComponentId = parentComponentId;
-        this.#bindProps.name = dataName;
+        this.#bindProps.stateName = dataName;
 
         const propsObject = props.call(this.#bindingInstance);
 
         Object.entries(propsObject).forEach(([name, prop]) => {
             this.#bindProps.props[name] = this.#makeBindProp(name, prop);
-            this.#bindProps.data[name] = null;
+            this.#bindProps.data[name] = undefined;
         });
     }
 
     #initMethods(methods) {
         Object.entries(methods)
-            .filter(([, method]) => typeof method === 'function')
+            .filter(([, method]) => ObjectUtil.isFunction(method))
             .forEach(([methodName, method]) => {
                 this.#methods[methodName] = method.bind(this.#bindingInstance);
                 this.#bindingInstance[methodName] = method.bind(this.#bindingInstance);
@@ -186,7 +185,7 @@ class Component {
             state: this.#setState,
         });
         this.#data = ObjectUtil.copy(dataObject);
-        Object.keys(this.#data).forEach(key => this.#bindStateAndBindingInstance(this.#data, key));
+        Object.keys(this.#data).forEach(key => this.#bindBindingInstanceToData(this.#data, key));
     }
 
     #setState(key, o) {
@@ -205,7 +204,7 @@ class Component {
             watch = () => {},
         } = prop ?? {};
 
-        if (prop.default != null && typeof prop.default !== 'function' && (type === Array || type === Object)) {
+        if (prop.default != null && !ObjectUtil.isFunction(prop.default) && (type === Array || type === Object || type === Function)) {
             console.warn(`${name}.default must be a function.`);
         }
 
@@ -228,7 +227,7 @@ class Component {
         };
     }
 
-    #bindStateAndBindingInstance(data, key) {
+    #bindBindingInstanceToData(data, key) {
         Object.defineProperty(this.#bindingInstance, key, {
             get() {
                 return data[key];
@@ -257,69 +256,112 @@ class Component {
         });
     }
 
-    #setValueToChildProps() {
-        const baseData = this.#data;
-
+    #initChildPropsData() {
         this.#children.forEach(child => {
-            const { name, props } = child.#bindProps;
-            const { value } = ObjectUtil.findFirstByKey(baseData, name);
+            const { stateName } = child.#bindProps;
+            const { state } = this.#getParentStateData(child);
 
-            if (!value) {
+            if (!state || !ObjectUtil.isObject(state)) {
+                console.warn(`state data must be object. '${stateName}: ${state}'`);
                 return;
             }
-
-            child.#bindProps.data = value;
-            this.#initChildProps(value, props);
+            this.#setStateToChildProps(state, child);
+            this.#setDefaultDataToChildProps(state, child);
+            this.#validateChildProps(child);
+            this.#initialized(child);
         });
     }
 
-    #initChildProps(data, props) {
-        Object.entries(props).forEach(([name, prop]) => {
-            const { type, onInit, watch } = prop;
+    #initialized(child) {
+        Object.entries(child.#bindProps.props).forEach(([propName, prop = {}]) => {
+            const { onInit, watch } = prop;
+            const value = child.#bindProps.data[propName];
 
-            this.#setDefaultData(data, prop, name);
-            const value = data[name];
-            this.#validateType(name, type, value);
-
-            if (onInit && value !== undefined) {
+            if (onInit && value != null) {
                 onInit(value);
             }
-            if (watch && value !== undefined) {
+            if (watch && value != null) {
                 watch(value);
             }
         });
     }
 
-    #setDefaultData(data, prop, propName) {
-        const { type } = prop;
-
-        if (Object.hasOwn(data, propName)) {
-            return;
-        }
-        if (type === Array || type === Object) {
-            data[propName] = typeof prop.default === 'function' ? prop.default() : prop.default;
-            return;
-        }
-        data[propName] = prop.default;
+    #getParentStateData(child) {
+        const { value, path } = ObjectUtil.findFirstByKey(this.#data, child.#bindProps.stateName);
+        return { state: value, path };
     }
 
-    #bindingDataToChildrenProps() {
-        const rootData = this.#data;
-
-        this.#children.forEach(child => {
-            const { name, props: childProps } = child.#bindProps;
-            const { value: parentData, path: parentDataPath } = ObjectUtil.findFirstByKey(rootData, name);
-
-            if (!parentData) {
+    #setStateToChildProps(state, child) {
+        Object.keys(child.#bindProps.props).forEach(propName => {
+            if (Object.hasOwn(state, propName)) {
                 return;
             }
+            state[propName] = child.#bindProps.data[propName];
+        });
 
-            const parentDataProxy = this.#createReactiveProxy(parentData, childProps);
-            ObjectUtil.setValue(rootData, parentDataPath, parentDataProxy);
+        child.#bindProps.data = state;
+    }
+
+    #setDefaultDataToChildProps(state, child) {
+        Object.entries(child.#bindProps.props).forEach(([propName, prop = {}]) => {
+            const { type } = prop;
+            if (state[propName] != null) {
+                return;
+            }
+            if (type === Function) {
+                state[propName] = ObjectUtil.isFunction(prop.default) ? prop.default : () => prop.default;
+                return;
+            }
+            state[propName] = ObjectUtil.isFunction(prop.default) ? prop.default() : prop.default;
         });
     }
 
-    #createReactiveProxy(baseData = {}, childProps = {}) {
+    #validateChildProps(child) {
+        Object.entries(child.#bindProps.props).forEach(([propName, prop]) => {
+            const { type } = prop;
+            const propValue = child.#bindProps.data[propName];
+            this.#validateType(propName, type, propValue);
+        });
+    }
+
+    #validateType(propName, type, value) {
+        if (value == null) {
+            return;
+        }
+        if (type === Array && Array.isArray(value)) {
+            return;
+        }
+        if (type === Object && ObjectUtil.isObject(value)) {
+            return;
+        }
+        if (type === String && typeof value === 'string') {
+            return;
+        }
+        if (type === Number && typeof value === 'number' && !isNaN(value)) {
+            return;
+        }
+        if (type === Boolean && typeof value === 'boolean') {
+            return;
+        }
+        if (type === Function && ObjectUtil.isFunction(value)) {
+            return;
+        }
+        console.warn(`'${propName}' prop is invalid type. expected '${type.name}', but got '${typeof value}'. current value: ${value}.`);
+    }
+
+    #bindingDataToChildrenProps() {
+        this.#children.forEach(child => {
+            const { state, path } = this.#getParentStateData(child);
+
+            if (!state || !ObjectUtil.isObject(state)) {
+                return;
+            }
+            const parentDataProxy = this.#createReactiveProxy(state, child.#bindProps.props);
+            ObjectUtil.setValue(this.#data, path, parentDataProxy);
+        });
+    }
+
+    #createReactiveProxy(state = {}, childProps = {}) {
         const _this = this;
 
         const _createReactiveProxy = (obj, currentPath = []) => {
@@ -341,9 +383,9 @@ class Component {
                 },
 
                 set(o, key, newValue, receiver) {
-                    if (o === baseData) {
+                    if (o === state) {
                         Reflect.set(o, key, newValue, receiver);
-                        _this.#processPropAfterUpdatedData(baseData, childProps, key);
+                        _this.#processPropAfterUpdatedData(state, childProps, key);
                         return true;
                     }
 
@@ -358,7 +400,7 @@ class Component {
                     }
 
                     Reflect.set(o, key, newValue, receiver);
-                    _this.#batchProcessPropAfterUpdatedData(baseData, childProps, propName);
+                    _this.#batchProcessPropAfterUpdatedData(state, childProps, propName);
                     return true;
                 },
             });
@@ -368,31 +410,31 @@ class Component {
             return proxy;
         };
 
-        return _createReactiveProxy(baseData);
+        return _createReactiveProxy(state);
     }
 
-    #batchProcessPropAfterUpdatedData(baseData, childProps, propName) {
+    #batchProcessPropAfterUpdatedData(state, childProps, propName) {
         if (this.#pendingUpdates.has(propName)) {
             return;
         }
-        this.#pendingUpdates.set(propName, { baseData, childProps });
+        this.#pendingUpdates.set(propName, { state, childProps });
 
         window.queueMicrotask(() => {
             const updates = new Map(this.#pendingUpdates);
             this.#pendingUpdates.clear();
 
             updates.forEach((v, _propName) => {
-                this.#processPropAfterUpdatedData(v.baseData, v.childProps, _propName);
+                this.#processPropAfterUpdatedData(v.state, v.childProps, _propName);
             });
         });
     }
 
-    #processPropAfterUpdatedData(baseData, childProps, propName) {
+    #processPropAfterUpdatedData(state, childProps, propName) {
         if (!Object.hasOwn(childProps, propName)) {
             return;
         }
         const { type, onUpdate, watch, showIf } = childProps[propName];
-        const propData = baseData[propName];
+        const propData = state[propName];
 
         this.#validateType(propName, type, propData);
         this.#showIfElement(showIf, propData);
@@ -403,31 +445,6 @@ class Component {
         if (watch) {
             watch(propData);
         }
-    }
-
-    #validateType(name, type, value) {
-        if (value == null) {
-            return;
-        }
-        if (type === Array && Array.isArray(value)) {
-            return;
-        }
-        if (type === Object && ObjectUtil.isObject(value)) {
-            return;
-        }
-        if (type === String && typeof value === 'string') {
-            return;
-        }
-        if (type === Number && typeof value === 'number' && !isNaN(value)) {
-            return;
-        }
-        if (type === Boolean && typeof value === 'boolean') {
-            return;
-        }
-        if (type === Function && typeof value === 'function') {
-            return;
-        }
-        console.warn(`'${name}' prop is invalid type. expected '${type.name}', but got '${typeof value}'. value: ${value}`);
     }
 
     #showIfElement(showIf, value) {
@@ -443,10 +460,13 @@ class Component {
         });
     }
 
-    _mount() {
+    _bindingData() {
         this.#initBoundedStoreData();
-        this.#setValueToChildProps();
+        this.#initChildPropsData();
         this.#bindingDataToChildrenProps();
+    }
+
+    _mount() {
         this.#lifeCycle.mounted();
     }
 

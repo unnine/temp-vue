@@ -33,15 +33,19 @@ export default new class ComponentConnector {
         if (component.mounted) {
             return;
         }
-
         this.#connectToParent(component.instance);
+        component.instance._bindingData();
         component.instance._mount();
         component.mounted = true;
     }
 
     connectAll() {
         this.#store.values().forEach(({ instance }) => this.#connectToParent(instance));
+        this.#store.values().forEach(({ instance }) => instance._bindingData());
         this.#store.values().forEach(component => {
+            if (component.mounted) {
+                return;
+            }
             component.instance._mount();
             component.mounted = true;
         });
