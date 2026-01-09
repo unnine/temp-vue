@@ -27,7 +27,6 @@ button {
     border: 0;
     cursor: pointer;
     outline: none;
-    pointer-events: none;
 }
 
 input[type=checkbox]:focus,

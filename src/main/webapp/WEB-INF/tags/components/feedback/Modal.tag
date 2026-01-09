@@ -62,6 +62,10 @@
         mounted() {
             this.refreshTitle();
             this.onClickCloseButton();
+            document.addEventListener('keydown', this.onPressESC);
+        },
+        destroy() {
+            document.removeEventListener('keydown', this.onPressESC);
         },
         data({ state }) {
             return {
@@ -92,6 +96,11 @@
             },
             refreshTitle() {
                 this.card.title = this.$props.title;
+            },
+            onPressESC(e) {
+                if (e.key === 'Escape' && this.$props.show) {
+                    this.close();
+                }
             },
         },
     });

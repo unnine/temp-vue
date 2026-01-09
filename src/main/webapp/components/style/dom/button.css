@@ -12,6 +12,10 @@
     cursor: pointer;
 }
 
+.button-component__button > button {
+    pointer-events: none;
+}
+
 .button-component__button:not(:first-of-type) {
     margin-left: 4px;
 }
