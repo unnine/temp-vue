@@ -99,8 +99,8 @@
 
     function createColumns() {
         return ColumnBuilder.builder()
-            .col('id', '사용자 ID', false)
-            .col('name', '사용자')
+            .col('userId', '사용자 ID', false)
+            .col('title', '제목')
             .calendar('date', '달력')
             .button('button', '이력', { label: '보기' })
             .checkbox('isReview', '검토 여부')
@@ -142,13 +142,13 @@
 
     function createDefaultData() {
         return [{
-            id: '1',
-            name: '테스터',
-            date: '2026-01-01',
-            isReview: true,
-            useYn: 'Y',
-            delYn: 'Y',
-            category1: 'animal',
+            userId: '1',
+            title: '기본 데이터',
+            date: '2025-12-31',
+            isReview: false,
+            useYn: 'N',
+            delYn: 'N',
+            category1: 'plant',
         }];
     }
 

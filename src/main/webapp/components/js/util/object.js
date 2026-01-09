@@ -1,4 +1,17 @@
 export default {
+    findHierarchyArrayByPath(arr = [], path, childrenName) {
+        const key = path.pop();
+        const item = arr.find(({ value }) => value == key);
+
+        if (!item || !item[childrenName]) {
+            return [];
+        }
+        if (path.length > 0) {
+            return this.findHierarchyArrayByPath(item[childrenName], path, childrenName);
+        }
+        return item[childrenName];
+    },
+
     findFirstByKey(o, targetKey) {
         const _find = (current, path = []) => {
             if (current == null || typeof current !== 'object') {

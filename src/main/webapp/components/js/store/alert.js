@@ -32,9 +32,7 @@ export default {
             });
         },
         [constants.store.HIDE_ALERT](state) {
-            state.alert = {
-                ...defaultValue(),
-            };
+            state.alert = defaultValue();
         },
     },
 }

@@ -55,6 +55,14 @@
                 }),
             };
         },
+        mounted() {
+            document.addEventListener('keydown', this.onPressESC);
+            document.addEventListener('keydown', this.onPressEnter);
+        },
+        destroy() {
+            document.removeEventListener('keydown', this.onPressESC);
+            document.removeEventListener('keydown', this.onPressEnter);
+        },
         methods: {
             open() {
                 const { type, message, isConfirm } = this.state;
@@ -77,9 +85,9 @@
                 this.hideCancelButton();
             },
             ok() {
-                this.state.onOk();
                 this.close();
                 store.commit(consts.store.HIDE_ALERT);
+                this.state.onOk();
             },
             cancel() {
                 this.close();
@@ -90,6 +98,16 @@
             },
             hideCancelButton() {
                 this.buttons.buttons = [ this.okButton ];
+            },
+            onPressESC(e) {
+                if (e.key === 'Escape' && this.state.show) {
+                    this.cancel();
+                }
+            },
+            onPressEnter(e) {
+                if (e.key === 'Enter' && this.state.show) {
+                    this.ok();
+                }
             },
         },
     });

@@ -262,4 +262,7 @@
 </script>
 
 <style>
+.aui-grid-component .aui-grid-drop-list-wrapper {
+    display: none;
+}
 </style>
