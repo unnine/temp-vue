@@ -5,7 +5,7 @@
 </body>
 <script>
     (function() {
-        window.location.href = '/main';
+        window.location.href = '/main-sample';
     }());
 </script>
 </html>

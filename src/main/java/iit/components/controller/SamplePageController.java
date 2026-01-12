@@ -8,69 +8,69 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class SamplePageController {
 
 
-    @RequestMapping(value = "/main", method = RequestMethod.GET)
+    @RequestMapping(value = "/main-sample", method = RequestMethod.GET)
     public String main(){
-        return "main";
+        return "/sample/main";
     }
 
     @RequestMapping(value = "/grid-sample", method = RequestMethod.GET)
     public String gridSample(){
-        return "gridSample";
+        return "/sample/gridSample";
     }
 
     @RequestMapping(value = "/search-grid-sample", method = RequestMethod.GET)
     public String searchGridSample(){
-        return "searchGridSample";
+        return "/sample/searchGridSample";
     }
 
     @RequestMapping(value = "/search-grid-card-sample", method = RequestMethod.GET)
     public String searchGridCardSample(){
-        return "searchGridCardSample";
+        return "/sample/searchGridCardSample";
     }
 
     @RequestMapping(value = "/form-sample", method = RequestMethod.GET)
     public String formSample(){
-        return "formSample";
+        return "/sample/formSample";
     }
 
     @RequestMapping(value = "/tab-sample", method = RequestMethod.GET)
     public String tabSample(){
-        return "tabSample";
+        return "/sample/tabSample";
     }
 
     @RequestMapping(value = "/card-sample", method = RequestMethod.GET)
     public String cardSample(){
-        return "cardSample";
+        return "/sample/cardSample";
     }
 
     @RequestMapping(value = "/exchange-panel-sample", method = RequestMethod.GET)
     public String exchangePanelSample(){
-        return "exchangePanelSample";
+        return "/sample/exchangePanelSample";
     }
 
     @RequestMapping(value = "/button-sample", method = RequestMethod.GET)
     public String buttonSample(){
-        return "buttonSample";
+        return "/sample/buttonSample";
     }
 
     @RequestMapping(value = "/horizontal-sample", method = RequestMethod.GET)
     public String horizontalSample(){
-        return "horizontalSample";
+        return "/sample/horizontalSample";
     }
 
     @RequestMapping(value = "/vertical-sample", method = RequestMethod.GET)
     public String verticalSample(){
-        return "verticalSample";
+        return "/sample/verticalSample";
     }
 
     @RequestMapping(value = "/alert-sample", method = RequestMethod.GET)
     public String alertSample(){
-        return "alertSample";
+        return "/sample/alertSample";
     }
 
     @RequestMapping(value = "/modal-sample", method = RequestMethod.GET)
     public String modalSample(){
-        return "modalSample";
+        return "/sample/modalSample";
     }
 
 }
